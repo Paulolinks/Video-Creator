@@ -1,0 +1,11 @@
+{
+  "nome": "Warren Buffett",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.2166,
+    "pm_santa": 0.3096,
+    "am_liam": 0.4738
+  },
+  "velocidade": 0.872,
+  "tom": 0.903
+}

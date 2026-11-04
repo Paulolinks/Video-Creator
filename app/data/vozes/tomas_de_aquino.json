@@ -1,0 +1,12 @@
+{
+  "nome": "Tomás de Aquino",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.3306,
+    "pm_santa": 0.214,
+    "am_echo": 0.1825,
+    "am_michael": 0.2729
+  },
+  "velocidade": 0.87,
+  "tom": 1.015
+}

@@ -1,0 +1,12 @@
+{
+  "nome": "Benjamin Graham",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.3952,
+    "pm_santa": 0.1094,
+    "zm_yunxi": 0.096,
+    "am_adam": 0.3994
+  },
+  "velocidade": 0.867,
+  "tom": 0.953
+}

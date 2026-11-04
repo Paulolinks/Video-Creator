@@ -1,0 +1,13 @@
+{
+  "nome": "Grant Cardone",
+  "descricao": "masculina, adulta, enérgica",
+  "mistura": {
+    "pm_alex": 0.25,
+    "pm_santa": 0.3202,
+    "zm_yunyang": 0.0742,
+    "am_eric": 0.1477,
+    "am_onyx": 0.2079
+  },
+  "velocidade": 1.046,
+  "tom": 0.996
+}

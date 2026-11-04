@@ -1,0 +1,12 @@
+{
+  "nome": "Ibn Khaldun",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_alex": 0.1991,
+    "pm_santa": 0.3482,
+    "zm_yunyang": 0.1121,
+    "am_liam": 0.3407
+  },
+  "velocidade": 0.954,
+  "tom": 1.005
+}

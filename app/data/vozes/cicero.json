@@ -1,0 +1,13 @@
+{
+  "nome": "Cícero",
+  "descricao": "masculina, adulta, enérgica",
+  "mistura": {
+    "pm_alex": 0.4977,
+    "pm_santa": 0.1238,
+    "zm_yunxia": 0.1578,
+    "bm_lewis": 0.0677,
+    "bm_george": 0.153
+  },
+  "velocidade": 1.094,
+  "tom": 0.936
+}

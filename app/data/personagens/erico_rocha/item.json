@@ -1,0 +1,39 @@
+{
+  "id": "erico_rocha",
+  "nome": "Érico Rocha",
+  "aliases": [
+    "Erico Rocha"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\erico_rocha\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "tecnologia_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\erico_rocha.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": false,
+  "nicho": "Marketing e aquisição de clientes",
+  "categoria": "Lançamentos digitais",
+  "especialidades": "Lançamentos; produtos digitais; marketing",
+  "temas_fundo": [
+    "tecnologia",
+    "dinheiro_ouro",
+    "cidade_noite"
+  ],
+  "fundos": [
+    "tecnologia_1",
+    "dinheiro_e_ouro_1",
+    "cidade_a_noite_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "tecnologia_1_shiny_tech",
+    "dinheiro_e_ouro_1_loopster",
+    "cidade_a_noite_1_night_in_venice"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

@@ -1,0 +1,36 @@
+{
+  "id": "adam_grant",
+  "nome": "Adam Grant",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\adam_grant\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cerebro_e_neuronios_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\adam_grant.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Psicologia e comportamento humano",
+  "categoria": "Potencial e aprendizagem",
+  "especialidades": "Psicologia; potencial; aprendizagem",
+  "temas_fundo": [
+    "cerebro_neuronios",
+    "tecnologia",
+    "nuvens"
+  ],
+  "fundos": [
+    "cerebro_e_neuronios_1",
+    "tecnologia_1",
+    "nuvens"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "cerebro_e_neuronios_1_ghostpocalypse_3_road_of_trials",
+    "tecnologia_1_shiny_tech",
+    "nuvens_1_dreamer"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,29 @@
+{
+  "test": "encoder",
+  "name": "lago_nvenc_cq19_p7",
+  "encoder_args": [
+    "-c:v",
+    "h264_nvenc",
+    "-preset",
+    "p7",
+    "-tune",
+    "hq",
+    "-rc",
+    "vbr",
+    "-cq",
+    "19",
+    "-b:v",
+    "0"
+  ],
+  "wall_s": 2.22,
+  "encode_fps": 67.6,
+  "cpu_cores_avg": 2.64,
+  "nvenc_util_max_pct": 64.0,
+  "size_mb": 1.16,
+  "bitrate_mbps": 1.94,
+  "ssim": 0.994896,
+  "psnr_db": 50.559348,
+  "reference": "ffv1 lossless, mesmo movimento",
+  "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\encoder\\lago_nvenc_cq19_p7.mp4",
+  "date": "2026-10-30T19:40:17"
+}

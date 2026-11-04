@@ -1,0 +1,38 @@
+{
+  "id": "leonhard_euler",
+  "nome": "Leonhard Euler",
+  "aliases": [
+    "Euler"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\leonhard_euler\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "geometria_e_matematica_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\leonhard_euler.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Matemática financeira, probabilidade e juros compostos",
+  "categoria": "Matemática",
+  "especialidades": "Crescimento exponencial; cálculo; funções matemáticas",
+  "temas_fundo": [
+    "matematica_geometria",
+    "cosmos",
+    "biblioteca_velas"
+  ],
+  "fundos": [
+    "geometria_e_matematica_1",
+    "cosmos_1",
+    "biblioteca_a_luz_de_velas_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "geometria_e_matematica_1_dub_eastern",
+    "cosmos_1_mesmerizing_galaxy",
+    "biblioteca_a_luz_de_velas_1_sad_trio"
+  ],
+  "musica_indice": 0
+}

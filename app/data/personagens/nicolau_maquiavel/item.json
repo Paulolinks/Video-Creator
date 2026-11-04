@@ -1,0 +1,41 @@
+{
+  "id": "nicolau_maquiavel",
+  "nome": "Nicolau Maquiavel",
+  "aliases": [
+    "Maquiavel",
+    "Niccolò Machiavelli",
+    "Machiavelli"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\nicolau_maquiavel\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "xadrez_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\nicolau_maquiavel.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 17:38",
+  "imagem_provisoria": false,
+  "nicho": "Psicologia e comportamento humano",
+  "categoria": "Poder e natureza humana",
+  "especialidades": "Poder; manipulação; natureza humana",
+  "temas_fundo": [
+    "xadrez",
+    "biblioteca_velas",
+    "tinta_fumaca"
+  ],
+  "fundos": [
+    "xadrez_1",
+    "biblioteca_a_luz_de_velas_1",
+    "tinta_e_fumaca_1"
+  ],
+  "fundo_indice": 1,
+  "musicas": [
+    "xadrez_1_enter_the_maze",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "tinta_e_fumaca_1_virtutes_instrumenti"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

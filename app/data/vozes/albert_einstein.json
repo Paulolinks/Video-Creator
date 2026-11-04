@@ -1,0 +1,10 @@
+{
+  "nome": "Albert Einstein",
+  "descricao": "idosa, gentil, curiosa",
+  "mistura": {
+    "pm_santa": 0.55,
+    "am_eric": 0.45
+  },
+  "velocidade": 0.9,
+  "tom": 1.06
+}

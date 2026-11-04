@@ -1,0 +1,10 @@
+{
+  "nome": "John C. Bogle",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_santa": 0.5114,
+    "am_eric": 0.4846
+  },
+  "velocidade": 0.937,
+  "tom": 0.914
+}

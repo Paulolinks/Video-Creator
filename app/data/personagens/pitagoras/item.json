@@ -1,0 +1,38 @@
+{
+  "id": "pitagoras",
+  "nome": "Pitágoras",
+  "aliases": [
+    "Pythagoras"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\pitagoras\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "geometria_e_matematica_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\pitagoras.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Hermetismo, misticismo e tradições antigas",
+  "categoria": "Filosofia antiga e simbolismo matemático",
+  "especialidades": "Matemática; harmonia; filosofia; números; proporções",
+  "temas_fundo": [
+    "matematica_geometria",
+    "templo_grego",
+    "cosmos"
+  ],
+  "fundos": [
+    "geometria_e_matematica_1",
+    "templo_grego_1",
+    "cosmos_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "geometria_e_matematica_1_dub_eastern",
+    "templo_grego_1_peaceful_desolation",
+    "cosmos_1_mesmerizing_galaxy"
+  ],
+  "musica_indice": 0
+}

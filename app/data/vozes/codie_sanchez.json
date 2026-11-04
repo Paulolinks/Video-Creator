@@ -1,0 +1,10 @@
+{
+  "nome": "Codie Sanchez",
+  "descricao": "feminina, adulta, enérgica",
+  "mistura": {
+    "pf_dora": 0.5267,
+    "bf_alice": 0.4733
+  },
+  "velocidade": 1.032,
+  "tom": 1.025
+}

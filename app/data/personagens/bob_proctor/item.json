@@ -1,0 +1,35 @@
+{
+  "id": "bob_proctor",
+  "nome": "Bob Proctor",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\bob_proctor\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "particulas_douradas",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "pm_santa"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 01:01",
+  "nicho": "Prosperidade e mentalidade financeira",
+  "categoria": "Paradigmas e mentalidade",
+  "especialidades": "Paradigmas; mentalidade; resultados",
+  "temas_fundo": [
+    "particulas_douradas",
+    "dinheiro_ouro",
+    "cosmos"
+  ],
+  "fundos": [
+    "particulas_douradas",
+    "dinheiro_e_ouro_1",
+    "cosmos_1"
+  ],
+  "fundo_indice": 3,
+  "musicas": [
+    "particulas_douradas_1_promises_to_keep",
+    "dinheiro_e_ouro_1_loopster",
+    "cosmos_1_mesmerizing_galaxy"
+  ],
+  "musica_indice": 2
+}

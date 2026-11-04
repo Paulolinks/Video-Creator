@@ -1,0 +1,12 @@
+{
+  "nome": "Naval Ravikant",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.1342,
+    "pm_santa": 0.3907,
+    "hm_omega": 0.1794,
+    "am_eric": 0.2957
+  },
+  "velocidade": 0.869,
+  "tom": 1.029
+}

@@ -1,0 +1,12 @@
+{
+  "nome": "Érico Rocha",
+  "descricao": "masculina, adulta, enérgica",
+  "mistura": {
+    "pm_alex": 0.1431,
+    "pm_santa": 0.396,
+    "zm_yunjian": 0.0748,
+    "bm_daniel": 0.386
+  },
+  "velocidade": 1.092,
+  "tom": 1.017
+}

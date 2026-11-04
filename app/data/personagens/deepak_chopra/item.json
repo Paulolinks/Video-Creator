@@ -1,0 +1,39 @@
+{
+  "id": "deepak_chopra",
+  "nome": "Deepak Chopra",
+  "aliases": [
+    "Chopra"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\deepak_chopra\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cosmos_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\deepak_chopra.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": false,
+  "nicho": "Manifestação e espiritualidade",
+  "categoria": "Espiritualidade e realidade",
+  "especialidades": "Consciência; espiritualidade; realidade",
+  "temas_fundo": [
+    "cosmos",
+    "zen_natureza",
+    "luz_divina"
+  ],
+  "fundos": [
+    "cosmos_1",
+    "natureza_zen_1",
+    "luz_divina_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "cosmos_1_mesmerizing_galaxy",
+    "natureza_zen_1_ripples",
+    "luz_divina_1_skye_cuillin"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

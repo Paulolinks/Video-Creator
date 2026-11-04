@@ -1,0 +1,45 @@
+# Segredos
+app/data/google/
+
+# Python
+__pycache__/
+*.pyc
+.venvs/
+.venv/
+.pylib/
+.cache/
+
+# Pastas pesadas / geradas
+BACKUPS/
+Video-Conversa-Mentor/
+app/data/lotes/
+VIDEO_CREATOR_LAB/models/
+VIDEO_CREATOR_LAB/tools/
+VIDEO_CREATOR_LAB/downloads/
+VIDEO_CREATOR_LAB/outputs/
+*.log
+
+# Midia e modelos (arquivos grandes)
+*.mp4
+*.mov
+*.webm
+*.mkv
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.m4a
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.bin
+*.ckpt
+*.npy
+*.zip
+*.7z

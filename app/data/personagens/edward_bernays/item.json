@@ -1,0 +1,19 @@
+{
+  "id": "edward_bernays",
+  "nome": "Edward Bernays",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\edward_bernays\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "xadrez_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\edward_bernays.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "fundo_removido": false,
+  "criado_em": "2026-11-02 23:28",
+  "nicho": "Marketing e Comunicação",
+  "categoria": "Relações Públicas, Propaganda e Psicologia da Persuasão",
+  "fundo_indice": 2
+}

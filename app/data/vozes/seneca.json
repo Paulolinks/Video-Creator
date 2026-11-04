@@ -1,0 +1,13 @@
+{
+  "nome": "Sêneca",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.2153,
+    "pm_santa": 0.3088,
+    "zm_yunxia": 0.0908,
+    "am_michael": 0.1988,
+    "bm_lewis": 0.1863
+  },
+  "velocidade": 0.861,
+  "tom": 0.952
+}

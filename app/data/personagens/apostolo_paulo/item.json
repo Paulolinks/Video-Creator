@@ -1,0 +1,39 @@
+{
+  "id": "apostolo_paulo",
+  "nome": "Apóstolo Paulo",
+  "aliases": [
+    "Paulo de Tarso",
+    "São Paulo Apóstolo"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\apostolo_paulo\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "luz_divina_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\apostolo_paulo.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Sabedoria bíblica e espiritualidade",
+  "categoria": "Desenvolvimento espiritual e transformação pessoal",
+  "especialidades": "Transformação; fé; perseverança; disciplina; renovação da mente",
+  "temas_fundo": [
+    "luz_divina",
+    "biblioteca_velas",
+    "nuvens"
+  ],
+  "fundos": [
+    "luz_divina_1",
+    "biblioteca_a_luz_de_velas_1",
+    "nuvens"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "luz_divina_1_skye_cuillin",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "nuvens_1_dreamer"
+  ],
+  "musica_indice": 0
+}

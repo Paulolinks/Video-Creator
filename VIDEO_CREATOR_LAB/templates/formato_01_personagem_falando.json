@@ -1,0 +1,22 @@
+{
+  "id": "formato_01_personagem_falando",
+  "versao": "1.0",
+  "aprovado_em": "2026-10-30",
+  "aprovado_por": "direção",
+  "origem": "teste do Maquiavel (outputs/maquiavel/maquiavel_final_sem_realce.mp4)",
+  "descricao": "Cenas com personagem falando (SadTalker, sem realce) e cenas sem fala com profundidade 2.5D; narração Kokoro; legenda karaokê com o texto exato do roteiro. Música escolhida pelo usuário no app.",
+  "video": {"largura": 1080, "altura": 1920, "fps": 30, "codec": "libx264", "crf": 18, "preset": "medium", "audio": "aac 192k"},
+  "voz": {"motor": "kokoro-82M", "voz": "pm_alex", "dispositivo": "cpu", "tratamento": "preset locutor do Video Cutter", "loudness_lufs": -14},
+  "alinhamento": {"motor": "faster-whisper", "modelo": "small", "precisao": "int8", "dispositivo": "cpu", "texto": "sempre o do roteiro"},
+  "tempo": {"respiro_inicio_s": 0.3, "respiro_fim_cena_s": 0.5, "transicao": "fade", "transicao_s": 0.5},
+  "modos_de_cena": {
+    "fala": {"motor": "SadTalker", "tamanho": 256, "preprocess": "full", "still": true, "realce": null,
+             "zoom_lento": {"de": 1.0, "ate": 1.07, "easing": "smoothstep"}},
+    "dolly": {"motor": "Depth Anything V2 Small", "zoom": {"de": 1.06, "ate": 1.14}, "ganho_profundidade": 0.10},
+    "zoom": {"motor": "subpixel", "zoom": {"de": 1.0, "ate": 1.08}}
+  },
+  "legenda": {"estilo": "karaoke", "fonte": "Poppins Bold", "tamanho": 84, "maiusculas": true, "max_palavras": 3,
+              "cor_falada": "dourado", "cor_aguardando": "branco", "contorno": 7, "margem_inferior": 560},
+  "musica": {"arquivo": null, "volume": 0.30, "ducking": {"limiar": 0.02, "razao": 6, "ataque_ms": 20, "liberacao_ms": 500},
+             "nota": "null = sem música. O usuário escolhe o arquivo no app (biblioteca com licença verificada)."}
+}

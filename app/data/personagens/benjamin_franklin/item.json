@@ -1,0 +1,38 @@
+{
+  "id": "benjamin_franklin",
+  "nome": "Benjamin Franklin",
+  "aliases": [
+    "Franklin"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\benjamin_franklin\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "energia_eletrica_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\benjamin_franklin.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Outros pensadores históricos",
+  "categoria": "Prosperidade e hábitos",
+  "especialidades": "Disciplina financeira; trabalho; organização",
+  "temas_fundo": [
+    "energia_eletrica",
+    "biblioteca_velas",
+    "dinheiro_ouro"
+  ],
+  "fundos": [
+    "energia_eletrica_1",
+    "biblioteca_a_luz_de_velas_1",
+    "dinheiro_e_ouro_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "energia_eletrica_1_shiny_tech_ii",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "dinheiro_e_ouro_1_loopster"
+  ],
+  "musica_indice": 0
+}

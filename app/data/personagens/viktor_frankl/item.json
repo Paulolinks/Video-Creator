@@ -1,0 +1,40 @@
+{
+  "id": "viktor_frankl",
+  "nome": "Viktor Frankl",
+  "aliases": [
+    "Viktor Franklin",
+    "Victor Frankl",
+    "Frankl"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\viktor_frankl\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "luz_divina_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\viktor_frankl.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 17:38",
+  "imagem_provisoria": true,
+  "nicho": "Psicologia e comportamento humano",
+  "categoria": "Propósito e resiliência",
+  "especialidades": "Propósito; resiliência; sentido da vida",
+  "temas_fundo": [
+    "luz_divina",
+    "nuvens",
+    "biblioteca_velas"
+  ],
+  "fundos": [
+    "luz_divina_1",
+    "nuvens",
+    "biblioteca_a_luz_de_velas_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "luz_divina_1_skye_cuillin",
+    "nuvens_1_dreamer",
+    "biblioteca_a_luz_de_velas_1_sad_trio"
+  ],
+  "musica_indice": 0
+}

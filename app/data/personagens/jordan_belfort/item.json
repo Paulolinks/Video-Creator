@@ -1,0 +1,38 @@
+{
+  "id": "jordan_belfort",
+  "nome": "Jordan Belfort",
+  "aliases": [
+    "Belfort"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\jordan_belfort\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "dinheiro_e_ouro_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\jordan_belfort.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Vendas e negociação",
+  "categoria": "Persuasão comercial",
+  "especialidades": "Persuasão; técnicas comerciais; vendas",
+  "temas_fundo": [
+    "dinheiro_ouro",
+    "cidade_noite",
+    "fogo"
+  ],
+  "fundos": [
+    "dinheiro_e_ouro_1",
+    "cidade_a_noite_1",
+    "fogo_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "dinheiro_e_ouro_1_loopster",
+    "cidade_a_noite_1_night_in_venice",
+    "fogo_1_clenched_teeth"
+  ],
+  "musica_indice": 0
+}

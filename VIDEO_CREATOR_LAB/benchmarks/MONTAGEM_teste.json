@@ -1,0 +1,123 @@
+{
+  "test": "montagem",
+  "date": "2026-10-30T19:51:25",
+  "scenes": [
+    {
+      "id": "CENA_01",
+      "start_s": 0.0,
+      "duration_s": 3.425,
+      "narration_s": 2.725,
+      "move": "zoom_in"
+    },
+    {
+      "id": "CENA_02",
+      "start_s": 3.425,
+      "duration_s": 3.975,
+      "narration_s": 3.525,
+      "move": "pan_v"
+    },
+    {
+      "id": "CENA_03",
+      "start_s": 7.4,
+      "duration_s": 3.625,
+      "narration_s": 3.175,
+      "move": "combined"
+    },
+    {
+      "id": "CENA_04",
+      "start_s": 11.025,
+      "duration_s": 3.7,
+      "narration_s": 3.25,
+      "move": "zoom_out"
+    }
+  ],
+  "video_duration_s": 14.725,
+  "stages": {
+    "timing_e_narracao_s": 0.0,
+    "render_cenas_s": 43.78,
+    "transicoes_s": 5.47
+  },
+  "final_encodes": {
+    "v1_sem_ducking_legenda_simples": {
+      "wall_s": 6.19,
+      "peak_ram_mb": 1270.3,
+      "returncode": 0,
+      "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\montagem\\montagem_v1_sem_ducking_legenda_simples.mp4"
+    },
+    "v2_com_ducking_legenda_simples": {
+      "wall_s": 6.69,
+      "peak_ram_mb": 1273.6,
+      "returncode": 0,
+      "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\montagem\\montagem_v2_com_ducking_legenda_simples.mp4"
+    },
+    "v3_com_ducking_legenda_karaoke": {
+      "wall_s": 6.69,
+      "peak_ram_mb": 1281.6,
+      "returncode": 0,
+      "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\montagem\\montagem_v3_com_ducking_legenda_karaoke.mp4"
+    }
+  },
+  "python_peak_ram_mb": 102.5,
+  "wall_total_s": 69.93,
+  "config": {
+    "lead_s": 0.25,
+    "tail_s": 0.45,
+    "crossfade_s": 0.4,
+    "voice_fx": "Cutter preset locutor",
+    "music": "pad sintetico (aevalsrc), volume 0.35",
+    "ducking": "sidechaincompress thr 0.02 ratio 8"
+  },
+  "ducking_medido": {
+    "reducao_musica_durante_fala_db": 22.0,
+    "reducao_musica_intervalos_db": 5.8,
+    "voz_acima_musica_sem_ducking_db": 15.7,
+    "metodo": "trilhas isoladas, janelas de 50 ms, fala = voz > -35 dBFS"
+  },
+  "tts": {
+    "engine": "kokoro 82M",
+    "voice": "pf_dora",
+    "device": "cpu",
+    "load_s": 3.97,
+    "scenes": [
+      {
+        "id": "CENA_01",
+        "wav": "outputs\\montagem\\audio\\CENA_01.wav",
+        "duration_s": 2.725,
+        "synth_s": 1.22
+      },
+      {
+        "id": "CENA_02",
+        "wav": "outputs\\montagem\\audio\\CENA_02.wav",
+        "duration_s": 3.525,
+        "synth_s": 1.12
+      },
+      {
+        "id": "CENA_03",
+        "wav": "outputs\\montagem\\audio\\CENA_03.wav",
+        "duration_s": 3.175,
+        "synth_s": 1.26
+      },
+      {
+        "id": "CENA_04",
+        "wav": "outputs\\montagem\\audio\\CENA_04.wav",
+        "duration_s": 3.25,
+        "synth_s": 1.13
+      }
+    ],
+    "total_s": 8.71,
+    "peak_ram_mb": 1246.9
+  },
+  "alinhamento": {
+    "engine": "faster-whisper small int8 cpu",
+    "total_s": 12.2,
+    "peak_ram_mb": 868.2,
+    "palavras_casadas": 34,
+    "palavras_total": 37,
+    "reconhecido": {
+      "CENA_01": "Este é um teste técnico do videocreator.",
+      "CENA_02": "A narração define quanto tempo cada cena fica na tela.",
+      "CENA_03": "A legenda acompanha a Fela Palavra por Palavra.",
+      "CENA_04": "E a música de fundo abaixa sempre que a voz entra."
+    }
+  }
+}

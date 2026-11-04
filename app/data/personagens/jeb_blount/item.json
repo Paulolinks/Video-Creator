@@ -1,0 +1,38 @@
+{
+  "id": "jeb_blount",
+  "nome": "Jeb Blount",
+  "aliases": [
+    "Blount"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\jeb_blount\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cidade_a_noite_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\jeb_blount.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Vendas e negociação",
+  "categoria": "Prospecção",
+  "especialidades": "Prospecção; vendas; objeções",
+  "temas_fundo": [
+    "cidade_noite",
+    "fogo",
+    "dinheiro_ouro"
+  ],
+  "fundos": [
+    "cidade_a_noite_1",
+    "fogo_1",
+    "dinheiro_e_ouro_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "cidade_a_noite_1_night_in_venice",
+    "fogo_1_clenched_teeth",
+    "dinheiro_e_ouro_1_loopster"
+  ],
+  "musica_indice": 0
+}

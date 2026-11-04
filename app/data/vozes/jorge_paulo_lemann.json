@@ -1,0 +1,11 @@
+{
+  "nome": "Jorge Paulo Lemann",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.0742,
+    "pm_santa": 0.539,
+    "am_santa": 0.3867
+  },
+  "velocidade": 0.945,
+  "tom": 0.902
+}

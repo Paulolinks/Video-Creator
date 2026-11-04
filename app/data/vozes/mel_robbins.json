@@ -1,0 +1,10 @@
+{
+  "nome": "Mel Robbins",
+  "descricao": "feminina, adulta, enérgica",
+  "mistura": {
+    "pf_dora": 0.624,
+    "bf_emma": 0.376
+  },
+  "velocidade": 1.096,
+  "tom": 0.995
+}

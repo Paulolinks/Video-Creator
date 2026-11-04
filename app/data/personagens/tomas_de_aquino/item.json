@@ -1,0 +1,38 @@
+{
+  "id": "tomas_de_aquino",
+  "nome": "Tomás de Aquino",
+  "aliases": [
+    "São Tomás de Aquino"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\tomas_de_aquino\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\tomas_de_aquino.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Outros pensadores históricos",
+  "categoria": "Filosofia e teologia",
+  "especialidades": "Razão; fé; ética; existência",
+  "temas_fundo": [
+    "biblioteca_velas",
+    "luz_divina",
+    "templo_grego"
+  ],
+  "fundos": [
+    "biblioteca_a_luz_de_velas_1",
+    "luz_divina_1",
+    "templo_grego_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "luz_divina_1_skye_cuillin",
+    "templo_grego_1_peaceful_desolation"
+  ],
+  "musica_indice": 0
+}

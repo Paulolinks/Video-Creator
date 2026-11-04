@@ -1,0 +1,13 @@
+{
+  "nome": "Benjamin Franklin",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.1213,
+    "pm_santa": 0.4665,
+    "zm_yunxia": 0.1315,
+    "am_fenrir": 0.1328,
+    "am_liam": 0.1479
+  },
+  "velocidade": 0.968,
+  "tom": 0.932
+}

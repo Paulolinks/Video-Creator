@@ -1,0 +1,36 @@
+{
+  "id": "mel_robbins",
+  "nome": "Mel Robbins",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\mel_robbins\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cidade_a_noite_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\mel_robbins.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Psicologia e comportamento humano",
+  "categoria": "Procrastinação e mudança",
+  "especialidades": "Procrastinação; autoconfiança; mudança",
+  "temas_fundo": [
+    "cidade_noite",
+    "nuvens",
+    "fogo"
+  ],
+  "fundos": [
+    "cidade_a_noite_1",
+    "nuvens",
+    "fogo_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "cidade_a_noite_1_night_in_venice",
+    "nuvens_1_dreamer",
+    "fogo_1_clenched_teeth"
+  ],
+  "musica_indice": 0
+}

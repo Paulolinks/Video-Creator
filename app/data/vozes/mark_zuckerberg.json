@@ -1,0 +1,11 @@
+{
+  "nome": "Mark Zuckerberg",
+  "descricao": "masculina, jovem, equilibrada",
+  "mistura": {
+    "pm_alex": 0.5995,
+    "pm_santa": 0.0136,
+    "am_eric": 0.3869
+  },
+  "velocidade": 0.996,
+  "tom": 1.064
+}

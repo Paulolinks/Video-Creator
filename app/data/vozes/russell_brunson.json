@@ -1,0 +1,13 @@
+{
+  "nome": "Russell Brunson",
+  "descricao": "masculina, jovem, enérgica",
+  "mistura": {
+    "pm_alex": 0.5,
+    "pm_santa": 0.1396,
+    "zm_yunyang": 0.1186,
+    "am_onyx": 0.1231,
+    "am_fenrir": 0.1187
+  },
+  "velocidade": 1.033,
+  "tom": 1.053
+}

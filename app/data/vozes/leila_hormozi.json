@@ -1,0 +1,11 @@
+{
+  "nome": "Leila Hormozi",
+  "descricao": "feminina, jovem, enérgica",
+  "mistura": {
+    "pf_dora": 0.5032,
+    "ef_dora": 0.078,
+    "af_sky": 0.4188
+  },
+  "velocidade": 1.031,
+  "tom": 1.058
+}

@@ -1,0 +1,40 @@
+{
+  "id": "lao_tse",
+  "nome": "Lao-Tsé",
+  "aliases": [
+    "Lao Tzu",
+    "Laozi",
+    "Lao Tsé"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\lao_tse\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "natureza_zen_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\lao_tse.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Filosofias orientais e mente",
+  "categoria": "Filosofia taoista e harmonia",
+  "especialidades": "Taoismo; equilíbrio; simplicidade; harmonia; não forçar",
+  "temas_fundo": [
+    "zen_natureza",
+    "nuvens",
+    "oceano"
+  ],
+  "fundos": [
+    "natureza_zen_1",
+    "nuvens",
+    "oceano_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "natureza_zen_1_ripples",
+    "nuvens_1_dreamer",
+    "oceano_1_pleasant_porridge"
+  ],
+  "musica_indice": 0
+}

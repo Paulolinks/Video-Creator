@@ -1,0 +1,13 @@
+{
+  "nome": "Platão",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.2807,
+    "pm_santa": 0.223,
+    "zm_yunxi": 0.1879,
+    "am_michael": 0.1062,
+    "bm_fable": 0.2021
+  },
+  "velocidade": 0.877,
+  "tom": 0.967
+}

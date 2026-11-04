@@ -1,0 +1,32 @@
+{
+  "test": "A",
+  "name": "pan_h_pil",
+  "method": "Pillow resize(box) Lanczos sub-pixel -> ffmpeg pipe",
+  "move": "pan_h",
+  "encoder": "x264",
+  "input": "teste_B_ambar.png",
+  "returncode": 0,
+  "wall_s": 12.13,
+  "cpu_s": 26.16,
+  "peak_ram_mb": 953.6,
+  "peak_ram_note": "python peak + ffmpeg peak (sum of peaks)",
+  "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\ffmpeg\\pan_h_pil.mp4",
+  "avg_cores_busy": 2.16,
+  "probe": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30.0,
+    "codec": "h264",
+    "frames": 150,
+    "duration_s": 5.0,
+    "size_mb": 3.64
+  },
+  "border_min_luma": 30.6,
+  "border_ok": true,
+  "render_s_per_video_s": 2.426,
+  "smoothness": {
+    "jitter": 0.0148,
+    "frozen_pct": 0.0,
+    "mean_frame_diff": 9.413
+  }
+}

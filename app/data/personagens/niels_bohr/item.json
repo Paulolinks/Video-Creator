@@ -1,0 +1,38 @@
+{
+  "id": "niels_bohr",
+  "nome": "Niels Bohr",
+  "aliases": [
+    "Bohr"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\niels_bohr\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "atomos_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\niels_bohr.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Física, física quântica e realidade",
+  "categoria": "Física atômica",
+  "especialidades": "Modelos atômicos; complementaridade; medição",
+  "temas_fundo": [
+    "fisica_atomos",
+    "cosmos",
+    "nuvens"
+  ],
+  "fundos": [
+    "atomos_1",
+    "cosmos_1",
+    "nuvens"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "atomos_1_ethernight_club",
+    "cosmos_1_mesmerizing_galaxy",
+    "nuvens_1_dreamer"
+  ],
+  "musica_indice": 0
+}

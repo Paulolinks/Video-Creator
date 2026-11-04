@@ -1,0 +1,12 @@
+{
+  "nome": "Carl Jung",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.487,
+    "pm_santa": 0.0291,
+    "jm_kumo": 0.1304,
+    "am_liam": 0.3536
+  },
+  "velocidade": 0.907,
+  "tom": 0.926
+}

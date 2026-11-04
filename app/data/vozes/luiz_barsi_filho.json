@@ -1,0 +1,12 @@
+{
+  "nome": "Luiz Barsi Filho",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.0289,
+    "pm_santa": 0.494,
+    "zm_yunxia": 0.1888,
+    "am_onyx": 0.2883
+  },
+  "velocidade": 0.943,
+  "tom": 0.853
+}

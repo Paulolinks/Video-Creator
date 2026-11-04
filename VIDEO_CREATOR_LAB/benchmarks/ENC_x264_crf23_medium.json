@@ -1,0 +1,23 @@
+{
+  "test": "encoder",
+  "name": "lago_x264_crf23_medium",
+  "encoder_args": [
+    "-c:v",
+    "libx264",
+    "-preset",
+    "medium",
+    "-crf",
+    "23"
+  ],
+  "wall_s": 1.75,
+  "encode_fps": 85.7,
+  "cpu_cores_avg": 8.79,
+  "nvenc_util_max_pct": 0.0,
+  "size_mb": 0.46,
+  "bitrate_mbps": 0.77,
+  "ssim": 0.993204,
+  "psnr_db": 49.460509,
+  "reference": "ffv1 lossless, mesmo movimento",
+  "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\encoder\\lago_x264_crf23_medium.mp4",
+  "date": "2026-10-30T19:40:06"
+}

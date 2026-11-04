@@ -1,0 +1,27 @@
+{
+  "test": "encoder",
+  "name": "lago_nvenc_cq19_p5",
+  "encoder_args": [
+    "-c:v",
+    "h264_nvenc",
+    "-preset",
+    "p5",
+    "-rc",
+    "vbr",
+    "-cq",
+    "19",
+    "-b:v",
+    "0"
+  ],
+  "wall_s": 1.22,
+  "encode_fps": 123.0,
+  "cpu_cores_avg": 3.82,
+  "nvenc_util_max_pct": 86.0,
+  "size_mb": 1.14,
+  "bitrate_mbps": 1.92,
+  "ssim": 0.994857,
+  "psnr_db": 50.522391,
+  "reference": "ffv1 lossless, mesmo movimento",
+  "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\encoder\\lago_nvenc_cq19_p5.mp4",
+  "date": "2026-10-30T19:40:11"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "neville_goddard",
+  "nome": "Neville Goddard",
+  "aliases": [
+    "Neville"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\neville_goddard\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cosmos_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\neville_goddard.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 17:38",
+  "imagem_provisoria": false,
+  "nicho": "Manifestação e espiritualidade",
+  "categoria": "Imaginação e Lei da Assunção",
+  "especialidades": "Imaginação; manifestação; Lei da Assunção",
+  "temas_fundo": [
+    "cosmos",
+    "nuvens",
+    "particulas_douradas"
+  ],
+  "fundos": [
+    "cosmos_1",
+    "nuvens",
+    "particulas_douradas"
+  ],
+  "fundo_indice": 2,
+  "musicas": [
+    "cosmos_1_mesmerizing_galaxy",
+    "nuvens_1_dreamer",
+    "particulas_douradas_1_promises_to_keep"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": true
+}

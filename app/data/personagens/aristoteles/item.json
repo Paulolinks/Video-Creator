@@ -1,0 +1,37 @@
+{
+  "id": "aristoteles",
+  "nome": "Aristóteles",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\aristoteles\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "templo_grego_1",
+  "voz": {
+    "motor": "chatterbox",
+    "referencia": "D:\\Video-Creator\\app\\data\\personagens\\aristoteles\\voz_referencia.mp3"
+  },
+  "autorizacao_voz": true,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": false,
+  "nicho": "Filosofia grega e autoconhecimento",
+  "categoria": "Filosofia prática e desenvolvimento humano",
+  "especialidades": "Lógica; hábitos; ética; felicidade; caráter",
+  "temas_fundo": [
+    "templo_grego",
+    "biblioteca_velas",
+    "matematica_geometria"
+  ],
+  "fundos": [
+    "templo_grego_1",
+    "biblioteca_a_luz_de_velas_1",
+    "geometria_e_matematica_1"
+  ],
+  "fundo_indice": 2,
+  "musicas": [
+    "templo_grego_1_peaceful_desolation",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "geometria_e_matematica_1_dub_eastern"
+  ],
+  "musica_indice": 1,
+  "fundo_removido": false
+}

@@ -1,0 +1,11 @@
+{
+  "nome": "Daniel Kahneman",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.4011,
+    "pm_santa": 0.1853,
+    "bm_fable": 0.4136
+  },
+  "velocidade": 0.873,
+  "tom": 0.94
+}

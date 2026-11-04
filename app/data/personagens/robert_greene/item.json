@@ -1,0 +1,38 @@
+{
+  "id": "robert_greene",
+  "nome": "Robert Greene",
+  "aliases": [
+    "Greene"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\robert_greene\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "xadrez_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\robert_greene.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Psicologia e comportamento humano",
+  "categoria": "Poder e manipulação",
+  "especialidades": "Natureza humana; poder; manipulação",
+  "temas_fundo": [
+    "xadrez",
+    "tinta_fumaca",
+    "fogo"
+  ],
+  "fundos": [
+    "xadrez_1",
+    "tinta_e_fumaca_1",
+    "fogo_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "xadrez_1_enter_the_maze",
+    "tinta_e_fumaca_1_virtutes_instrumenti",
+    "fogo_1_clenched_teeth"
+  ],
+  "musica_indice": 0
+}

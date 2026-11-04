@@ -1,0 +1,6 @@
+[
+  {"id": "CENA_01", "text": "Este é um teste técnico do Video Creator.", "image": "outputs/depth/lago_entrada_9x16.jpg", "move": "zoom_in"},
+  {"id": "CENA_02", "text": "A narração define quanto tempo cada cena fica na tela.", "image": "outputs/depth/fitas_entrada_9x16.jpg", "move": "pan_v"},
+  {"id": "CENA_03", "text": "A legenda acompanha a fala, palavra por palavra.", "image": "C:/Windows/Web/Screen/img100.jpg", "move": "combined"},
+  {"id": "CENA_04", "text": "E a música de fundo abaixa sempre que a voz entra.", "image": "C:/Windows/Web/Wallpaper/Spotlight/img14.jpg", "move": "zoom_out"}
+]

@@ -1,0 +1,32 @@
+{
+  "test": "A",
+  "name": "zoom_in_pil",
+  "method": "Pillow resize(box) Lanczos sub-pixel -> ffmpeg pipe",
+  "move": "zoom_in",
+  "encoder": "x264",
+  "input": "teste_A_azul.png",
+  "returncode": 0,
+  "wall_s": 14.92,
+  "cpu_s": 33.94,
+  "peak_ram_mb": 855.1,
+  "peak_ram_note": "python peak + ffmpeg peak (sum of peaks)",
+  "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\ffmpeg\\zoom_in_pil.mp4",
+  "avg_cores_busy": 2.27,
+  "probe": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30.0,
+    "codec": "h264",
+    "frames": 150,
+    "duration_s": 5.0,
+    "size_mb": 6.13
+  },
+  "border_min_luma": 30.1,
+  "border_ok": true,
+  "render_s_per_video_s": 2.984,
+  "smoothness": {
+    "jitter": 0.0156,
+    "frozen_pct": 0.0,
+    "mean_frame_diff": 6.481
+  }
+}

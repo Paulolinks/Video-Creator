@@ -1,0 +1,12 @@
+{
+  "nome": "Paracelso",
+  "descricao": "masculina, adulta, enérgica",
+  "mistura": {
+    "pm_alex": 0.2261,
+    "pm_santa": 0.328,
+    "zm_yunxia": 0.0894,
+    "bm_lewis": 0.3565
+  },
+  "velocidade": 1.057,
+  "tom": 1.013
+}

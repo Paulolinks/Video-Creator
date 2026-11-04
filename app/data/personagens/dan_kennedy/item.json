@@ -1,0 +1,36 @@
+{
+  "id": "dan_kennedy",
+  "nome": "Dan Kennedy",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\dan_kennedy\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "dinheiro_e_ouro_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\dan_kennedy.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Marketing e aquisição de clientes",
+  "categoria": "Resposta direta",
+  "especialidades": "Marketing de resposta direta; ofertas; comunicação",
+  "temas_fundo": [
+    "dinheiro_ouro",
+    "fogo",
+    "cidade_noite"
+  ],
+  "fundos": [
+    "dinheiro_e_ouro_1",
+    "fogo_1",
+    "cidade_a_noite_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "dinheiro_e_ouro_1_loopster",
+    "fogo_1_clenched_teeth",
+    "cidade_a_noite_1_night_in_venice"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,12 @@
+{
+  "nome": "Eduardo Saverin",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_alex": 0.0792,
+    "pm_santa": 0.5252,
+    "zm_yunyang": 0.1093,
+    "am_michael": 0.2863
+  },
+  "velocidade": 0.974,
+  "tom": 0.999
+}

@@ -1,0 +1,12 @@
+{
+  "nome": "Sidarta Gautama",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.1256,
+    "pm_santa": 0.5026,
+    "im_nicola": 0.1946,
+    "am_fenrir": 0.1772
+  },
+  "velocidade": 0.891,
+  "tom": 1.045
+}

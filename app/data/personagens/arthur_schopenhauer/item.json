@@ -1,0 +1,38 @@
+{
+  "id": "arthur_schopenhauer",
+  "nome": "Arthur Schopenhauer",
+  "aliases": [
+    "Schopenhauer"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\arthur_schopenhauer\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\arthur_schopenhauer.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 17:38",
+  "imagem_provisoria": true,
+  "nicho": "Filosofia e autoconhecimento",
+  "categoria": "Desejo e felicidade",
+  "especialidades": "Desejo; felicidade; filosofia",
+  "temas_fundo": [
+    "biblioteca_velas",
+    "tinta_fumaca",
+    "fogo"
+  ],
+  "fundos": [
+    "biblioteca_a_luz_de_velas_1",
+    "tinta_e_fumaca_1",
+    "fogo_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "tinta_e_fumaca_1_virtutes_instrumenti",
+    "fogo_1_clenched_teeth"
+  ],
+  "musica_indice": 0
+}

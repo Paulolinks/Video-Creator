@@ -1,0 +1,12 @@
+{
+  "nome": "Diógenes de Sinope",
+  "descricao": "masculina, madura, enérgica",
+  "mistura": {
+    "pm_alex": 0.3997,
+    "pm_santa": 0.2029,
+    "zm_yunjian": 0.1822,
+    "bm_lewis": 0.2152
+  },
+  "velocidade": 1.013,
+  "tom": 0.916
+}

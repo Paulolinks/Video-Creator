@@ -1,0 +1,38 @@
+{
+  "id": "max_planck",
+  "nome": "Max Planck",
+  "aliases": [
+    "Planck"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\max_planck\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "atomos_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\max_planck.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Física, física quântica e realidade",
+  "categoria": "Teoria quântica",
+  "especialidades": "Quantização da energia; fundamentos da física quântica",
+  "temas_fundo": [
+    "fisica_atomos",
+    "matematica_geometria",
+    "cosmos"
+  ],
+  "fundos": [
+    "atomos_1",
+    "geometria_e_matematica_1",
+    "cosmos_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "atomos_1_ethernight_club",
+    "geometria_e_matematica_1_dub_eastern",
+    "cosmos_1_mesmerizing_galaxy"
+  ],
+  "musica_indice": 0
+}

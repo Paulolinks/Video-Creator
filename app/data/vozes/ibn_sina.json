@@ -1,0 +1,11 @@
+{
+  "nome": "Ibn Sina",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_santa": 0.5493,
+    "hm_omega": 0.1161,
+    "am_echo": 0.3319
+  },
+  "velocidade": 0.96,
+  "tom": 1.03
+}

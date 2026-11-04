@@ -1,0 +1,10 @@
+{
+  "nome": "Alan Watts",
+  "descricao": "descontraída, bem-humorada",
+  "mistura": {
+    "pm_alex": 0.55,
+    "bm_fable": 0.45
+  },
+  "velocidade": 0.95,
+  "tom": 1.02
+}

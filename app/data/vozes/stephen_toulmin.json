@@ -1,0 +1,12 @@
+{
+  "nome": "Stephen Toulmin",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.3982,
+    "pm_santa": 0.1745,
+    "zm_yunxi": 0.1482,
+    "am_eric": 0.2791
+  },
+  "velocidade": 0.905,
+  "tom": 0.864
+}

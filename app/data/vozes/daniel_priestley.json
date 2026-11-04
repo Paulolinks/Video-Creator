@@ -1,0 +1,12 @@
+{
+  "nome": "Daniel Priestley",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_alex": 0.4703,
+    "pm_santa": 0.0451,
+    "am_puck": 0.249,
+    "am_eric": 0.2356
+  },
+  "velocidade": 0.999,
+  "tom": 1.016
+}

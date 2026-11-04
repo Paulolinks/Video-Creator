@@ -1,0 +1,38 @@
+{
+  "id": "thomas_sowell",
+  "nome": "Thomas Sowell",
+  "aliases": [
+    "Sowell"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\thomas_sowell\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\thomas_sowell.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Economia, pensamento crítico e decisões",
+  "categoria": "Economia e incentivos",
+  "especialidades": "Escassez; custos de oportunidade; trade-offs",
+  "temas_fundo": [
+    "biblioteca_velas",
+    "cidade_noite",
+    "xadrez"
+  ],
+  "fundos": [
+    "biblioteca_a_luz_de_velas_1",
+    "cidade_a_noite_1",
+    "xadrez_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "cidade_a_noite_1_night_in_venice",
+    "xadrez_1_enter_the_maze"
+  ],
+  "musica_indice": 0
+}

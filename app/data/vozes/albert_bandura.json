@@ -1,0 +1,12 @@
+{
+  "nome": "Albert Bandura",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.1583,
+    "pm_santa": 0.4138,
+    "am_liam": 0.1594,
+    "am_adam": 0.2686
+  },
+  "velocidade": 0.974,
+  "tom": 0.961
+}

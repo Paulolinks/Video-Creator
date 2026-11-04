@@ -1,0 +1,13 @@
+{
+  "nome": "Dan Kennedy",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.4604,
+    "pm_santa": 0.0558,
+    "zm_yunyang": 0.1908,
+    "am_onyx": 0.1307,
+    "bm_daniel": 0.1623
+  },
+  "velocidade": 0.939,
+  "tom": 0.94
+}

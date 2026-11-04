@@ -1,0 +1,32 @@
+{
+  "test": "A",
+  "name": "combined_pil",
+  "method": "Pillow resize(box) Lanczos sub-pixel -> ffmpeg pipe",
+  "move": "combined",
+  "encoder": "x264",
+  "input": "teste_A_azul.png",
+  "returncode": 0,
+  "wall_s": 13.43,
+  "cpu_s": 32.47,
+  "peak_ram_mb": 847.4,
+  "peak_ram_note": "python peak + ffmpeg peak (sum of peaks)",
+  "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\ffmpeg\\combined_pil.mp4",
+  "avg_cores_busy": 2.42,
+  "probe": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30.0,
+    "codec": "h264",
+    "frames": 150,
+    "duration_s": 5.0,
+    "size_mb": 5.96
+  },
+  "border_min_luma": 29.5,
+  "border_ok": true,
+  "render_s_per_video_s": 2.686,
+  "smoothness": {
+    "jitter": 0.0142,
+    "frozen_pct": 0.0,
+    "mean_frame_diff": 6.493
+  }
+}

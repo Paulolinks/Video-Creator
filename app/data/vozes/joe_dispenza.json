@@ -1,0 +1,12 @@
+{
+  "nome": "Joe Dispenza",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_alex": 0.2663,
+    "pm_santa": 0.2589,
+    "zm_yunjian": 0.0706,
+    "am_fenrir": 0.4042
+  },
+  "velocidade": 0.977,
+  "tom": 1.028
+}

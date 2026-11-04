@@ -1,0 +1,12 @@
+{
+  "nome": "Leonhard Euler",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_alex": 0.579,
+    "pm_santa": 0.0076,
+    "im_nicola": 0.1903,
+    "bm_george": 0.2231
+  },
+  "velocidade": 0.983,
+  "tom": 1.065
+}

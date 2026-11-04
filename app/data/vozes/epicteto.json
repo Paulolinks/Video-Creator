@@ -1,0 +1,12 @@
+{
+  "nome": "Epicteto",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.2393,
+    "pm_santa": 0.3568,
+    "zm_yunjian": 0.1629,
+    "am_fenrir": 0.2409
+  },
+  "velocidade": 0.938,
+  "tom": 0.915
+}

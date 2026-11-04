@@ -1,0 +1,38 @@
+{
+  "id": "mark_zuckerberg",
+  "nome": "Mark Zuckerberg",
+  "aliases": [
+    "Zuckerberg"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\mark_zuckerberg\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "tecnologia_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\mark_zuckerberg.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Empreendedorismo e inovação",
+  "categoria": "Produtos e redes",
+  "especialidades": "Meta; produtos digitais; redes",
+  "temas_fundo": [
+    "tecnologia",
+    "cidade_noite",
+    "matematica_geometria"
+  ],
+  "fundos": [
+    "tecnologia_1",
+    "cidade_a_noite_1",
+    "geometria_e_matematica_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "tecnologia_1_shiny_tech",
+    "cidade_a_noite_1_night_in_venice",
+    "geometria_e_matematica_1_dub_eastern"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,25 @@
+{
+  "test": "B",
+  "name": "fitas_dolly",
+  "move": "dolly",
+  "input": "img103.jpg",
+  "crop_center_x": 0.62,
+  "method": "Depth Anything V2 Small (CPU) + cv2.remap parallax",
+  "model": "depth-anything/Depth-Anything-V2-Small-hf",
+  "model_license": "apache-2.0 (model card)",
+  "device": "cpu",
+  "torch": "2.15.0+cpu",
+  "depth_infer_s": 0.95,
+  "depth_load_and_infer_s": 1.26,
+  "render_wall_s": 14.26,
+  "render_s_per_video_s": 2.851,
+  "peak_ram_mb": 1618.9,
+  "peak_ram_note": "python (modelo + render) + ffmpeg, soma dos picos",
+  "smoothness": {
+    "jitter": 0.0195,
+    "frozen_pct": 0.0,
+    "mean_frame_diff": 0.839
+  },
+  "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\depth\\fitas_dolly.mp4",
+  "date": "2026-10-30T19:44:56"
+}

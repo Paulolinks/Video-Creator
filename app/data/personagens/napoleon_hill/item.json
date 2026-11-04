@@ -1,0 +1,40 @@
+{
+  "id": "napoleon_hill",
+  "nome": "Napoleon Hill",
+  "aliases": [
+    "Napoleão Hill",
+    "Hill"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\napoleon_hill\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "particulas_douradas",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\napoleon_hill.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 17:38",
+  "imagem_provisoria": false,
+  "nicho": "Prosperidade e mentalidade financeira",
+  "categoria": "Riqueza e propósito",
+  "especialidades": "Riqueza; propósito; mentalidade financeira",
+  "temas_fundo": [
+    "particulas_douradas",
+    "dinheiro_ouro",
+    "biblioteca_velas"
+  ],
+  "fundos": [
+    "particulas_douradas",
+    "dinheiro_e_ouro_1",
+    "biblioteca_a_luz_de_velas_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "particulas_douradas_1_promises_to_keep",
+    "dinheiro_e_ouro_1_loopster",
+    "biblioteca_a_luz_de_velas_1_sad_trio"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

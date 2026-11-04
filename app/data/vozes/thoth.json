@@ -1,0 +1,13 @@
+{
+  "nome": "Thoth",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.4087,
+    "pm_santa": 0.1678,
+    "zm_yunxia": 0.1702,
+    "am_onyx": 0.0946,
+    "am_liam": 0.1586
+  },
+  "velocidade": 0.875,
+  "tom": 0.909
+}

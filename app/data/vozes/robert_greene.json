@@ -1,0 +1,12 @@
+{
+  "nome": "Robert Greene",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.5031,
+    "pm_santa": 0.0719,
+    "zm_yunxia": 0.1728,
+    "am_michael": 0.2522
+  },
+  "velocidade": 0.904,
+  "tom": 1.018
+}

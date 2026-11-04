@@ -1,0 +1,36 @@
+{
+  "id": "adam_smith",
+  "nome": "Adam Smith",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\adam_smith\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\adam_smith.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Economia, pensamento crítico e decisões",
+  "categoria": "Economia",
+  "especialidades": "Divisão do trabalho; produtividade; comércio; incentivos",
+  "temas_fundo": [
+    "biblioteca_velas",
+    "dinheiro_ouro",
+    "cidade_noite"
+  ],
+  "fundos": [
+    "biblioteca_a_luz_de_velas_1",
+    "dinheiro_e_ouro_1",
+    "cidade_a_noite_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "dinheiro_e_ouro_1_loopster",
+    "cidade_a_noite_1_night_in_venice"
+  ],
+  "musica_indice": 0
+}

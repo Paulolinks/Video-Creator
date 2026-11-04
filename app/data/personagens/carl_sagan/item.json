@@ -1,0 +1,41 @@
+{
+  "id": "carl_sagan",
+  "nome": "Carl Jung",
+  "aliases": [
+    "Jung",
+    "Carl Gustav Jung",
+    "Carl Yung"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\carl_sagan\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "tinta_e_fumaca_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\carl_sagan.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": false,
+  "nicho": "Psicologia e comportamento humano",
+  "categoria": "Psicologia analítica",
+  "especialidades": "Inconsciente; arquétipos; sombra; individuação",
+  "temas_fundo": [
+    "tinta_fumaca",
+    "biblioteca_velas",
+    "cerebro_neuronios"
+  ],
+  "fundos": [
+    "tinta_e_fumaca_1",
+    "biblioteca_a_luz_de_velas_1",
+    "cerebro_e_neuronios_1"
+  ],
+  "fundo_indice": 5,
+  "musicas": [
+    "tinta_e_fumaca_1_virtutes_instrumenti",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "cerebro_e_neuronios_1_ghostpocalypse_3_road_of_trials"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": true
+}

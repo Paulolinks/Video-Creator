@@ -1,0 +1,13 @@
+{
+  "nome": "Hermes Trismegisto",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.3053,
+    "pm_santa": 0.3069,
+    "em_alex": 0.124,
+    "am_adam": 0.1105,
+    "bm_daniel": 0.1534
+  },
+  "velocidade": 0.845,
+  "tom": 0.856
+}

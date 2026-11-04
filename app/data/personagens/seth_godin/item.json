@@ -1,0 +1,38 @@
+{
+  "id": "seth_godin",
+  "nome": "Seth Godin",
+  "aliases": [
+    "Godin"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\seth_godin\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "tinta_e_fumaca_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\seth_godin.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Marketing e aquisição de clientes",
+  "categoria": "Posicionamento",
+  "especialidades": "Diferenciação; posicionamento; marketing",
+  "temas_fundo": [
+    "tinta_fumaca",
+    "nuvens",
+    "matematica_geometria"
+  ],
+  "fundos": [
+    "tinta_e_fumaca_1",
+    "nuvens",
+    "geometria_e_matematica_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "tinta_e_fumaca_1_virtutes_instrumenti",
+    "nuvens_1_dreamer",
+    "geometria_e_matematica_1_dub_eastern"
+  ],
+  "musica_indice": 0
+}

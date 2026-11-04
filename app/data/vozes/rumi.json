@@ -1,0 +1,12 @@
+{
+  "nome": "Rumi",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.5453,
+    "pm_santa": 0.0749,
+    "am_fenrir": 0.1888,
+    "am_liam": 0.191
+  },
+  "velocidade": 0.876,
+  "tom": 1.01
+}

@@ -1,0 +1,12 @@
+{
+  "nome": "Adam Grant",
+  "descricao": "masculina, jovem, equilibrada",
+  "mistura": {
+    "pm_alex": 0.2938,
+    "pm_santa": 0.2191,
+    "zm_yunyang": 0.1044,
+    "am_onyx": 0.3827
+  },
+  "velocidade": 0.974,
+  "tom": 1.049
+}

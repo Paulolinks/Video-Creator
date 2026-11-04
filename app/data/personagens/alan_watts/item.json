@@ -1,0 +1,38 @@
+{
+  "id": "alan_watts",
+  "nome": "Alan Watts",
+  "aliases": [
+    "Watts"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\alan_watts\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "oceano_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\alan_watts.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 17:38",
+  "imagem_provisoria": true,
+  "nicho": "Manifestação e espiritualidade",
+  "categoria": "Consciência e ego",
+  "especialidades": "Espiritualidade; ego; consciência",
+  "temas_fundo": [
+    "oceano",
+    "zen_natureza",
+    "cosmos"
+  ],
+  "fundos": [
+    "oceano_1",
+    "natureza_zen_1",
+    "cosmos_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "oceano_1_pleasant_porridge",
+    "natureza_zen_1_ripples",
+    "cosmos_1_mesmerizing_galaxy"
+  ],
+  "musica_indice": 0
+}

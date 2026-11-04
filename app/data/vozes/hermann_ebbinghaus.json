@@ -1,0 +1,11 @@
+{
+  "nome": "Hermann Ebbinghaus",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_alex": 0.0119,
+    "pm_santa": 0.51,
+    "am_michael": 0.4781
+  },
+  "velocidade": 0.959,
+  "tom": 0.968
+}

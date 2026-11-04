@@ -1,0 +1,10 @@
+{
+  "nome": "Napoleon Hill",
+  "descricao": "madura, firme, de orador",
+  "mistura": {
+    "pm_santa": 0.6,
+    "bm_george": 0.4
+  },
+  "velocidade": 0.96,
+  "tom": 0.95
+}

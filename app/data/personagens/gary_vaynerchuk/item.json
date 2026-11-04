@@ -1,0 +1,40 @@
+{
+  "id": "gary_vaynerchuk",
+  "nome": "Gary Vaynerchuk",
+  "aliases": [
+    "Gary Vee",
+    "Vaynerchuk"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\gary_vaynerchuk\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cidade_a_noite_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\gary_vaynerchuk.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": false,
+  "nicho": "Marketing e aquisição de clientes",
+  "categoria": "Marca e conteúdo",
+  "especialidades": "Marca pessoal; conteúdo; atenção",
+  "temas_fundo": [
+    "cidade_noite",
+    "fogo",
+    "tecnologia"
+  ],
+  "fundos": [
+    "cidade_a_noite_1",
+    "fogo_1",
+    "tecnologia_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "cidade_a_noite_1_night_in_venice",
+    "fogo_1_clenched_teeth",
+    "tecnologia_1_shiny_tech"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

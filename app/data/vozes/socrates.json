@@ -1,0 +1,11 @@
+{
+  "nome": "Sócrates",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.2917,
+    "pm_santa": 0.2118,
+    "am_fenrir": 0.4966
+  },
+  "velocidade": 0.934,
+  "tom": 0.908
+}

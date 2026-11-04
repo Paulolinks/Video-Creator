@@ -1,0 +1,12 @@
+{
+  "nome": "Bruce Lipton",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.2962,
+    "pm_santa": 0.2694,
+    "bm_daniel": 0.2359,
+    "bm_fable": 0.1984
+  },
+  "velocidade": 0.966,
+  "tom": 0.911
+}

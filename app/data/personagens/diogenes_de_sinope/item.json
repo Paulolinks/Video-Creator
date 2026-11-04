@@ -1,0 +1,38 @@
+{
+  "id": "diogenes_de_sinope",
+  "nome": "Diógenes de Sinope",
+  "aliases": [
+    "Diógenes"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\diogenes_de_sinope\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "templo_grego_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\diogenes_de_sinope.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Filosofia grega e autoconhecimento",
+  "categoria": "Filosofia cínica e liberdade pessoal",
+  "especialidades": "Liberdade; simplicidade; crítica social; independência; desapego",
+  "temas_fundo": [
+    "templo_grego",
+    "fogo",
+    "oceano"
+  ],
+  "fundos": [
+    "templo_grego_1",
+    "fogo_1",
+    "oceano_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "templo_grego_1_peaceful_desolation",
+    "fogo_1_clenched_teeth",
+    "oceano_1_pleasant_porridge"
+  ],
+  "musica_indice": 0
+}

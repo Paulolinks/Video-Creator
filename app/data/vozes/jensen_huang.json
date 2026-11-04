@@ -1,0 +1,12 @@
+{
+  "nome": "Jensen Huang",
+  "descricao": "masculina, adulta, enérgica",
+  "mistura": {
+    "pm_alex": 0.1126,
+    "pm_santa": 0.4281,
+    "zm_yunxi": 0.165,
+    "am_eric": 0.2943
+  },
+  "velocidade": 1.039,
+  "tom": 0.978
+}

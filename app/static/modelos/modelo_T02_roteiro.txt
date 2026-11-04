@@ -1,0 +1,23 @@
+TÍTULO: <frase intrigante>
+SUBTÍTULO: Minha conversa com <MENTOR> sobre <assunto>
+FORMATO: ENTREVISTA_COM_MENTOR
+
+CENA 01 | PERSONAGEM: PAULO
+<pergunta de abertura>
+
+CENA 02 | PERSONAGEM: <MENTOR>
+<resposta>
+
+CENA 03 | PERSONAGEM: PAULO
+<próxima pergunta>
+
+CENA 04 | PERSONAGEM: <MENTOR>
+<resposta final com orientação prática>
+
+FIM
+
+METADADOS
+TÍTULO DO POST: <título da publicação; pode ser igual ao TÍTULO>
+DESCRIÇÃO: <contexto curto + uma pergunta que convide a comentar>
+NOTA EDITORIAL: <opcional: aviso que vai no fim da descrição>
+HASHTAGS: <5 a 8 hashtags>

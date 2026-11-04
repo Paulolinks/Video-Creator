@@ -1,0 +1,12 @@
+{
+  "nome": "Edward Bernays",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.151,
+    "pm_santa": 0.4409,
+    "zm_yunjian": 0.1902,
+    "am_liam": 0.2179
+  },
+  "velocidade": 0.963,
+  "tom": 0.876
+}

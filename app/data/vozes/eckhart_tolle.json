@@ -1,0 +1,11 @@
+{
+  "nome": "Eckhart Tolle",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.6025,
+    "pm_santa": 0.0095,
+    "bm_daniel": 0.3881
+  },
+  "velocidade": 0.907,
+  "tom": 0.91
+}

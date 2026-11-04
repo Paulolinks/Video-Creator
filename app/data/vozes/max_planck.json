@@ -1,0 +1,11 @@
+{
+  "nome": "Max Planck",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.4186,
+    "pm_santa": 0.1632,
+    "am_onyx": 0.4181
+  },
+  "velocidade": 0.865,
+  "tom": 0.909
+}

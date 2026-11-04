@@ -1,0 +1,38 @@
+{
+  "id": "thoth",
+  "nome": "Thoth",
+  "aliases": [
+    "Tote"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\thoth\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "egito_antigo_2",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\thoth.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Hermetismo, misticismo e tradições antigas",
+  "categoria": "Mitologia egípcia e conhecimento antigo",
+  "especialidades": "Conhecimento; escrita; sabedoria egípcia; ordem cósmica; simbolismo",
+  "temas_fundo": [
+    "egito",
+    "cosmos",
+    "fogo"
+  ],
+  "fundos": [
+    "egito_antigo_2",
+    "cosmos_1",
+    "fogo_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "egito_antigo_1_jalandhar",
+    "cosmos_1_mesmerizing_galaxy",
+    "fogo_1_clenched_teeth"
+  ],
+  "musica_indice": 0
+}

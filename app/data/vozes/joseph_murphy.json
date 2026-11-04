@@ -1,0 +1,10 @@
+{
+  "nome": "Joseph Murphy",
+  "descricao": "madura, acolhedora",
+  "mistura": {
+    "pm_santa": 0.55,
+    "bm_lewis": 0.45
+  },
+  "velocidade": 0.93,
+  "tom": 1.0
+}

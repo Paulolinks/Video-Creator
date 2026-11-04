@@ -1,0 +1,44 @@
+{
+  "id": "paulo",
+  "nome": "Paulo",
+  "aliases": [
+    "Paulo Gonçalves",
+    "Eu"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte.png",
+  "lado": "direita",
+  "fundo": "nuvens",
+  "voz": {
+    "motor": "chatterbox",
+    "referencia": "D:\\Video-Creator\\app\\data\\personagens\\paulo\\voz_referencia.wav"
+  },
+  "autorizacao_voz": true,
+  "transparente": true,
+  "criado_em": "2026-10-31 01:01",
+  "nicho": "Apresentador",
+  "categoria": "Apresentador do canal",
+  "especialidades": "Perguntas; conversa",
+  "temas_fundo": [
+    "nuvens",
+    "cidade_noite",
+    "cosmos"
+  ],
+  "fundos": [
+    "nuvens",
+    "cidade_a_noite_1",
+    "cosmos_1"
+  ],
+  "fundo_indice": 31,
+  "musicas": [
+    "nuvens_1_dreamer",
+    "cidade_a_noite_1_night_in_venice",
+    "cosmos_1_mesmerizing_galaxy"
+  ],
+  "musica_indice": 0,
+  "imagens": [
+    "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte.png",
+    "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte_2.png",
+    "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte_3.png"
+  ],
+  "imagem_indice": 22
+}

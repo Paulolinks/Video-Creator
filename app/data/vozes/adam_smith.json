@@ -1,0 +1,13 @@
+{
+  "nome": "Adam Smith",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.2133,
+    "pm_santa": 0.3737,
+    "zm_yunxia": 0.1546,
+    "am_liam": 0.1825,
+    "am_santa": 0.0759
+  },
+  "velocidade": 0.889,
+  "tom": 1.026
+}

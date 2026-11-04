@@ -1,0 +1,11 @@
+{
+  "nome": "James Clear",
+  "descricao": "masculina, jovem, equilibrada",
+  "mistura": {
+    "pm_alex": 0.0416,
+    "pm_santa": 0.5601,
+    "am_fenrir": 0.3984
+  },
+  "velocidade": 0.991,
+  "tom": 1.065
+}

@@ -1,0 +1,13 @@
+{
+  "nome": "Richard Feynman",
+  "descricao": "masculina, adulta, enérgica",
+  "mistura": {
+    "pm_alex": 0.1326,
+    "pm_santa": 0.3813,
+    "zm_yunxia": 0.1569,
+    "bm_fable": 0.2006,
+    "am_eric": 0.1286
+  },
+  "velocidade": 1.1,
+  "tom": 1.058
+}

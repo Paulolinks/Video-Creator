@@ -1,0 +1,39 @@
+{
+  "id": "warren_buffett",
+  "nome": "Warren Buffett",
+  "aliases": [
+    "Buffett"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\warren_buffett\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "dinheiro_e_ouro_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\warren_buffett.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": false,
+  "nicho": "Investimentos e patrimônio",
+  "categoria": "Investimento de longo prazo",
+  "especialidades": "Investimentos; paciência; juros compostos",
+  "temas_fundo": [
+    "dinheiro_ouro",
+    "biblioteca_velas",
+    "particulas_douradas"
+  ],
+  "fundos": [
+    "dinheiro_e_ouro_1",
+    "biblioteca_a_luz_de_velas_1",
+    "particulas_douradas"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "dinheiro_e_ouro_1_loopster",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "particulas_douradas_1_promises_to_keep"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

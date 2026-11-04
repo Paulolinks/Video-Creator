@@ -1,0 +1,24 @@
+TÍTULO: <frase curta e intrigante>
+TEMA: <assunto do vídeo>
+FORMATO: PERSONAGEM_FALANDO
+PERSONAGEM: <quem fala>
+
+CENA 01 | MODO: FALA
+NARRAÇÃO: <texto integral que será falado>
+IMAGEM: <o que aparece na cena>
+
+CENA 02 | MODO: DOLLY
+NARRAÇÃO: <texto integral>
+IMAGEM: <o que aparece na cena>
+
+CENA 03 | MODO: FALA
+NARRAÇÃO: <texto integral>
+IMAGEM: <o que aparece na cena>
+
+FIM
+
+METADADOS
+TÍTULO DO POST: <título da publicação; pode ser igual ao TÍTULO>
+DESCRIÇÃO: <contexto curto + uma pergunta que convide a comentar>
+NOTA EDITORIAL: <opcional: aviso que vai no fim da descrição>
+HASHTAGS: <5 a 8 hashtags>

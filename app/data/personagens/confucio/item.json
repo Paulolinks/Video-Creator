@@ -1,0 +1,38 @@
+{
+  "id": "confucio",
+  "nome": "Confúcio",
+  "aliases": [
+    "Confucius"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\confucio\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "natureza_zen_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\confucio.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Filosofias orientais e mente",
+  "categoria": "Filosofia chinesa e desenvolvimento moral",
+  "especialidades": "Disciplina; ética; educação; liderança; caráter",
+  "temas_fundo": [
+    "zen_natureza",
+    "biblioteca_velas",
+    "nuvens"
+  ],
+  "fundos": [
+    "natureza_zen_1",
+    "biblioteca_a_luz_de_velas_1",
+    "nuvens"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "natureza_zen_1_ripples",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "nuvens_1_dreamer"
+  ],
+  "musica_indice": 0
+}

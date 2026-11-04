@@ -1,0 +1,38 @@
+{
+  "id": "daniel_kahneman",
+  "nome": "Daniel Kahneman",
+  "aliases": [
+    "Kahneman"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\daniel_kahneman\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cerebro_e_neuronios_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\daniel_kahneman.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Psicologia científica, aprendizagem e comportamento",
+  "categoria": "Psicologia das decisões",
+  "especialidades": "Vieses cognitivos; heurísticas; decisões econômicas",
+  "temas_fundo": [
+    "cerebro_neuronios",
+    "tinta_fumaca",
+    "xadrez"
+  ],
+  "fundos": [
+    "cerebro_e_neuronios_1",
+    "tinta_e_fumaca_1",
+    "xadrez_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "cerebro_e_neuronios_1_ghostpocalypse_3_road_of_trials",
+    "tinta_e_fumaca_1_virtutes_instrumenti",
+    "xadrez_1_enter_the_maze"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,40 @@
+{
+  "id": "luiz_barsi_filho",
+  "nome": "Luiz Barsi Filho",
+  "aliases": [
+    "Luiz Barsi",
+    "Barsi"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\luiz_barsi_filho\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "dinheiro_e_ouro_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\luiz_barsi_filho.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": false,
+  "nicho": "Educação financeira e princípios de riqueza",
+  "categoria": "Investimentos de longo prazo",
+  "especialidades": "Ações; dividendos; reinvestimento; análise de empresas",
+  "temas_fundo": [
+    "dinheiro_ouro",
+    "cidade_noite",
+    "particulas_douradas"
+  ],
+  "fundos": [
+    "dinheiro_e_ouro_1",
+    "cidade_a_noite_1",
+    "particulas_douradas"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "dinheiro_e_ouro_1_loopster",
+    "cidade_a_noite_1_night_in_venice",
+    "particulas_douradas_1_promises_to_keep"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

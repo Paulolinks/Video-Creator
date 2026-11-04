@@ -1,0 +1,12 @@
+{
+  "nome": "Moisés",
+  "descricao": "masculina, madura, enérgica",
+  "mistura": {
+    "pm_alex": 0.3472,
+    "pm_santa": 0.2323,
+    "zm_yunyang": 0.0735,
+    "am_puck": 0.3469
+  },
+  "velocidade": 1.06,
+  "tom": 0.927
+}

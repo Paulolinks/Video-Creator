@@ -1,0 +1,36 @@
+{
+  "id": "leila_hormozi",
+  "nome": "Leila Hormozi",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\leila_hormozi\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cidade_a_noite_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\leila_hormozi.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Sistemas e operações empresariais",
+  "categoria": "Operações e liderança",
+  "especialidades": "Processos; contratação; liderança; operação",
+  "temas_fundo": [
+    "cidade_noite",
+    "tecnologia",
+    "dinheiro_ouro"
+  ],
+  "fundos": [
+    "cidade_a_noite_1",
+    "tecnologia_1",
+    "dinheiro_e_ouro_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "cidade_a_noite_1_night_in_venice",
+    "tecnologia_1_shiny_tech",
+    "dinheiro_e_ouro_1_loopster"
+  ],
+  "musica_indice": 0
+}

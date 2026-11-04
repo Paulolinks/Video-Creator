@@ -1,0 +1,38 @@
+{
+  "id": "morgan_housel",
+  "nome": "Morgan Housel",
+  "aliases": [
+    "Housel"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\morgan_housel\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "dinheiro_e_ouro_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\morgan_housel.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Prosperidade e mentalidade financeira",
+  "categoria": "Psicologia financeira",
+  "especialidades": "Psicologia financeira; dinheiro; comportamento",
+  "temas_fundo": [
+    "dinheiro_ouro",
+    "cidade_noite",
+    "tinta_fumaca"
+  ],
+  "fundos": [
+    "dinheiro_e_ouro_1",
+    "cidade_a_noite_1",
+    "tinta_e_fumaca_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "dinheiro_e_ouro_1_loopster",
+    "cidade_a_noite_1_night_in_venice",
+    "tinta_e_fumaca_1_virtutes_instrumenti"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,12 @@
+{
+  "nome": "Daniel Bernoulli",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_alex": 0.4214,
+    "pm_santa": 0.0987,
+    "zm_yunxia": 0.1361,
+    "bm_daniel": 0.3438
+  },
+  "velocidade": 0.951,
+  "tom": 1.067
+}

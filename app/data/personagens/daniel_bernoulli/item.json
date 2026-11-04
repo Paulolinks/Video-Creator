@@ -1,0 +1,38 @@
+{
+  "id": "daniel_bernoulli",
+  "nome": "Daniel Bernoulli",
+  "aliases": [
+    "Bernoulli"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\daniel_bernoulli\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "geometria_e_matematica_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\daniel_bernoulli.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Matemática financeira, probabilidade e juros compostos",
+  "categoria": "Decisões sob risco",
+  "especialidades": "Utilidade; risco; decisões financeiras",
+  "temas_fundo": [
+    "matematica_geometria",
+    "oceano",
+    "tinta_fumaca"
+  ],
+  "fundos": [
+    "geometria_e_matematica_1",
+    "oceano_1",
+    "tinta_e_fumaca_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "geometria_e_matematica_1_dub_eastern",
+    "oceano_1_pleasant_porridge",
+    "tinta_e_fumaca_1_virtutes_instrumenti"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,36 @@
+{
+  "id": "sun_tzu",
+  "nome": "Sun Tzu",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\sun_tzu\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "xadrez_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\sun_tzu.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Filosofias orientais e mente",
+  "categoria": "Estratégia e inteligência prática",
+  "especialidades": "Estratégia; planejamento; conflitos; liderança; negociação",
+  "temas_fundo": [
+    "xadrez",
+    "fogo",
+    "zen_natureza"
+  ],
+  "fundos": [
+    "xadrez_1",
+    "fogo_1",
+    "natureza_zen_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "xadrez_1_enter_the_maze",
+    "fogo_1_clenched_teeth",
+    "natureza_zen_1_ripples"
+  ],
+  "musica_indice": 0
+}

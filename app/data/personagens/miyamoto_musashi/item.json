@@ -1,0 +1,38 @@
+{
+  "id": "miyamoto_musashi",
+  "nome": "Miyamoto Musashi",
+  "aliases": [
+    "Musashi"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\miyamoto_musashi\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "natureza_zen_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\miyamoto_musashi.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Outros pensadores históricos",
+  "categoria": "Estratégia e disciplina",
+  "especialidades": "Foco; domínio de habilidades; autocontrole",
+  "temas_fundo": [
+    "zen_natureza",
+    "fogo",
+    "xadrez"
+  ],
+  "fundos": [
+    "natureza_zen_1",
+    "fogo_1",
+    "xadrez_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "natureza_zen_1_ripples",
+    "fogo_1_clenched_teeth",
+    "xadrez_1_enter_the_maze"
+  ],
+  "musica_indice": 0
+}

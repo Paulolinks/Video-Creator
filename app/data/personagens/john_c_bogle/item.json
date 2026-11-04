@@ -1,0 +1,39 @@
+{
+  "id": "john_c_bogle",
+  "nome": "John C. Bogle",
+  "aliases": [
+    "John Bogle",
+    "Bogle"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\john_c_bogle\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "dinheiro_e_ouro_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\john_c_bogle.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Educação financeira e princípios de riqueza",
+  "categoria": "Investimento passivo",
+  "especialidades": "Fundos de índice; diversificação; custos; longo prazo",
+  "temas_fundo": [
+    "dinheiro_ouro",
+    "oceano",
+    "nuvens"
+  ],
+  "fundos": [
+    "dinheiro_e_ouro_1",
+    "oceano_1",
+    "nuvens"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "dinheiro_e_ouro_1_loopster",
+    "oceano_1_pleasant_porridge",
+    "nuvens_1_dreamer"
+  ],
+  "musica_indice": 0
+}

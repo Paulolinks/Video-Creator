@@ -1,0 +1,37 @@
+{
+  "test": "C+montagem",
+  "name": "maquiavel_final_com_realce",
+  "date": "2026-10-30T23:01:08",
+  "video_duration_s": 24.125,
+  "stages": {
+    "render_CENA_01_fala_s": 14.93,
+    "render_CENA_02_dolly_s": 17.65,
+    "render_CENA_03_fala_s": 11.96,
+    "transicoes_legenda_audio_s": 16.89
+  },
+  "final_rc": 0,
+  "scenes": [
+    {
+      "id": "CENA_01",
+      "mode": "fala",
+      "start_s": 0.0,
+      "duration_s": 8.55
+    },
+    {
+      "id": "CENA_02",
+      "mode": "dolly",
+      "start_s": 8.55,
+      "duration_s": 7.62
+    },
+    {
+      "id": "CENA_03",
+      "mode": "fala",
+      "start_s": 16.18,
+      "duration_s": 7.95
+    }
+  ],
+  "talk_clips": "SadTalker com_realce",
+  "voice": "Kokoro pm_alex",
+  "wall_total_s_sem_sadtalker": 61.44,
+  "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\maquiavel\\maquiavel_final_com_realce.mp4"
+}

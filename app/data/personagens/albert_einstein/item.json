@@ -1,0 +1,39 @@
+{
+  "id": "albert_einstein",
+  "nome": "Albert Einstein",
+  "aliases": [
+    "Einstein"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\albert_einstein\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cosmos_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\albert_einstein.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 17:38",
+  "imagem_provisoria": false,
+  "nicho": "Ciência e realidade",
+  "categoria": "Física e tempo",
+  "especialidades": "Física; tempo; natureza da realidade",
+  "temas_fundo": [
+    "cosmos",
+    "fisica_atomos",
+    "matematica_geometria"
+  ],
+  "fundos": [
+    "cosmos_1",
+    "atomos_1",
+    "geometria_e_matematica_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "cosmos_1_mesmerizing_galaxy",
+    "atomos_1_ethernight_club",
+    "geometria_e_matematica_1_dub_eastern"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

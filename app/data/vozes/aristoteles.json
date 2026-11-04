@@ -1,0 +1,12 @@
+{
+  "nome": "Aristóteles",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_alex": 0.6059,
+    "pm_santa": 0.0282,
+    "zm_yunjian": 0.1153,
+    "bm_fable": 0.2506
+  },
+  "velocidade": 0.99,
+  "tom": 0.98
+}

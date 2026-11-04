@@ -1,0 +1,38 @@
+{
+  "id": "daniel_priestley",
+  "nome": "Daniel Priestley",
+  "aliases": [
+    "Priestley"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\daniel_priestley\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cidade_a_noite_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\daniel_priestley.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Sistemas e operações empresariais",
+  "categoria": "Conhecimento e escala",
+  "especialidades": "Produtos; autoridade; posicionamento; escala",
+  "temas_fundo": [
+    "cidade_noite",
+    "tecnologia",
+    "particulas_douradas"
+  ],
+  "fundos": [
+    "cidade_a_noite_1",
+    "tecnologia_1",
+    "particulas_douradas"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "cidade_a_noite_1_night_in_venice",
+    "tecnologia_1_shiny_tech",
+    "particulas_douradas_1_promises_to_keep"
+  ],
+  "musica_indice": 0
+}

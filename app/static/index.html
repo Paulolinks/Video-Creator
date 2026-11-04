@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Creator</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">VIDEO <b>CREATOR</b></div>
+  <nav class="tabs">
+    <button data-tab="criar" class="on">Criar vídeos</button>
+    <button data-tab="fila">Vídeos criados <span id="fila-badge" class="badge hide"></span></button>
+    <button data-tab="personagens">Personagens</button>
+    <button data-tab="midias">Fundos e músicas</button>
+  </nav>
+  <div class="canal-bar" title="Os vídeos criados e enviados ficam separados por canal">
+    <label for="canal" class="muted small">Canal</label>
+    <select id="canal"></select>
+    <button id="btn-canal-novo" class="btn ghost small">➕ Novo canal</button>
+  </div>
+</header>
+
+<main>
+  <!-- CRIAR -->
+  <section id="tab-criar" class="tab on">
+    <h1>Criar vídeos a partir dos roteiros</h1>
+    <p class="muted">Cada roteiro vira um vídeo. O app identifica sozinho o template (Personagem falando ou Entrevista),
+      as cenas e os personagens. Para o template Personagem falando, envie as imagens das cenas junto
+      (cena1.png, cena2.png...).</p>
+
+    <div id="drop" class="drop">
+      <div class="drop-icon">⬆</div>
+      <div><b>Arraste aqui os roteiros</b> (.txt, .md ou .pdf), ou uma pasta com roteiros e imagens</div>
+      <div class="drop-buttons">
+        <label class="btn">Escolher arquivos<input id="in-files" type="file" multiple accept=".txt,.md,.pdf,image/*" hidden></label>
+        <label class="btn ghost">Escolher pasta<input id="in-folder" type="file" webkitdirectory multiple hidden></label>
+      </div>
+      <div id="drop-status" class="muted"></div>
+    </div>
+
+    <details class="card colar">
+      <summary>📋 Colar roteiro (texto)</summary>
+      <textarea id="txt-roteiro" rows="9" spellcheck="false" placeholder="Cole aqui o bloco que o ChatGPT devolveu, de TÍTULO: até FIM"></textarea>
+      <div class="row"><button id="btn-colar" class="btn">Ler roteiro</button>
+        <span class="muted small">Para vários vídeos de uma vez, salve cada roteiro como .txt e arraste todos acima.</span></div>
+    </details>
+
+
+    <div id="lote" class="hide">
+      <div class="lote-head">
+        <h2>Identificado</h2>
+        <div id="resumo" class="chips"></div>
+        <button id="btn-reanalisar" class="btn ghost small">Reanalisar</button>
+      </div>
+      <div class="table-wrap"><table class="grid">
+        <thead><tr><th><input type="checkbox" id="chk-all" checked></th><th>Roteiro</th><th>Template</th><th>Título</th>
+          <th>Cenas</th><th>Personagens / imagens</th><th>Situação</th></tr></thead>
+        <tbody id="lote-rows"></tbody>
+      </table></div>
+
+      <div class="opcoes">
+        <div class="card">
+          <h3>Música de fundo</h3>
+          <select id="opt-musica"></select>
+          <div id="vol-wrap" class="row"><label>Volume</label><input id="opt-volume" type="range" min="5" max="50" value="10">
+            <span id="vol-val">10%</span></div>
+          <p class="muted small">A música abaixa sozinha quando alguém fala.</p>
+        </div>
+        <div class="card" id="card-fundos">
+          <h3>Fundo de cada personagem (Entrevista)</h3>
+          <div id="opt-fundos"></div>
+        </div>
+      </div>
+      <div class="start-bar">
+        <span id="start-info" class="muted"></span>
+        <button id="btn-iniciar" class="btn big">Gerar vídeos</button>
+      </div>
+    </div>
+
+    <h1 style="margin-top:30px">Modelos de vídeo</h1>
+    <p class="muted">Veja como cada modelo fica. Baixe o framework do modelo e anexe no ChatGPT (ou cole nas instruções
+      de um Projeto do ChatGPT). Ele devolve o roteiro em texto, no formato certo, para você enviar lá em cima.
+      O framework é só o modelo: não envie ele para o app.</p>
+    <div class="modelos">
+      <div class="modelo card">
+        <video src="/static/modelos/exemplo_F01_maquiavel.mp4" poster="/static/modelos/capa_F01.jpg" controls
+          playsinline preload="none"></video>
+        <div class="modelo-info">
+          <span class="chip t01">Template 1</span>
+          <h3>Personagem falando</h3>
+          <p class="muted small">Um personagem fala para a câmera com a boca sincronizada; cenas sem fala ganham
+            profundidade 2.5D. Uma voz narra tudo e a legenda karaokê acompanha cada palavra.</p>
+          <p class="small"><b>Vídeo de exemplo:</b> Maquiavel · 24 s · 3 cenas</p>
+          <a class="btn dl-pdf" href="/static/modelos/Framework_F01_Personagem_Falando.md" download>Baixar framework para o ChatGPT
+            (.md)</a>
+          <span class="small">Também: <a href="/static/modelos/Framework_F01_Personagem_Falando.pdf" download>versão PDF</a> ·
+            <a href="/static/modelos/modelo_F01_roteiro.txt" download>modelo .txt</a> ·
+            <a href="/static/modelos/exemplo_F01_roteiro.txt" download>exemplo .txt</a></span>
+        </div>
+      </div>
+      <div class="modelo card">
+        <video src="/static/modelos/exemplo_T02_entrevista.mp4" poster="/static/modelos/capa_T02.jpg" controls
+          playsinline preload="none"></video>
+        <div class="modelo-info">
+          <span class="chip t02">Template 2</span>
+          <h3>Entrevista com mentor</h3>
+          <p class="muted small">Você pergunta, o mentor responde. A cada fala trocam o retrato, o lado, o fundo e a
+            voz, com onda sonora e legenda karaokê.</p>
+          <p class="small"><b>Vídeo de exemplo:</b> Paulo × Bob Proctor · 2 min 16 s · 6 cenas</p>
+          <a class="btn dl-pdf" href="/static/modelos/Framework_T02_Entrevista_com_Mentor.md" download>Baixar framework para o ChatGPT
+            (.md)</a>
+          <span class="small">Também: <a href="/static/modelos/Framework_T02_Entrevista_com_Mentor.pdf" download>versão PDF</a> ·
+            <a href="/static/modelos/modelo_T02_roteiro.txt" download>modelo .txt</a> ·
+            <a href="/static/modelos/exemplo_T02_roteiro.txt" download>exemplo .txt</a></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILA -->
+  <section id="tab-fila" class="tab">
+    <div class="fila-top"><h1>Vídeos criados <span id="fila-canal" class="muted"></span></h1>
+      <button id="btn-ia" class="btn ghost small">⚙️ IA dos metadados</button>
+      <button id="btn-google" class="btn ghost small">⚙️ Canal e Google Drive</button></div>
+    <p class="muted">Cada vídeo pronto ganha descrição e hashtags da IA. Edite e clique em Salvar; o título do post
+      começa igual ao do roteiro. A capa já vai no primeiro segundo do vídeo.</p>
+    <div id="gpu-alerta" class="alert hide"></div>
+    <p id="fila-vazia" class="muted hide">Nenhum vídeo na fila ainda.</p>
+    <div id="fila"></div>
+  </section>
+
+  <!-- PERSONAGENS -->
+  <section id="tab-personagens" class="tab">
+    <h1>Personagens</h1>
+    <p class="muted">O nome do personagem no PDF (ex.: <code>CENA 02 | PERSONAGEM: BOB PROCTOR</code>) é ligado ao cadastro
+      pelo nome ou por um dos outros nomes.</p>
+    <div class="filtros"><select id="f-nicho"></select><input id="f-busca" placeholder="Buscar por nome, categoria ou tema"></div>
+    <div class="split">
+      <div id="lista-personagens"></div>
+      <form id="form-personagem" class="card form">
+        <h3>Novo personagem</h3>
+        <label>Nome<input name="nome" required placeholder="Ex.: Napoleon Hill"></label>
+        <label>Outros nomes no roteiro <span class="muted small">(separados por vírgula)</span>
+          <input name="aliases" placeholder="Ex.: Napoleão, Hill"></label>
+        <label>Nicho<input name="nicho" list="dl-nichos" placeholder="Ex.: Filosofia e autoconhecimento"></label>
+        <datalist id="dl-nichos"></datalist>
+        <label>Categoria<input name="categoria" placeholder="Ex.: Estoicismo"></label>
+        <label>Imagem sem fundo (PNG transparente)<input name="imagem" type="file" accept="image/png,image/webp" required></label>
+        <div id="prev-wrap" class="prev hide"><img id="prev-img" alt=""><div id="prev-msg" class="small"></div></div>
+        <label>Lado na tela
+          <select name="lado"><option value="esquerda">Esquerda (olhando para a direita)</option>
+            <option value="direita">Direita (olhando para a esquerda)</option></select></label>
+        <label>Fundo padrão<select name="fundo" class="sel-fundos"></select></label>
+        <fieldset><legend>Voz</legend>
+          <label class="inline"><input type="radio" name="voz_tipo" value="pronta" checked> Voz pronta</label>
+          <label class="inline"><input type="radio" name="voz_tipo" value="clonar"> Clonar de uma gravação</label>
+          <div id="voz-pronta"><select name="voz_kokoro" id="sel-vozes"></select></div>
+          <div id="voz-clonar" class="hide">
+            <div class="recorte">
+              <b class="small">Pegar a voz de um vídeo (YouTube etc.)</b>
+              <input id="rc-url" placeholder="Cole o link do vídeo">
+              <div class="rc-tempos"><label>Início<input id="rc-ini" placeholder="3:00"></label>
+                <label>Fim<input id="rc-fim" placeholder="3:30"></label>
+                <button type="button" id="rc-btn" class="btn small">Recortar áudio</button></div>
+              <div id="rc-msg" class="small muted">Escolha um trecho em que só a pessoa fala, sem música nem barulho.
+                20 a 30 segundos bastam (de 5 s a 3 min). Só esse trecho é baixado.</div>
+              <audio id="rc-audio" class="hide" controls></audio>
+              <input type="hidden" name="voz_recorte" id="rc-id">
+            </div>
+            <div class="small muted">ou envie um arquivo de áudio:</div>
+            <input name="voz_arquivo" type="file" accept="audio/*">
+            <p class="muted small">10 a 30 segundos de fala limpa, sem música.</p>
+            <label class="inline"><input type="checkbox" name="autorizacao" value="sim"> Esta é a minha voz ou tenho
+              autorização do dono desta voz para clonar.</label>
+          </div>
+        </fieldset>
+        <button class="btn" type="submit">Cadastrar personagem</button>
+        <div id="form-personagem-msg" class="small"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- FUNDOS E MÚSICAS -->
+  <section id="tab-midias" class="tab">
+    <h1>Fundos e músicas</h1>
+    <div class="split two">
+      <div>
+        <h2>Fundos (vídeos em loop)</h2>
+        <div id="lista-fundos" class="cards"></div>
+        <form class="card form media-form" data-kind="fundos">
+          <h3>Novo fundo</h3>
+          <label>Nome<input name="nome" required placeholder="Ex.: Cidade à noite"></label>
+          <label>Vídeo (MP4)<input name="arquivo" type="file" accept="video/*" required></label>
+          <label>Origem / licença<input name="origem" required placeholder="Ex.: Pixabay, licença livre"></label>
+          <label>Temas <span class="muted small">(Ctrl+clique para vários; os personagens desses temas podem usar este fundo)</span>
+            <select name="temas" id="sel-temas" multiple size="6"></select></label>
+          <button class="btn" type="submit">Adicionar fundo</button><div class="small msg"></div>
+        </form>
+      </div>
+      <div>
+        <h2>Músicas de fundo</h2>
+        <div id="lista-musicas" class="cards"></div>
+        <form class="card form media-form" data-kind="musicas">
+          <h3>Nova música</h3>
+          <label>Nome<input name="nome" required placeholder="Ex.: Piano reflexivo"></label>
+          <label>Arquivo (MP3, WAV, M4A)<input name="arquivo" type="file" accept="audio/*" required></label>
+          <label>Origem / licença<input name="origem" required placeholder="Ex.: YouTube Audio Library"></label>
+          <button class="btn" type="submit">Adicionar música</button><div class="small msg"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="modal" class="modal hide"><div class="modal-box"><button id="modal-close" class="x">×</button>
+  <video id="modal-video" controls playsinline></video></div></div>
+
+<div id="modal-ia" class="modal hide"><div class="modal-box card cfg">
+  <h3>IA dos metadados (Ollama)</h3>
+  <p id="ia-status" class="small muted"></p>
+  <label>Modelo<select id="ia-modelo"></select></label>
+  <label>Prompt <span class="small muted">· marcadores: {titulo} {subtitulo} {formato} {mentor} {nicho} {temas} {roteiro}.
+    A resposta tem que ser JSON com "descricao" e "hashtags".</span>
+    <textarea id="ia-prompt" rows="18" spellcheck="false"></textarea></label>
+  <div class="row"><button id="ia-salvar" class="btn">Salvar</button><button id="ia-padrao" class="btn ghost">Voltar ao padrão</button>
+    <button id="ia-fechar" class="btn ghost">Fechar</button></div>
+</div></div>
+
+<div id="modal-google" class="modal hide"><div class="modal-box card cfg">
+  <h3 id="g-titulo">Canal e Google Drive</h3>
+  <label>Nome do canal
+    <input id="g-nome" placeholder="Ex.: Dobrando a Realidade"></label>
+  <p id="g-status" class="small muted"></p>
+  <label>Credencial do Google (credentials.json, tipo "App para computador"), a mesma para todos os canais
+    <input id="g-cred" type="file" accept=".json,application/json"></label>
+  <label>Link da pasta do Drive deste canal (cada canal tem a sua)
+    <input id="g-pasta" placeholder="https://drive.google.com/drive/folders/..."></label>
+  <p class="small muted">Ao salvar, o app conecta na sua conta Google (na 1ª vez abre o login no navegador) e cria
+    dentro dessa pasta a planilha "Video Creator - Metadados", com as colunas
+    Arquivo · Transcrição · Título · Hashtag · Tipo · Video_ID. Cada vídeo enviado vira uma linha nela.</p>
+  <p id="g-planilha" class="small"></p>
+  <div class="row"><button id="g-salvar" class="btn">Salvar e conectar</button>
+    <button id="g-sair" class="btn ghost">Desconectar conta</button>
+    <button id="g-excluir" class="btn danger">Excluir canal</button>
+    <button id="g-fechar" class="btn ghost">Fechar</button></div>
+</div></div>
+
+<div id="loading" class="modal hide"><div class="loading-box"><div class="spin"></div><div id="loading-text"></div></div></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

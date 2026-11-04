@@ -1,0 +1,40 @@
+{
+  "id": "sidarta_gautama",
+  "nome": "Sidarta Gautama",
+  "aliases": [
+    "Buda",
+    "Buddha",
+    "Sidarta Gautama (Buda)"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\sidarta_gautama\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "natureza_zen_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\sidarta_gautama.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Filosofias orientais e mente",
+  "categoria": "Filosofia budista e consciência",
+  "especialidades": "Sofrimento; desejo; atenção; desapego; meditação",
+  "temas_fundo": [
+    "zen_natureza",
+    "luz_divina",
+    "oceano"
+  ],
+  "fundos": [
+    "natureza_zen_1",
+    "luz_divina_1",
+    "oceano_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "natureza_zen_1_ripples",
+    "luz_divina_1_skye_cuillin",
+    "oceano_1_pleasant_porridge"
+  ],
+  "musica_indice": 0
+}

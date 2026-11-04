@@ -1,0 +1,36 @@
+{
+  "id": "ibn_khaldun",
+  "nome": "Ibn Khaldun",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\ibn_khaldun\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "egito_antigo_2",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\ibn_khaldun.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Outros pensadores históricos",
+  "categoria": "Sociedade e economia",
+  "especialidades": "Riqueza; poder; civilizações; trabalho",
+  "temas_fundo": [
+    "egito",
+    "biblioteca_velas",
+    "dinheiro_ouro"
+  ],
+  "fundos": [
+    "egito_antigo_2",
+    "biblioteca_a_luz_de_velas_1",
+    "dinheiro_e_ouro_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "egito_antigo_1_jalandhar",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "dinheiro_e_ouro_1_loopster"
+  ],
+  "musica_indice": 0
+}

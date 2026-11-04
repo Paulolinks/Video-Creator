@@ -1,0 +1,38 @@
+{
+  "id": "seneca",
+  "nome": "Sêneca",
+  "aliases": [
+    "Seneca"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\seneca\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "templo_grego_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\seneca.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Outros pensadores históricos",
+  "categoria": "Estoicismo",
+  "especialidades": "Riqueza; tempo; autocontrole; adversidade",
+  "temas_fundo": [
+    "templo_grego",
+    "biblioteca_velas",
+    "fogo"
+  ],
+  "fundos": [
+    "templo_grego_1",
+    "biblioteca_a_luz_de_velas_1",
+    "fogo_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "templo_grego_1_peaceful_desolation",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "fogo_1_clenched_teeth"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,39 @@
+{
+  "id": "george_s_clason",
+  "nome": "George S. Clason",
+  "aliases": [
+    "George Clason",
+    "Clason"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\george_s_clason\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\george_s_clason.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Educação financeira e princípios de riqueza",
+  "categoria": "Educação financeira",
+  "especialidades": "Poupança; orçamento; patrimônio; prudência financeira",
+  "temas_fundo": [
+    "biblioteca_velas",
+    "dinheiro_ouro",
+    "egito"
+  ],
+  "fundos": [
+    "biblioteca_a_luz_de_velas_1",
+    "dinheiro_e_ouro_1",
+    "egito_antigo_2"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "dinheiro_e_ouro_1_loopster",
+    "egito_antigo_1_jalandhar"
+  ],
+  "musica_indice": 0
+}

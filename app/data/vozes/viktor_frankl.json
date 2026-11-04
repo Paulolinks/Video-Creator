@@ -1,0 +1,10 @@
+{
+  "nome": "Viktor Frankl",
+  "descricao": "firme, calorosa",
+  "mistura": {
+    "pm_alex": 0.55,
+    "am_fenrir": 0.45
+  },
+  "velocidade": 0.94,
+  "tom": 0.95
+}

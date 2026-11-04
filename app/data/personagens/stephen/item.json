@@ -1,0 +1,19 @@
+{
+  "id": "stephen",
+  "nome": "Stephen",
+  "aliases": [
+    "Stephen Taubin"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\stephen\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\stephen.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "fundo_removido": false,
+  "criado_em": "2026-11-01 15:18",
+  "nicho": "Filosofia e autoconhecimento"
+}

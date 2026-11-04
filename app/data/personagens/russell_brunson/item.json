@@ -1,0 +1,38 @@
+{
+  "id": "russell_brunson",
+  "nome": "Russell Brunson",
+  "aliases": [
+    "Brunson"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\russell_brunson\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "tecnologia_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\russell_brunson.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Marketing e aquisição de clientes",
+  "categoria": "Funis de vendas",
+  "especialidades": "Funis; conversão; marketing digital",
+  "temas_fundo": [
+    "tecnologia",
+    "cidade_noite",
+    "particulas_douradas"
+  ],
+  "fundos": [
+    "tecnologia_1",
+    "cidade_a_noite_1",
+    "particulas_douradas"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "tecnologia_1_shiny_tech",
+    "cidade_a_noite_1_night_in_venice",
+    "particulas_douradas_1_promises_to_keep"
+  ],
+  "musica_indice": 0
+}

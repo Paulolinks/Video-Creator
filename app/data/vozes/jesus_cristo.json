@@ -1,0 +1,12 @@
+{
+  "nome": "Jesus Cristo",
+  "descricao": "masculina, jovem, calma",
+  "mistura": {
+    "pm_alex": 0.1339,
+    "pm_santa": 0.4152,
+    "zm_yunxi": 0.1589,
+    "bm_lewis": 0.292
+  },
+  "velocidade": 0.873,
+  "tom": 1.097
+}

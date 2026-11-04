@@ -1,0 +1,10 @@
+{
+  "nome": "Nicolau Maquiavel",
+  "descricao": "seca, astuta, precisa",
+  "mistura": {
+    "pm_alex": 0.6,
+    "bm_daniel": 0.4
+  },
+  "velocidade": 1.0,
+  "tom": 1.03
+}

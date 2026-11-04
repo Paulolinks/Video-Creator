@@ -1,0 +1,11 @@
+{
+  "nome": "Miyamoto Musashi",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.4521,
+    "pm_santa": 0.1144,
+    "am_puck": 0.4335
+  },
+  "velocidade": 0.909,
+  "tom": 0.992
+}

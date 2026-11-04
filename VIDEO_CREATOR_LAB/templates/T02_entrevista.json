@@ -1,0 +1,22 @@
+{
+  "id": "T02_entrevista",
+  "versao": "1.0",
+  "aprovado_em": "2026-10-31",
+  "descricao": "Entrevista com mentor: blocos alternados; ao trocar o locutor trocam retrato (lado), voz e fundo. Retrato PNG recortado com respiração, fundo em loop escurecido, onda sonora reagindo à voz, legenda karaokê com a cor mudando conforme a fala (estilo da montagem v3).",
+  "video": {"largura": 1080, "altura": 1920, "fps": 30, "codec": "libx264", "crf": 18, "preset": "medium", "codec_final": "h264_nvenc", "cq_final": 18},
+  "fundo": {"escurecer_ate_luma": 70, "desfoque_sigma": 2.0, "loop_crossfade_s": 1.0},
+  "retrato": {"largura": 1000, "deslocamento_borda": 60, "respiracao": {"de": 1.0, "pico": 1.06}},
+  "onda": {"barras": 40, "largura_barra": 8, "espaco": 4, "altura_max": 150, "centro_y": 1080, "cor": [255, 255, 255], "opacidade": 0.85},
+  "voz": {"loudness_por_cena_lufs": -16, "loudness_final_lufs": -14,
+          "tratamento": {
+            "chatterbox": "highpass=f=90,equalizer=f=150:t=q:w=1:g=2,equalizer=f=350:t=q:w=1.2:g=-3,equalizer=f=4000:t=q:w=1:g=4,acompressor=threshold=-22dB:ratio=3.5:attack=8:release=120:makeup=2,deesser=i=0.5",
+            "kokoro": "highpass=f=80,lowpass=f=10500,afftdn=nr=30:nf=-40:tn=1,agate=threshold=0.02:ratio=10:attack=5:release=220:range=0.01,equalizer=f=150:t=q:w=1:g=2,equalizer=f=350:t=q:w=1.2:g=-2,equalizer=f=3500:t=q:w=1:g=2,acompressor=threshold=-20dB:ratio=2.5:attack=10:release=150:makeup=1.5,deesser=i=0.4"
+          }},
+  "tempo": {"respiro_inicio_s": 0.3, "respiro_fim_cena_s": 0.45, "transicao_s": 0.4},
+  "legenda": {"estilo": "karaoke_cor", "fonte": "Poppins", "negrito": true, "tamanho": 84, "max_palavras": 3, "max_caracteres": 22,
+              "centro_y": 760, "cor_falada": "&H0045D7FF", "cor_aguardando": "&H00FFFFFF", "contorno": 7, "sombra": 2,
+              "maiusculas": true},
+  "rotulos": {"aviso": "", "aviso_y": 150, "mostrar_nomes": true, "nome_y": 225, "sufixo_nome_simulado": "",
+              "logo": null, "logo_largura": 160, "logo_y": 60},
+  "musica": {"arquivo": null}
+}

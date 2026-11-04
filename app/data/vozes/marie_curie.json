@@ -1,0 +1,10 @@
+{
+  "nome": "Marie Curie",
+  "descricao": "feminina, adulta, calma",
+  "mistura": {
+    "pf_dora": 0.5317,
+    "bf_isabella": 0.4683
+  },
+  "velocidade": 0.897,
+  "tom": 1.001
+}

@@ -1,0 +1,11 @@
+{
+  "nome": "Thomas Sowell",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.1787,
+    "pm_santa": 0.3319,
+    "bm_daniel": 0.4895
+  },
+  "velocidade": 0.855,
+  "tom": 0.962
+}

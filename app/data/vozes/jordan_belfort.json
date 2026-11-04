@@ -1,0 +1,11 @@
+{
+  "nome": "Jordan Belfort",
+  "descricao": "masculina, adulta, enérgica",
+  "mistura": {
+    "pm_alex": 0.0227,
+    "pm_santa": 0.5475,
+    "am_puck": 0.4298
+  },
+  "velocidade": 1.076,
+  "tom": 0.967
+}

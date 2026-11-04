@@ -1,0 +1,23 @@
+{
+  "id": "cicero",
+  "nome": "Cícero",
+  "aliases": [
+    "Marco",
+    "Túlio",
+    "Cícero"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\cicero\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\cicero.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "fundo_removido": false,
+  "criado_em": "2026-11-01 15:08",
+  "nicho": "Filosofia e autoconhecimento",
+  "categoria": "Retórica, Oratória e Argumentação",
+  "fundo_indice": 1
+}

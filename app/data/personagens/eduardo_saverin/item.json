@@ -1,0 +1,38 @@
+{
+  "id": "eduardo_saverin",
+  "nome": "Eduardo Saverin",
+  "aliases": [
+    "Saverin"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\eduardo_saverin\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "tecnologia_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\eduardo_saverin.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Investimentos e patrimônio",
+  "categoria": "Participações e capital de risco",
+  "especialidades": "Facebook; capital de risco; participação societária",
+  "temas_fundo": [
+    "tecnologia",
+    "dinheiro_ouro",
+    "cidade_noite"
+  ],
+  "fundos": [
+    "tecnologia_1",
+    "dinheiro_e_ouro_1",
+    "cidade_a_noite_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "tecnologia_1_shiny_tech",
+    "dinheiro_e_ouro_1_loopster",
+    "cidade_a_noite_1_night_in_venice"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,39 @@
+{
+  "id": "chris_voss",
+  "nome": "Chris Voss",
+  "aliases": [
+    "Voss"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\chris_voss\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "xadrez_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\chris_voss.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": false,
+  "nicho": "Vendas e negociação",
+  "categoria": "Negociação",
+  "especialidades": "Negociação; escuta; comunicação",
+  "temas_fundo": [
+    "xadrez",
+    "cidade_noite",
+    "tinta_fumaca"
+  ],
+  "fundos": [
+    "xadrez_1",
+    "cidade_a_noite_1",
+    "tinta_e_fumaca_1"
+  ],
+  "fundo_indice": 1,
+  "musicas": [
+    "xadrez_1_enter_the_maze",
+    "cidade_a_noite_1_night_in_venice",
+    "tinta_e_fumaca_1_virtutes_instrumenti"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": true
+}

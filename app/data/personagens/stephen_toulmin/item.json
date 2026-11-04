@@ -1,0 +1,18 @@
+{
+  "id": "stephen_toulmin",
+  "nome": "Stephen Toulmin",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\stephen_toulmin\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\stephen_toulmin.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "fundo_removido": false,
+  "criado_em": "2026-11-01 16:19",
+  "nicho": "Filosofia e autoconhecimento",
+  "fundo_indice": 1
+}

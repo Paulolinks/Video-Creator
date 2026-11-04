@@ -1,0 +1,11 @@
+{
+  "nome": "Arthur Schopenhauer",
+  "descricao": "baixa, seca, sombria",
+  "mistura": {
+    "pm_santa": 0.55,
+    "am_adam": 0.25,
+    "am_echo": 0.2
+  },
+  "velocidade": 0.95,
+  "tom": 0.88
+}

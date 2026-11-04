@@ -1,0 +1,38 @@
+{
+  "id": "marie_curie",
+  "nome": "Marie Curie",
+  "aliases": [
+    "Curie"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\marie_curie\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "atomos_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\marie_curie.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Física, física quântica e realidade",
+  "categoria": "Física e química",
+  "especialidades": "Radioatividade; experimentação; pesquisa científica",
+  "temas_fundo": [
+    "fisica_atomos",
+    "energia_eletrica",
+    "biblioteca_velas"
+  ],
+  "fundos": [
+    "atomos_1",
+    "energia_eletrica_1",
+    "biblioteca_a_luz_de_velas_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "atomos_1_ethernight_club",
+    "energia_eletrica_1_shiny_tech_ii",
+    "biblioteca_a_luz_de_velas_1_sad_trio"
+  ],
+  "musica_indice": 0
+}

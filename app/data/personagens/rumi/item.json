@@ -1,0 +1,36 @@
+{
+  "id": "rumi",
+  "nome": "Rumi",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\rumi\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "luz_divina_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\rumi.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Outros pensadores históricos",
+  "categoria": "Espiritualidade e poesia",
+  "especialidades": "Amor; ego; transformação interior",
+  "temas_fundo": [
+    "luz_divina",
+    "cosmos",
+    "particulas_douradas"
+  ],
+  "fundos": [
+    "luz_divina_1",
+    "cosmos_1",
+    "particulas_douradas"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "luz_divina_1_skye_cuillin",
+    "cosmos_1_mesmerizing_galaxy",
+    "particulas_douradas_1_promises_to_keep"
+  ],
+  "musica_indice": 0
+}

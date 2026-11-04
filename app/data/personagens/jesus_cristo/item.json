@@ -1,0 +1,39 @@
+{
+  "id": "jesus_cristo",
+  "nome": "Jesus Cristo",
+  "aliases": [
+    "Jesus"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\jesus_cristo\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "luz_divina_1",
+  "voz": {
+    "motor": "chatterbox",
+    "referencia": "D:\\Video-Creator\\app\\data\\personagens\\jesus_cristo\\voz_referencia.mp3"
+  },
+  "autorizacao_voz": true,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": false,
+  "nicho": "Sabedoria bíblica e espiritualidade",
+  "categoria": "Sabedoria bíblica e ensinamentos espirituais",
+  "especialidades": "Espiritualidade; amor; perdão; compaixão; propósito; desapego",
+  "temas_fundo": [
+    "luz_divina",
+    "nuvens",
+    "oceano"
+  ],
+  "fundos": [
+    "luz_divina_1",
+    "nuvens",
+    "oceano_1"
+  ],
+  "fundo_indice": 2,
+  "musicas": [
+    "luz_divina_1_skye_cuillin",
+    "nuvens_1_dreamer",
+    "oceano_1_pleasant_porridge"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": true
+}

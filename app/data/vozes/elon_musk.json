@@ -1,0 +1,13 @@
+{
+  "nome": "Elon Musk",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_alex": 0.1598,
+    "pm_santa": 0.4836,
+    "em_santa": 0.1644,
+    "am_santa": 0.1114,
+    "am_eric": 0.0808
+  },
+  "velocidade": 0.971,
+  "tom": 1.073
+}

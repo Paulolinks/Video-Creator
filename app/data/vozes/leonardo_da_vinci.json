@@ -1,0 +1,13 @@
+{
+  "nome": "Leonardo da Vinci",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.1871,
+    "pm_santa": 0.4547,
+    "im_nicola": 0.1845,
+    "am_michael": 0.056,
+    "am_puck": 0.1177
+  },
+  "velocidade": 0.941,
+  "tom": 0.933
+}

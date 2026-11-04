@@ -1,0 +1,11 @@
+{
+  "nome": "Gary Vaynerchuk",
+  "descricao": "masculina, adulta, enérgica",
+  "mistura": {
+    "pm_alex": 0.1907,
+    "pm_santa": 0.4547,
+    "bm_fable": 0.3546
+  },
+  "velocidade": 1.07,
+  "tom": 1.03
+}

@@ -1,0 +1,11 @@
+{
+  "nome": "Nikola Tesla",
+  "descricao": "leve, rápida, visionária",
+  "mistura": {
+    "pm_alex": 0.5,
+    "am_puck": 0.3,
+    "am_liam": 0.2
+  },
+  "velocidade": 1.04,
+  "tom": 1.12
+}

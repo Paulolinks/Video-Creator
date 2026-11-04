@@ -1,0 +1,10 @@
+{
+  "nome": "Jeff Bezos",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_alex": 0.5824,
+    "am_onyx": 0.4132
+  },
+  "velocidade": 0.983,
+  "tom": 0.961
+}

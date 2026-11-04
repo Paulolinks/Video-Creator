@@ -1,0 +1,13 @@
+{
+  "nome": "Seth Godin",
+  "descricao": "masculina, madura, equilibrada",
+  "mistura": {
+    "pm_alex": 0.3203,
+    "pm_santa": 0.2223,
+    "jm_kumo": 0.1038,
+    "bm_george": 0.2454,
+    "am_eric": 0.1082
+  },
+  "velocidade": 0.97,
+  "tom": 0.964
+}

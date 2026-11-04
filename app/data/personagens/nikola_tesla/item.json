@@ -1,0 +1,40 @@
+{
+  "id": "nikola_tesla",
+  "nome": "Nikola Tesla",
+  "aliases": [
+    "Tesla",
+    "Nicola Tesla"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\nikola_tesla\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "energia_eletrica_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\nikola_tesla.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 17:38",
+  "imagem_provisoria": false,
+  "nicho": "Ciência e realidade",
+  "categoria": "Energia e frequência",
+  "especialidades": "Energia; frequência; ciência",
+  "temas_fundo": [
+    "energia_eletrica",
+    "fisica_atomos",
+    "cosmos"
+  ],
+  "fundos": [
+    "energia_eletrica_1",
+    "atomos_1",
+    "cosmos_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "energia_eletrica_1_shiny_tech_ii",
+    "atomos_1_ethernight_club",
+    "cosmos_1_mesmerizing_galaxy"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

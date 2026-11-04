@@ -1,0 +1,13 @@
+{
+  "nome": "Blaise Pascal",
+  "descricao": "masculina, jovem, calma",
+  "mistura": {
+    "pm_alex": 0.4765,
+    "pm_santa": 0.0799,
+    "hm_psi": 0.0974,
+    "am_fenrir": 0.1242,
+    "bm_lewis": 0.222
+  },
+  "velocidade": 0.911,
+  "tom": 1.028
+}

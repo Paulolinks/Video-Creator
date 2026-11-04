@@ -1,0 +1,19 @@
+{
+  "id": "josh",
+  "nome": "Josh",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\josh\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "chatterbox",
+    "referencia": "D:\\Video-Creator\\app\\data\\personagens\\josh\\voz_referencia.mp3"
+  },
+  "autorizacao_voz": true,
+  "transparente": true,
+  "fundo_removido": false,
+  "criado_em": "2026-11-01 16:23",
+  "nicho": "Economia, pensamento crítico e decisões",
+  "imagem_provisoria": false,
+  "fundo_indice": 4
+}

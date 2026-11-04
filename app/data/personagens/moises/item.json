@@ -1,0 +1,36 @@
+{
+  "id": "moises",
+  "nome": "Moisés",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\moises\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "egito_antigo_2",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\moises.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Sabedoria bíblica e espiritualidade",
+  "categoria": "Liderança e sabedoria bíblica",
+  "especialidades": "Liderança; fé; coragem; libertação; responsabilidade; justiça",
+  "temas_fundo": [
+    "egito",
+    "fogo",
+    "luz_divina"
+  ],
+  "fundos": [
+    "egito_antigo_2",
+    "fogo_1",
+    "luz_divina_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "egito_antigo_1_jalandhar",
+    "fogo_1_clenched_teeth",
+    "luz_divina_1_skye_cuillin"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,39 @@
+{
+  "id": "leonardo_da_vinci",
+  "nome": "Leonardo da Vinci",
+  "aliases": [
+    "Da Vinci",
+    "Leonardo"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\leonardo_da_vinci\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "geometria_e_matematica_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\leonardo_da_vinci.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Outros pensadores históricos",
+  "categoria": "Criatividade e conhecimento",
+  "especialidades": "Invenção; observação; aprendizagem",
+  "temas_fundo": [
+    "matematica_geometria",
+    "biblioteca_velas",
+    "tinta_fumaca"
+  ],
+  "fundos": [
+    "geometria_e_matematica_1",
+    "biblioteca_a_luz_de_velas_1",
+    "tinta_e_fumaca_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "geometria_e_matematica_1_dub_eastern",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "tinta_e_fumaca_1_virtutes_instrumenti"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,38 @@
+{
+  "id": "rei_salomao",
+  "nome": "Rei Salomão",
+  "aliases": [
+    "Salomão"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\rei_salomao\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "luz_divina_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\rei_salomao.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Sabedoria bíblica e espiritualidade",
+  "categoria": "Sabedoria bíblica e prosperidade",
+  "especialidades": "Sabedoria; prosperidade; justiça; prudência; decisões; liderança",
+  "temas_fundo": [
+    "luz_divina",
+    "particulas_douradas",
+    "egito"
+  ],
+  "fundos": [
+    "luz_divina_1",
+    "particulas_douradas",
+    "egito_antigo_2"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "luz_divina_1_skye_cuillin",
+    "particulas_douradas_1_promises_to_keep",
+    "egito_antigo_1_jalandhar"
+  ],
+  "musica_indice": 0
+}

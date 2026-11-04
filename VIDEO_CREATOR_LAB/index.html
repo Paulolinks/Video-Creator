@@ -1,0 +1,341 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>Laboratório Video Creator</title>
+<style>
+:root{--bg:#111318;--fg:#e8e8ec;--muted:#9a9cab;--card:#1b1e26;--line:#2a2e3a;--accent:#5b9bff;--lic:#c9a84a}
+body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,sans-serif}
+main{max-width:1400px;margin:auto}
+h1{font-size:24px;margin:0 0 6px} h2{font-size:19px;margin:0 0 6px} h3{font-size:14px;margin:0 0 4px}
+a{color:var(--accent)} nav{display:flex;flex-wrap:wrap;gap:8px 16px;margin:10px 0 4px}
+.note{color:var(--muted);max-width:900px;margin:0 0 10px}
+section{border-top:1px solid var(--line);padding:22px 0}
+.toolhead{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.tools{margin:0 0 14px;padding-left:18px;max-width:1000px} .tools li{margin:3px 0}
+.lic{color:var(--lic);font-size:12px}
+.ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px} .ctrl span{color:var(--muted);font-size:12px}
+button{padding:6px 12px;border:0;border-radius:6px;background:#2d6cdf;color:#fff;cursor:pointer}
+button.sec{background:#394050}
+.tpls{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.tpl{background:var(--card);border-radius:10px;padding:14px;border-top:3px solid #e0a800}
+.tpl p{color:var(--muted);margin:4px 0 12px}
+a.dl{display:block;margin:6px 0;padding:8px 12px;border-radius:6px;background:#394050;color:#fff;text-decoration:none}
+a.dl.main{background:#2d6cdf;font-weight:600} a.dl:hover{filter:brightness(1.15)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+figure{margin:0;background:var(--card);border-radius:10px;padding:10px;display:flex;flex-direction:column}
+figure.wide{grid-column:1/-1} figure.wide video{aspect-ratio:auto;max-height:78vh;width:auto;max-width:100%;margin:auto}
+video{width:100%;aspect-ratio:9/16;background:#000;border-radius:6px}
+figcaption{margin-top:8px} figcaption p{color:var(--muted);margin:4px 0}
+.made{font-size:12px;color:var(--muted)} .made b{color:var(--fg)}
+.m{font-size:12px;color:var(--accent)} .file{font-size:11px;color:#6c7080;margin-top:4px;word-break:break-all}
+</style></head><body><main>
+<h1>Laboratório Video Creator: vídeos testados</h1>
+<p class="note">Cada seção indica qual ferramenta open source foi testada, para que serve, a licença e o link
+oficial. Cada vídeo traz o que foi usado para fazê-lo e o que observar. Nenhum material aqui é arte ou roteiro
+aprovado. Relatório completo: reports/BENCHMARKS_VIDEO.md.</p>
+<nav><a href="#downloads">Templates para baixar</a> <a href="#videos/entrevista_bob_proctor">TEMPLATE APROVADO</a> <a href="#videos/teste_maquiavel">TEMPLATE APROVADO</a> <a href="#maquiavel">NOVO</a> <a href="#sadtalker">SadTalker</a> <a href="#comparacoes">Comparações lado a lado</a> <a href="#montagem">Montagem completa</a> <a href="#depth">Bloco B</a> <a href="#ffmpeg">Bloco A</a> <a href="#moviepy">MoviePy</a> <a href="#encoder">Codificadores</a></nav>
+<section id="downloads"><h2>Templates para baixar</h2>
+<p class="note">Baixe o PDF do template, anexe no ChatGPT e cole o prompt que está no item 2 do PDF. O ChatGPT devolve o
+roteiro e o JSON no formato certo para gerar o vídeo.</p><div class="tpls"><div class="tpl"><h3>Formato 01 — Personagem falando</h3><p>Um personagem fala para a câmera (cenas de fala + cenas 2.5D), voz única, legenda karaokê.</p><a class="dl main" href="downloads/Framework_F01_Personagem_Falando.pdf" download>Framework do roteiro (PDF)</a><a class="dl" href="downloads/modelo_F01_cenas.json" download>Modelo cenas.json</a><a class="dl" href="downloads/exemplo_F01_maquiavel.mp4" download>Vídeo-exemplo: Maquiavel</a></div><div class="tpl"><h3>T02 — Entrevista com mentor</h3><p>Paulo pergunta, o mentor responde; troca de retrato, lado, fundo e voz a cada fala.</p><a class="dl main" href="downloads/Framework_T02_Entrevista_com_Mentor.pdf" download>Framework do roteiro (PDF)</a><a class="dl" href="downloads/modelo_T02_roteiro.json" download>Modelo roteiro.json</a><a class="dl" href="downloads/exemplo_T02_entrevista.mp4" download>Vídeo-exemplo: Bob Proctor</a></div></div></section><section id="videos/entrevista_bob_proctor"><h2>TEMPLATE APROVADO: T02 Entrevista com mentor (Paulo × Bob Proctor)</h2><p class="note">Seu roteiro em PDF e seus PNGs. Ao trocar de locutor trocam retrato, lado, voz e fundo: Bob à esquerda nas partículas douradas (voz sintética genérica, com redução de ruído), Paulo à direita nas nuvens (sua voz clonada). Retrato com respiração 100→106→100%, fundo em loop sem emenda, onda sonora reagindo à voz, legenda karaokê de cor (estilo v3), só o nome do locutor no topo. Gerado com: python scripts\gerar_entrevista.py inputs\entrevista_bob_proctor, em 7,4 minutos. Use fones.</p>
+<div class="toolhead">Ferramentas testadas nesta seção</div><ul class="tools"><li><a href="https://github.com/resemble-ai/chatterbox" target="_blank" rel="noopener">Chatterbox Multilingual (Resemble AI)</a>:
+Voz sintética que CLONA uma voz a partir de uma gravação de referência. Aqui: a voz do próprio Paulo, com autorização dele. Insere marca d&#x27;água inaudível (Perth) indicando áudio sintético. Já estava instalado no Video Cutter. <span class="lic">Licença: MIT segundo o projeto (não reconferida neste laboratório)</span></li><li><a href="https://huggingface.co/hexgrad/Kokoro-82M" target="_blank" rel="noopener">Kokoro-82M</a>:
+Voz sintética (TTS) local, com vozes em português. Já estava instalada no Video Cutter. <span class="lic">Licença: Apache-2.0 segundo o projeto (não reconferida neste laboratório)</span></li><li><a href="https://github.com/SYSTRAN/faster-whisper" target="_blank" rel="noopener">faster-whisper (modelo small)</a>:
+Reconhecimento de fala. Aqui só marca QUANDO cada palavra é dita; o texto da legenda vem do roteiro. Já estava instalado no Video Cutter. <span class="lic">Licença: MIT (open source)</span></li><li><a href="https://opencv.org" target="_blank" rel="noopener">OpenCV 5.0</a>:
+Biblioteca de visão computacional. Aqui desloca cada pixel conforme a profundidade. <span class="lic">Licença: Apache-2.0 (open source)</span></li><li><a href="https://ffmpeg.org" target="_blank" rel="noopener">FFmpeg 7.1</a>:
+Programa de linha de comando que edita, junta e codifica vídeo e áudio. <span class="lic">Licença: LGPL/GPL (este build: GPL v3)</span></li><li><a href="https://github.com/libass/libass" target="_blank" rel="noopener">libass (via FFmpeg)</a>:
+Desenha legendas estilizadas (fonte, contorno, karaokê) no vídeo. <span class="lic">Licença: ISC (open source)</span></li><li><a href="https://fonts.google.com/specimen/Poppins" target="_blank" rel="noopener">Fonte Poppins Bold</a>:
+Fonte da legenda, copiada do Video Cutter com o arquivo de licença. <span class="lic">Licença: SIL OFL 1.1 (livre, inclusive comercial)</span></li></ul>
+<div class="ctrl"><button onclick="playAll(this)">Tocar todos desta seção</button>
+<button class="sec" onclick="pauseAll(this)">Pausar</button>
+<span>1 vídeos · pasta outputs/videos/entrevista_bob_proctor/</span></div>
+<div class="grid"><figure class="">
+<video src="outputs/videos/entrevista_bob_proctor/entrevista_bob_proctor.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Entrevista: Paulo × Bob Proctor (dramatização), 2 min 16 s</h3>
+<div class="made">Feito com: <b>gerar_entrevista.py (Chatterbox + Kokoro · Whisper · OpenCV · FFmpeg + libass)</b></div>
+<p>6 cenas alternadas. Confira: troca de lado/fundo/voz a cada locutor, caixa amarela acompanhando a palavra, volume igual entre as duas vozes, onda reagindo à fala.</p><div class="m"></div>
+<div class="file">entrevista_bob_proctor.mp4</div></figcaption></figure></div></section><section id="videos/teste_maquiavel"><h2>TEMPLATE APROVADO: formato_01_personagem_falando</h2><p class="note">Formato salvo: personagem falando (SadTalker sem realce), 2.5D nas cenas sem fala, voz Kokoro, legenda karaokê, sem música (você escolhe no app). Gerado do zero com um comando: python scripts\gerar_video.py inputs\teste_maquiavel, em 3,4 minutos.</p>
+<div class="toolhead">Ferramentas testadas nesta seção</div><ul class="tools"><li><a href="https://github.com/OpenTalker/SadTalker" target="_blank" rel="noopener">SadTalker (Tencent / OpenTalker)</a>:
+IA que faz uma foto FALAR: recebe a imagem + o áudio e gera boca sincronizada, piscadas e movimentos de cabeça. Rodou na placa de vídeo (RTX 4060). <span class="lic">Licença: Apache-2.0 (o LICENSE cita componentes de terceiros sem listá-los; revisar antes de uso comercial)</span></li><li><a href="https://huggingface.co/hexgrad/Kokoro-82M" target="_blank" rel="noopener">Kokoro-82M</a>:
+Voz sintética (TTS) local, com vozes em português. Já estava instalada no Video Cutter. <span class="lic">Licença: Apache-2.0 segundo o projeto (não reconferida neste laboratório)</span></li><li><a href="https://github.com/SYSTRAN/faster-whisper" target="_blank" rel="noopener">faster-whisper (modelo small)</a>:
+Reconhecimento de fala. Aqui só marca QUANDO cada palavra é dita; o texto da legenda vem do roteiro. Já estava instalado no Video Cutter. <span class="lic">Licença: MIT (open source)</span></li><li><a href="https://github.com/DepthAnything/Depth-Anything-V2" target="_blank" rel="noopener">Depth Anything V2 Small</a>:
+IA que estima a profundidade de uma foto (o que está perto e o que está longe). <span class="lic">Licença: Apache-2.0, conferida no model card (só o Small é comercial)</span></li><li><a href="https://opencv.org" target="_blank" rel="noopener">OpenCV 5.0</a>:
+Biblioteca de visão computacional. Aqui desloca cada pixel conforme a profundidade. <span class="lic">Licença: Apache-2.0 (open source)</span></li><li><a href="https://ffmpeg.org" target="_blank" rel="noopener">FFmpeg 7.1</a>:
+Programa de linha de comando que edita, junta e codifica vídeo e áudio. <span class="lic">Licença: LGPL/GPL (este build: GPL v3)</span></li><li><a href="https://github.com/libass/libass" target="_blank" rel="noopener">libass (via FFmpeg)</a>:
+Desenha legendas estilizadas (fonte, contorno, karaokê) no vídeo. <span class="lic">Licença: ISC (open source)</span></li><li><a href="https://fonts.google.com/specimen/Poppins" target="_blank" rel="noopener">Fonte Poppins Bold</a>:
+Fonte da legenda, copiada do Video Cutter com o arquivo de licença. <span class="lic">Licença: SIL OFL 1.1 (livre, inclusive comercial)</span></li></ul>
+<div class="ctrl"><button onclick="playAll(this)">Tocar todos desta seção</button>
+<button class="sec" onclick="pauseAll(this)">Pausar</button>
+<span>1 vídeos · pasta outputs/videos/teste_maquiavel/</span></div>
+<div class="grid"><figure class="">
+<video src="outputs/videos/teste_maquiavel/teste_maquiavel.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Maquiavel: gerado pelo template aprovado</h3>
+<div class="made">Feito com: <b>gerar_video.py (SadTalker sem realce · Kokoro · Depth Anything · FFmpeg + libass)</b></div>
+<p>Versão oficial do formato: sem música, rosto sem realce. Roteiro → vídeo em 3,4 min.</p><div class="m"></div>
+<div class="file">teste_maquiavel.mp4</div></figcaption></figure></div></section><section id="maquiavel"><h2>NOVO: vídeo do Maquiavel (personagem falando)</h2><p class="note">Seu roteiro e suas 3 imagens. Cenas 1 e 3: Maquiavel fala (SadTalker) com zoom lento por cima. Cena 2: traição com profundidade 2.5D. Voz Kokoro (Alex), legenda karaokê com o texto exato do roteiro, música sintética que abaixa sob a voz. Duas versões: rosto com e sem realce GFPGAN. Use fones.</p>
+<div class="toolhead">Ferramentas testadas nesta seção</div><ul class="tools"><li><a href="https://github.com/OpenTalker/SadTalker" target="_blank" rel="noopener">SadTalker (Tencent / OpenTalker)</a>:
+IA que faz uma foto FALAR: recebe a imagem + o áudio e gera boca sincronizada, piscadas e movimentos de cabeça. Rodou na placa de vídeo (RTX 4060). <span class="lic">Licença: Apache-2.0 (o LICENSE cita componentes de terceiros sem listá-los; revisar antes de uso comercial)</span></li><li><a href="https://github.com/TencentARC/GFPGAN" target="_blank" rel="noopener">GFPGAN v1.4</a>:
+IA que restaura/realça o rosto quadro a quadro (pele e olhos mais nítidos). É a etapa lenta: ~1 s por quadro. <span class="lic">Licença: Apache-2.0 (metadados do pacote)</span></li><li><a href="https://huggingface.co/hexgrad/Kokoro-82M" target="_blank" rel="noopener">Kokoro-82M</a>:
+Voz sintética (TTS) local, com vozes em português. Já estava instalada no Video Cutter. <span class="lic">Licença: Apache-2.0 segundo o projeto (não reconferida neste laboratório)</span></li><li><a href="https://github.com/SYSTRAN/faster-whisper" target="_blank" rel="noopener">faster-whisper (modelo small)</a>:
+Reconhecimento de fala. Aqui só marca QUANDO cada palavra é dita; o texto da legenda vem do roteiro. Já estava instalado no Video Cutter. <span class="lic">Licença: MIT (open source)</span></li><li><a href="https://github.com/DepthAnything/Depth-Anything-V2" target="_blank" rel="noopener">Depth Anything V2 Small</a>:
+IA que estima a profundidade de uma foto (o que está perto e o que está longe). <span class="lic">Licença: Apache-2.0, conferida no model card (só o Small é comercial)</span></li><li><a href="https://opencv.org" target="_blank" rel="noopener">OpenCV 5.0</a>:
+Biblioteca de visão computacional. Aqui desloca cada pixel conforme a profundidade. <span class="lic">Licença: Apache-2.0 (open source)</span></li><li><a href="https://ffmpeg.org" target="_blank" rel="noopener">FFmpeg 7.1</a>:
+Programa de linha de comando que edita, junta e codifica vídeo e áudio. <span class="lic">Licença: LGPL/GPL (este build: GPL v3)</span></li><li><a href="https://github.com/libass/libass" target="_blank" rel="noopener">libass (via FFmpeg)</a>:
+Desenha legendas estilizadas (fonte, contorno, karaokê) no vídeo. <span class="lic">Licença: ISC (open source)</span></li><li><a href="https://fonts.google.com/specimen/Poppins" target="_blank" rel="noopener">Fonte Poppins Bold</a>:
+Fonte da legenda, copiada do Video Cutter com o arquivo de licença. <span class="lic">Licença: SIL OFL 1.1 (livre, inclusive comercial)</span></li></ul>
+<div class="ctrl"><button onclick="playAll(this)">Tocar todos desta seção</button>
+<button class="sec" onclick="pauseAll(this)">Pausar</button>
+<span>2 vídeos · pasta outputs/maquiavel/</span></div>
+<div class="grid"><figure class="">
+<video src="outputs/maquiavel/maquiavel_final_com_realce.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Vídeo completo: rosto COM realce (recomendado)</h3>
+<div class="made">Feito com: <b>SadTalker + GFPGAN (rosto) · Kokoro (voz) · Depth Anything (cena 2) · FFmpeg + libass (legenda)</b></div>
+<p>24 s. Rosto mais nítido. Cada cena falada levou ~4,3 min no SadTalker por causa do realce.</p><div class="m">montagem levou 61.44 s (+ tempo do SadTalker)</div>
+<div class="file">maquiavel_final_com_realce.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/maquiavel/maquiavel_final_sem_realce.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Vídeo completo: rosto SEM realce</h3>
+<div class="made">Feito com: <b>SadTalker (sem GFPGAN) · Kokoro · Depth Anything · FFmpeg + libass</b></div>
+<p>Mesmo vídeo, rosto um pouco mais suave/borrado. Cada cena falada levou só ~1 min.</p><div class="m">montagem levou 60.81 s (+ tempo do SadTalker)</div>
+<div class="file">maquiavel_final_sem_realce.mp4</div></figcaption></figure></div></section><section id="sadtalker"><h2>SadTalker: as cenas falando, sozinhas</h2><p class="note">Saída direta do SadTalker, antes da montagem (com o áudio da cena). Compare o rosto com e sem realce, e o tempo de cada um.</p>
+<div class="toolhead">Ferramentas testadas nesta seção</div><ul class="tools"><li><a href="https://github.com/OpenTalker/SadTalker" target="_blank" rel="noopener">SadTalker (Tencent / OpenTalker)</a>:
+IA que faz uma foto FALAR: recebe a imagem + o áudio e gera boca sincronizada, piscadas e movimentos de cabeça. Rodou na placa de vídeo (RTX 4060). <span class="lic">Licença: Apache-2.0 (o LICENSE cita componentes de terceiros sem listá-los; revisar antes de uso comercial)</span></li><li><a href="https://github.com/TencentARC/GFPGAN" target="_blank" rel="noopener">GFPGAN v1.4</a>:
+IA que restaura/realça o rosto quadro a quadro (pele e olhos mais nítidos). É a etapa lenta: ~1 s por quadro. <span class="lic">Licença: Apache-2.0 (metadados do pacote)</span></li></ul>
+<div class="ctrl"><button onclick="playAll(this)">Tocar todos desta seção</button>
+<button class="sec" onclick="pauseAll(this)">Pausar</button>
+<span>4 vídeos · pasta outputs/sadtalker/</span></div>
+<div class="grid"><figure class="">
+<video src="outputs/sadtalker/cena1_sadtalker_com_realce.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Cena 1 falando: com realce</h3>
+<div class="made">Feito com: <b>SadTalker 256 + GFPGAN v1.4</b></div>
+<p>Saída crua do SadTalker (1888×3344, 25 fps).</p><div class="m">levou 262.25 s para gerar · VRAM +3094 MB · RAM sistema +5494 MB</div>
+<div class="file">cena1_sadtalker_com_realce.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/sadtalker/cena1_sadtalker_sem_realce.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Cena 1 falando: sem realce</h3>
+<div class="made">Feito com: <b>SadTalker 256</b></div>
+<p>Saída crua, sem o realce facial.</p><div class="m">levou 54.91 s para gerar · VRAM +2925 MB · RAM sistema +2758 MB</div>
+<div class="file">cena1_sadtalker_sem_realce.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/sadtalker/cena3_sadtalker_com_realce.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Cena 3 falando: com realce</h3>
+<div class="made">Feito com: <b>SadTalker 256 + GFPGAN v1.4</b></div>
+<p>Saída crua.</p><div class="m">levou 254.16 s para gerar · VRAM +3075 MB · RAM sistema +5405 MB</div>
+<div class="file">cena3_sadtalker_com_realce.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/sadtalker/cena3_sadtalker_sem_realce.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Cena 3 falando: sem realce</h3>
+<div class="made">Feito com: <b>SadTalker 256</b></div>
+<p>Saída crua, sem o realce facial.</p><div class="m">levou 59.03 s para gerar · VRAM +2933 MB · RAM sistema +2364 MB</div>
+<div class="file">cena3_sadtalker_sem_realce.mp4</div></figcaption></figure></div></section><section id="comparacoes"><h2>Comparações lado a lado</h2><p class="note">Os vídeos das seções abaixo, colocados lado a lado e com o nome de cada método escrito em cima. Como estão reduzidos, para julgar o tremor fino prefira os vídeos individuais.</p>
+<div class="toolhead">Ferramentas testadas nesta seção</div><ul class="tools"><li><a href="https://ffmpeg.org" target="_blank" rel="noopener">FFmpeg 7.1</a>:
+Programa de linha de comando que edita, junta e codifica vídeo e áudio. <span class="lic">Licença: LGPL/GPL (este build: GPL v3)</span></li></ul>
+<div class="ctrl"><button onclick="playAll(this)">Tocar todos desta seção</button>
+<button class="sec" onclick="pauseAll(this)">Pausar</button>
+<span>5 vídeos · pasta outputs/comparacoes/</span></div>
+<div class="grid"><figure class="wide">
+<video src="outputs/comparacoes/01_tremor_zoom_in.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Tremor no zoom: 3 métodos</h3>
+<div class="made">Feito com: <b>FFmpeg (montagem lado a lado)</b></div>
+<p>Esquerda: FFmpeg simples (treme mais). Meio: FFmpeg com imagem ampliada 4×. Direita: Python subpixel (o mais liso).</p><div class="m"></div>
+<div class="file">01_tremor_zoom_in.mp4</div></figcaption></figure><figure class="wide">
+<video src="outputs/comparacoes/02_tremor_combinado.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Tremor no zoom + deslocamento: FFmpeg × Python × MoviePy</h3>
+<div class="made">Feito com: <b>FFmpeg (montagem lado a lado)</b></div>
+<p>O movimento mais usado em vídeos com imagens. O FFmpeg e o MoviePy tremem; o Python subpixel desliza liso.</p><div class="m"></div>
+<div class="file">02_tremor_combinado.mp4</div></figcaption></figure><figure class="wide">
+<video src="outputs/comparacoes/03_profundidade_lago.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Profundidade no lago: 2D × 2.5D</h3>
+<div class="made">Feito com: <b>FFmpeg (montagem lado a lado)</b></div>
+<p>Esquerda: zoom comum, tudo se move junto. Meio e direita: com profundidade, a margem e a água se movem diferente do céu.</p><div class="m"></div>
+<div class="file">03_profundidade_lago.mp4</div></figcaption></figure><figure class="wide">
+<video src="outputs/comparacoes/04_profundidade_fitas.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Profundidade nas fitas: 2D × 2.5D</h3>
+<div class="made">Feito com: <b>FFmpeg (montagem lado a lado)</b></div>
+<p>Mesmo teste com uma imagem 3D em camadas.</p><div class="m"></div>
+<div class="file">04_profundidade_fitas.mp4</div></figcaption></figure><figure class="wide">
+<video src="outputs/comparacoes/05_legenda_simples_x_karaoke.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Legenda simples × karaokê</h3>
+<div class="made">Feito com: <b>FFmpeg (montagem lado a lado)</b></div>
+<p>Esquerda: blocos de até 3 palavras. Direita: cada palavra fica dourada quando é falada. Com áudio.</p><div class="m"></div>
+<div class="file">05_legenda_simples_x_karaoke.mp4</div></figcaption></figure></div></section><section id="montagem"><h2>Montagem completa: o fluxo do Video Creator</h2><p class="note">Simula o produto final: o texto de cada cena vira voz, a duração da voz define quanto tempo cada imagem fica na tela, a imagem ganha movimento, entra a transição, a legenda acompanha a fala e a música abaixa quando a voz entra. Texto técnico de teste, não é roteiro. Fotos do Windows, só para teste. Use fones.</p>
+<div class="toolhead">Ferramentas testadas nesta seção</div><ul class="tools"><li><a href="https://huggingface.co/hexgrad/Kokoro-82M" target="_blank" rel="noopener">Kokoro-82M</a>:
+Voz sintética (TTS) local, com vozes em português. Já estava instalada no Video Cutter. <span class="lic">Licença: Apache-2.0 segundo o projeto (não reconferida neste laboratório)</span></li><li><a href="https://github.com/SYSTRAN/faster-whisper" target="_blank" rel="noopener">faster-whisper (modelo small)</a>:
+Reconhecimento de fala. Aqui só marca QUANDO cada palavra é dita; o texto da legenda vem do roteiro. Já estava instalado no Video Cutter. <span class="lic">Licença: MIT (open source)</span></li><li><a href="https://python-pillow.org" target="_blank" rel="noopener">Pillow 11.3</a>:
+Biblioteca Python de imagens. Aqui desenha cada quadro com recorte fracionado (subpixel). <span class="lic">Licença: MIT-CMU (open source)</span></li><li><a href="https://ffmpeg.org" target="_blank" rel="noopener">FFmpeg 7.1</a>:
+Programa de linha de comando que edita, junta e codifica vídeo e áudio. <span class="lic">Licença: LGPL/GPL (este build: GPL v3)</span></li><li><a href="https://github.com/libass/libass" target="_blank" rel="noopener">libass (via FFmpeg)</a>:
+Desenha legendas estilizadas (fonte, contorno, karaokê) no vídeo. <span class="lic">Licença: ISC (open source)</span></li><li><a href="https://fonts.google.com/specimen/Poppins" target="_blank" rel="noopener">Fonte Poppins Bold</a>:
+Fonte da legenda, copiada do Video Cutter com o arquivo de licença. <span class="lic">Licença: SIL OFL 1.1 (livre, inclusive comercial)</span></li></ul>
+<div class="ctrl"><button onclick="playAll(this)">Tocar todos desta seção</button>
+<button class="sec" onclick="pauseAll(this)">Pausar</button>
+<span>3 vídeos · pasta outputs/montagem/</span></div>
+<div class="grid"><figure class="">
+<video src="outputs/montagem/montagem_v1_sem_ducking_legenda_simples.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Versão 1: música SEM abaixar</h3>
+<div class="made">Feito com: <b>Kokoro + Whisper + Pillow + FFmpeg + libass</b></div>
+<p>A música fica no mesmo volume o tempo todo, competindo com a voz. Serve de referência para ouvir a diferença da versão 2.</p><div class="m"></div>
+<div class="file">montagem_v1_sem_ducking_legenda_simples.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/montagem/montagem_v2_com_ducking_legenda_simples.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Versão 2: música abaixa sob a voz (ducking)</h3>
+<div class="made">Feito com: <b>Kokoro + Whisper + Pillow + FFmpeg + libass</b></div>
+<p>A música cai cerca de 22 dB enquanto a voz fala e volta nas pausas. Legenda em blocos.</p><div class="m"></div>
+<div class="file">montagem_v2_com_ducking_legenda_simples.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/montagem/montagem_v3_com_ducking_legenda_karaoke.mp4" controls loop  playsinline preload="metadata"></video>
+<figcaption><h3>Versão 3: ducking + legenda karaokê</h3>
+<div class="made">Feito com: <b>Kokoro + Whisper + Pillow + FFmpeg + libass</b></div>
+<p>Igual à versão 2, mas a legenda destaca cada palavra no momento em que é dita.</p><div class="m"></div>
+<div class="file">montagem_v3_com_ducking_legenda_karaoke.mp4</div></figcaption></figure></div></section><section id="depth"><h2>Bloco B: profundidade 2.5D</h2><p class="note">A IA estima a distância de cada ponto da foto, e o programa move a câmera virtual: o que está perto se mexe mais que o fundo, criando sensação de 3D a partir de uma foto parada. Rodou no processador (CPU). Fotos da tela de bloqueio do Windows, só para teste interno.</p>
+<div class="toolhead">Ferramentas testadas nesta seção</div><ul class="tools"><li><a href="https://github.com/DepthAnything/Depth-Anything-V2" target="_blank" rel="noopener">Depth Anything V2 Small</a>:
+IA que estima a profundidade de uma foto (o que está perto e o que está longe). <span class="lic">Licença: Apache-2.0, conferida no model card (só o Small é comercial)</span></li><li><a href="https://opencv.org" target="_blank" rel="noopener">OpenCV 5.0</a>:
+Biblioteca de visão computacional. Aqui desloca cada pixel conforme a profundidade. <span class="lic">Licença: Apache-2.0 (open source)</span></li><li><a href="https://ffmpeg.org" target="_blank" rel="noopener">FFmpeg 7.1</a>:
+Programa de linha de comando que edita, junta e codifica vídeo e áudio. <span class="lic">Licença: LGPL/GPL (este build: GPL v3)</span></li></ul>
+<div class="ctrl"><button onclick="playAll(this)">Tocar todos desta seção</button>
+<button class="sec" onclick="pauseAll(this)">Pausar</button>
+<span>6 vídeos · pasta outputs/depth/</span></div>
+<div class="grid"><figure class="">
+<video src="outputs/depth/fitas_dolly.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Fitas: aproximação 2.5D (dolly)</h3>
+<div class="made">Feito com: <b>Depth Anything V2 Small + OpenCV + FFmpeg</b></div>
+<p>As camadas da frente crescem mais que as de trás.</p><div class="m">levou 14.26 s para gerar · profundidade em 0.95 s · RAM 1618.9 MB</div>
+<div class="file">fitas_dolly.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/depth/fitas_flat_zoom.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Fitas: zoom 2D comum (referência)</h3>
+<div class="made">Feito com: <b>OpenCV + FFmpeg (sem IA)</b></div>
+<p>Zoom sem profundidade.</p><div class="m">levou 15.13 s para gerar · profundidade em 0.95 s · RAM 2070.9 MB</div>
+<div class="file">fitas_flat_zoom.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/depth/fitas_orbit.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Fitas: câmera lateral 2.5D (órbita)</h3>
+<div class="made">Feito com: <b>Depth Anything V2 Small + OpenCV + FFmpeg</b></div>
+<p>Observe as bordas entre as fitas: é onde aparecem defeitos, se houver.</p><div class="m">levou 16.02 s para gerar · profundidade em 0.95 s · RAM 2168.8 MB</div>
+<div class="file">fitas_orbit.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/depth/lago_dolly.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Lago: aproximação 2.5D (dolly)</h3>
+<div class="made">Feito com: <b>Depth Anything V2 Small + OpenCV + FFmpeg</b></div>
+<p>A câmera avança: a margem e a água em primeiro plano crescem mais que o céu.</p><div class="m">levou 14.81 s para gerar · profundidade em 1.01 s · RAM 1709.2 MB</div>
+<div class="file">lago_dolly.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/depth/lago_flat_zoom.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Lago: zoom 2D comum (referência)</h3>
+<div class="made">Feito com: <b>OpenCV + FFmpeg (sem IA)</b></div>
+<p>Zoom sem profundidade, para comparar. A foto inteira cresce por igual.</p><div class="m">levou 14.79 s para gerar · profundidade em 1.01 s · RAM 2116.4 MB</div>
+<div class="file">lago_flat_zoom.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/depth/lago_orbit.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Lago: câmera lateral 2.5D (órbita)</h3>
+<div class="made">Feito com: <b>Depth Anything V2 Small + OpenCV + FFmpeg</b></div>
+<p>A câmera desliza para o lado: o primeiro plano passa mais rápido que o sol e as montanhas.</p><div class="m">levou 14.99 s para gerar · profundidade em 1.01 s · RAM 2170.2 MB</div>
+<div class="file">lago_orbit.mp4</div></figcaption></figure></div></section><section id="ffmpeg"><h2>Bloco A: movimento simples (zoom e pan)</h2><p class="note">Movimento de câmera sobre uma imagem parada (efeito Ken Burns). Compara o FFmpeg sozinho com o desenho quadro a quadro em Python (Pillow). A imagem é sintética, com grade fina: repare se as linhas tremem ou deslizam lisas.</p>
+<div class="toolhead">Ferramentas testadas nesta seção</div><ul class="tools"><li><a href="https://ffmpeg.org" target="_blank" rel="noopener">FFmpeg 7.1</a>:
+Programa de linha de comando que edita, junta e codifica vídeo e áudio. <span class="lic">Licença: LGPL/GPL (este build: GPL v3)</span></li><li><a href="https://python-pillow.org" target="_blank" rel="noopener">Pillow 11.3</a>:
+Biblioteca Python de imagens. Aqui desenha cada quadro com recorte fracionado (subpixel). <span class="lic">Licença: MIT-CMU (open source)</span></li><li><a href="https://www.videolan.org/developers/x264.html" target="_blank" rel="noopener">x264 (dentro do FFmpeg)</a>:
+Codificador H.264 por software, roda no processador. <span class="lic">Licença: GPL v2+</span></li><li><a href="https://developer.nvidia.com/video-codec-sdk" target="_blank" rel="noopener">NVIDIA NVENC (via FFmpeg)</a>:
+Codificador H.264 por hardware, roda no chip da placa de vídeo. <span class="lic">Licença: Recurso da placa NVIDIA (gratuito, não é open source)</span></li></ul>
+<div class="ctrl"><button onclick="playAll(this)">Tocar todos desta seção</button>
+<button class="sec" onclick="pauseAll(this)">Pausar</button>
+<span>12 vídeos · pasta outputs/ffmpeg/</span></div>
+<div class="grid"><figure class="">
+<video src="outputs/ffmpeg/combined_pil.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Zoom + deslocamento: Python subpixel</h3>
+<div class="made">Feito com: <b>Pillow (Python) + FFmpeg/x264</b></div>
+<p>O método recomendado: liso, cerca de 3× mais lento que o FFmpeg.</p><div class="m">levou 13.43 s para gerar · tremor 0.0142 (menor = melhor) · RAM 847.4 MB</div>
+<div class="file">combined_pil.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/combined_ss4.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Zoom + deslocamento: FFmpeg 4×</h3>
+<div class="made">Feito com: <b>FFmpeg (filtro zoompan) + x264</b></div>
+<p>Movimento combinado. Mesmo ampliado, o FFmpeg treme aqui.</p><div class="m">levou 4.87 s para gerar · tremor 0.1383 (menor = melhor) · RAM 851.4 MB</div>
+<div class="file">combined_ss4.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/combined_ss4_nvenc.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Zoom + deslocamento: FFmpeg 4× salvo com NVENC</h3>
+<div class="made">Feito com: <b>FFmpeg (zoompan) + NVENC</b></div>
+<p>Igual ao anterior, mas codificado pela placa de vídeo: mais rápido, mesmo tremor.</p><div class="m">levou 3.22 s para gerar · tremor 0.1395 (menor = melhor) · RAM 477.1 MB</div>
+<div class="file">combined_ss4_nvenc.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/pan_h_pil.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Pan horizontal: Python subpixel</h3>
+<div class="made">Feito com: <b>Pillow (Python) + FFmpeg/x264</b></div>
+<p>Mesmo pan, liso.</p><div class="m">levou 12.13 s para gerar · tremor 0.0148 (menor = melhor) · RAM 953.6 MB</div>
+<div class="file">pan_h_pil.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/pan_h_ss4.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Pan horizontal: FFmpeg 4×</h3>
+<div class="made">Feito com: <b>FFmpeg (filtro zoompan) + x264</b></div>
+<p>Câmera desliza da esquerda para a direita.</p><div class="m">levou 4.05 s para gerar · tremor 0.0859 (menor = melhor) · RAM 966.3 MB</div>
+<div class="file">pan_h_ss4.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/pan_v_ss4.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Pan vertical: FFmpeg 4×</h3>
+<div class="made">Feito com: <b>FFmpeg (filtro zoompan) + x264</b></div>
+<p>Câmera desliza de baixo para cima.</p><div class="m">levou 3.83 s para gerar · tremor 0.0391 (menor = melhor) · RAM 958.5 MB</div>
+<div class="file">pan_v_ss4.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/transicoes_fade_slide.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Transições: dissolve e deslize</h3>
+<div class="made">Feito com: <b>FFmpeg (filtro xfade) + x264</b></div>
+<p>Três clipes unidos: primeiro um dissolve (fade), depois um deslize lateral.</p><div class="m">levou 10.14 s para gerar · RAM 1594.4 MB</div>
+<div class="file">transicoes_fade_slide.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/zoom_in_pil.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Zoom-in: Python subpixel</h3>
+<div class="made">Feito com: <b>Pillow (Python) + FFmpeg/x264</b></div>
+<p>Cada quadro é desenhado com posição fracionada: sem tremor.</p><div class="m">levou 14.92 s para gerar · tremor 0.0156 (menor = melhor) · RAM 855.1 MB</div>
+<div class="file">zoom_in_pil.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/zoom_in_ss1.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Zoom-in: FFmpeg simples</h3>
+<div class="made">Feito com: <b>FFmpeg (filtro zoompan) + x264</b></div>
+<p>Imagem no tamanho final. O jeito mais rápido; as linhas tremem.</p><div class="m">levou 2.86 s para gerar · tremor 0.1525 (menor = melhor) · RAM 824.1 MB</div>
+<div class="file">zoom_in_ss1.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/zoom_in_ss2.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Zoom-in: FFmpeg com imagem 2×</h3>
+<div class="made">Feito com: <b>FFmpeg (filtro zoompan) + x264</b></div>
+<p>Imagem ampliada 2× antes do zoom: treme menos.</p><div class="m">levou 3.5 s para gerar · tremor 0.0933 (menor = melhor) · RAM 815.3 MB</div>
+<div class="file">zoom_in_ss2.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/zoom_in_ss4.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Zoom-in: FFmpeg com imagem 4×</h3>
+<div class="made">Feito com: <b>FFmpeg (filtro zoompan) + x264</b></div>
+<p>Ampliada 4×: o melhor resultado possível só com FFmpeg.</p><div class="m">levou 5.39 s para gerar · tremor 0.0542 (menor = melhor) · RAM 846.8 MB</div>
+<div class="file">zoom_in_ss4.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/ffmpeg/zoom_out_ss4.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Zoom-out: FFmpeg 4×</h3>
+<div class="made">Feito com: <b>FFmpeg (filtro zoompan) + x264</b></div>
+<p>Afastamento da câmera.</p><div class="m">levou 5.38 s para gerar · tremor 0.0543 (menor = melhor) · RAM 846.2 MB</div>
+<div class="file">zoom_out_ss4.mp4</div></figcaption></figure></div></section><section id="moviepy"><h2>MoviePy</h2><p class="note">O mesmo movimento combinado do Bloco A, feito com a receita mais comum de MoviePy.</p>
+<div class="toolhead">Ferramentas testadas nesta seção</div><ul class="tools"><li><a href="https://github.com/Zulko/moviepy" target="_blank" rel="noopener">MoviePy 2.1.2</a>:
+Biblioteca Python de edição de vídeo, muito usada em tutoriais de automação. <span class="lic">Licença: MIT (open source)</span></li></ul>
+<div class="ctrl"><button onclick="playAll(this)">Tocar todos desta seção</button>
+<button class="sec" onclick="pauseAll(this)">Pausar</button>
+<span>1 vídeos · pasta outputs/moviepy/</span></div>
+<div class="grid"><figure class="">
+<video src="outputs/moviepy/combined_moviepy.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Zoom + deslocamento: MoviePy</h3>
+<div class="made">Feito com: <b>MoviePy 2.1.2</b></div>
+<p>Receita clássica de Ken Burns com MoviePy. Foi o mais lento e o mais tremido de todos.</p><div class="m">levou 38.05 s para gerar · tremor 0.2617 (menor = melhor) · RAM 307.4 MB</div>
+<div class="file">combined_moviepy.mp4</div></figcaption></figure></div></section><section id="encoder"><h2>Codificadores: x264 × NVENC</h2><p class="note">O mesmo movimento sobre a foto do lago, salvo de 6 jeitos diferentes. Mede qualidade (SSIM: 1,0 = idêntico ao original sem perdas), tamanho do arquivo e velocidade.</p>
+<div class="toolhead">Ferramentas testadas nesta seção</div><ul class="tools"><li><a href="https://www.videolan.org/developers/x264.html" target="_blank" rel="noopener">x264 (dentro do FFmpeg)</a>:
+Codificador H.264 por software, roda no processador. <span class="lic">Licença: GPL v2+</span></li><li><a href="https://developer.nvidia.com/video-codec-sdk" target="_blank" rel="noopener">NVIDIA NVENC (via FFmpeg)</a>:
+Codificador H.264 por hardware, roda no chip da placa de vídeo. <span class="lic">Licença: Recurso da placa NVIDIA (gratuito, não é open source)</span></li><li><a href="https://ffmpeg.org" target="_blank" rel="noopener">FFmpeg 7.1</a>:
+Programa de linha de comando que edita, junta e codifica vídeo e áudio. <span class="lic">Licença: LGPL/GPL (este build: GPL v3)</span></li></ul>
+<div class="ctrl"><button onclick="playAll(this)">Tocar todos desta seção</button>
+<button class="sec" onclick="pauseAll(this)">Pausar</button>
+<span>6 vídeos · pasta outputs/encoder/</span></div>
+<div class="grid"><figure class="">
+<video src="outputs/encoder/lago_nvenc_cq19_p5.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Lago salvo com NVENC qualidade 19</h3>
+<div class="made">Feito com: <b>NVENC (placa de vídeo) via FFmpeg</b></div>
+<p>Compare nitidez do céu e da água com os outros.</p><div class="m">levou 1.22 s para gerar · SSIM 0.9949 · 1.14 MB</div>
+<div class="file">lago_nvenc_cq19_p5.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/encoder/lago_nvenc_cq19_p7.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Lago salvo com NVENC qualidade 19, modo máximo</h3>
+<div class="made">Feito com: <b>NVENC (placa de vídeo) via FFmpeg</b></div>
+<p>Compare nitidez do céu e da água com os outros.</p><div class="m">levou 2.22 s para gerar · SSIM 0.9949 · 1.16 MB</div>
+<div class="file">lago_nvenc_cq19_p7.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/encoder/lago_nvenc_cq23_p5.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Lago salvo com NVENC qualidade 23 (menor)</h3>
+<div class="made">Feito com: <b>NVENC (placa de vídeo) via FFmpeg</b></div>
+<p>Compare nitidez do céu e da água com os outros.</p><div class="m">levou 1.42 s para gerar · SSIM 0.9942 · 0.58 MB</div>
+<div class="file">lago_nvenc_cq23_p5.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/encoder/lago_x264_crf18_medium.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Lago salvo com x264 qualidade 18 (padrão)</h3>
+<div class="made">Feito com: <b>x264 (processador) via FFmpeg</b></div>
+<p>Compare nitidez do céu e da água com os outros.</p><div class="m">levou 2.16 s para gerar · SSIM 0.9945 · 1.0 MB</div>
+<div class="file">lago_x264_crf18_medium.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/encoder/lago_x264_crf18_veryfast.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Lago salvo com x264 qualidade 18, modo rápido</h3>
+<div class="made">Feito com: <b>x264 (processador) via FFmpeg</b></div>
+<p>Compare nitidez do céu e da água com os outros.</p><div class="m">levou 1.13 s para gerar · SSIM 0.9940 · 0.62 MB</div>
+<div class="file">lago_x264_crf18_veryfast.mp4</div></figcaption></figure><figure class="">
+<video src="outputs/encoder/lago_x264_crf23_medium.mp4" controls loop muted playsinline preload="metadata"></video>
+<figcaption><h3>Lago salvo com x264 qualidade 23 (menor)</h3>
+<div class="made">Feito com: <b>x264 (processador) via FFmpeg</b></div>
+<p>Compare nitidez do céu e da água com os outros.</p><div class="m">levou 1.75 s para gerar · SSIM 0.9932 · 0.46 MB</div>
+<div class="file">lago_x264_crf23_medium.mp4</div></figcaption></figure></div></section>
+</main><script>
+const vids=b=>b.closest('section').querySelectorAll('video');
+function playAll(b){vids(b).forEach(v=>{v.currentTime=0;v.play()})}
+function pauseAll(b){vids(b).forEach(v=>v.pause())}
+</script></body></html>

@@ -1,0 +1,38 @@
+{
+  "id": "grant_cardone",
+  "nome": "Grant Cardone",
+  "aliases": [
+    "Cardone"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\grant_cardone\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "fogo_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\grant_cardone.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Vendas e negociação",
+  "categoria": "Prospecção e fechamento",
+  "especialidades": "Prospecção; vendas; fechamento",
+  "temas_fundo": [
+    "fogo",
+    "dinheiro_ouro",
+    "cidade_noite"
+  ],
+  "fundos": [
+    "fogo_1",
+    "dinheiro_e_ouro_1",
+    "cidade_a_noite_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "fogo_1_clenched_teeth",
+    "dinheiro_e_ouro_1_loopster",
+    "cidade_a_noite_1_night_in_venice"
+  ],
+  "musica_indice": 0
+}

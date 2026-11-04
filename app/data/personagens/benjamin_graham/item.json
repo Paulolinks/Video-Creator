@@ -1,0 +1,38 @@
+{
+  "id": "benjamin_graham",
+  "nome": "Benjamin Graham",
+  "aliases": [
+    "Graham"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\benjamin_graham\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\benjamin_graham.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Educação financeira e princípios de riqueza",
+  "categoria": "Investimento em valor",
+  "especialidades": "Valor intrínseco; margem de segurança; análise fundamentalista",
+  "temas_fundo": [
+    "biblioteca_velas",
+    "dinheiro_ouro",
+    "matematica_geometria"
+  ],
+  "fundos": [
+    "biblioteca_a_luz_de_velas_1",
+    "dinheiro_e_ouro_1",
+    "geometria_e_matematica_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "dinheiro_e_ouro_1_loopster",
+    "geometria_e_matematica_1_dub_eastern"
+  ],
+  "musica_indice": 0
+}

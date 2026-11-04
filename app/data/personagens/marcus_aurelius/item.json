@@ -1,0 +1,40 @@
+{
+  "id": "marcus_aurelius",
+  "nome": "Marcus Aurelius",
+  "aliases": [
+    "Marco Aurélio",
+    "Marco Aurelio"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\marcus_aurelius\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "templo_grego_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\marcus_aurelius.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 17:38",
+  "imagem_provisoria": false,
+  "nicho": "Filosofia e autoconhecimento",
+  "categoria": "Estoicismo",
+  "especialidades": "Estoicismo; autocontrole; sofrimento",
+  "temas_fundo": [
+    "templo_grego",
+    "fogo",
+    "nuvens"
+  ],
+  "fundos": [
+    "templo_grego_1",
+    "fogo_1",
+    "nuvens"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "templo_grego_1_peaceful_desolation",
+    "fogo_1_clenched_teeth",
+    "nuvens_1_dreamer"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

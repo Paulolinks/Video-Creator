@@ -1,0 +1,39 @@
+{
+  "id": "ibn_sina",
+  "nome": "Ibn Sina",
+  "aliases": [
+    "Avicena",
+    "Ibn Sina (Avicena)"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\ibn_sina\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\ibn_sina.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Outros pensadores históricos",
+  "categoria": "Filosofia e ciência histórica",
+  "especialidades": "Razão; mente; conhecimento",
+  "temas_fundo": [
+    "biblioteca_velas",
+    "cosmos",
+    "matematica_geometria"
+  ],
+  "fundos": [
+    "biblioteca_a_luz_de_velas_1",
+    "cosmos_1",
+    "geometria_e_matematica_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "cosmos_1_mesmerizing_galaxy",
+    "geometria_e_matematica_1_dub_eastern"
+  ],
+  "musica_indice": 0
+}

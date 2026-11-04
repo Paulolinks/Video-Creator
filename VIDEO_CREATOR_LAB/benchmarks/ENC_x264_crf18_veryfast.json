@@ -1,0 +1,23 @@
+{
+  "test": "encoder",
+  "name": "lago_x264_crf18_veryfast",
+  "encoder_args": [
+    "-c:v",
+    "libx264",
+    "-preset",
+    "veryfast",
+    "-crf",
+    "18"
+  ],
+  "wall_s": 1.13,
+  "encode_fps": 132.7,
+  "cpu_cores_avg": 7.29,
+  "nvenc_util_max_pct": 0.0,
+  "size_mb": 0.62,
+  "bitrate_mbps": 1.04,
+  "ssim": 0.994011,
+  "psnr_db": 49.855322,
+  "reference": "ffv1 lossless, mesmo movimento",
+  "output": "D:\\Video-Creator\\VIDEO_CREATOR_LAB\\outputs\\encoder\\lago_x264_crf18_veryfast.mp4",
+  "date": "2026-10-30T19:40:08"
+}

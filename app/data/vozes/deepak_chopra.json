@@ -1,0 +1,11 @@
+{
+  "nome": "Deepak Chopra",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.4614,
+    "pm_santa": 0.1372,
+    "bm_lewis": 0.4013
+  },
+  "velocidade": 0.906,
+  "tom": 0.966
+}

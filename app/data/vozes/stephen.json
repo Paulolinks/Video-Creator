@@ -1,0 +1,10 @@
+{
+  "nome": "Stephen",
+  "descricao": "masculina, adulta, equilibrada",
+  "mistura": {
+    "pm_santa": 0.5797,
+    "bm_fable": 0.4176
+  },
+  "velocidade": 0.957,
+  "tom": 0.964
+}

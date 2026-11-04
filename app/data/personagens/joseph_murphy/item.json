@@ -1,0 +1,40 @@
+{
+  "id": "joseph_murphy",
+  "nome": "Joseph Murphy",
+  "aliases": [
+    "Dr. Joseph Murphy",
+    "Murphy"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\joseph_murphy\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "luz_divina_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\joseph_murphy.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 17:38",
+  "imagem_provisoria": false,
+  "nicho": "Manifestação e espiritualidade",
+  "categoria": "Subconsciente e crenças",
+  "especialidades": "Subconsciente; crenças; autossugestão",
+  "temas_fundo": [
+    "luz_divina",
+    "nuvens",
+    "particulas_douradas"
+  ],
+  "fundos": [
+    "luz_divina_1",
+    "nuvens",
+    "particulas_douradas"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "luz_divina_1_skye_cuillin",
+    "nuvens_1_dreamer",
+    "particulas_douradas_1_promises_to_keep"
+  ],
+  "musica_indice": 0,
+  "fundo_removido": false
+}

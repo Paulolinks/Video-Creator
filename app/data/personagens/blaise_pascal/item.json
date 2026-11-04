@@ -1,0 +1,38 @@
+{
+  "id": "blaise_pascal",
+  "nome": "Blaise Pascal",
+  "aliases": [
+    "Pascal"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\blaise_pascal\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "geometria_e_matematica_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\blaise_pascal.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Matemática financeira, probabilidade e juros compostos",
+  "categoria": "Probabilidade",
+  "especialidades": "Probabilidade; incerteza; raciocínio matemático",
+  "temas_fundo": [
+    "matematica_geometria",
+    "biblioteca_velas",
+    "luz_divina"
+  ],
+  "fundos": [
+    "geometria_e_matematica_1",
+    "biblioteca_a_luz_de_velas_1",
+    "luz_divina_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "geometria_e_matematica_1_dub_eastern",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "luz_divina_1_skye_cuillin"
+  ],
+  "musica_indice": 0
+}

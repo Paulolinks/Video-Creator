@@ -1,0 +1,38 @@
+{
+  "id": "paracelso",
+  "nome": "Paracelso",
+  "aliases": [
+    "Paracelsus"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\paracelso\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "fogo_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\paracelso.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Hermetismo, misticismo e tradições antigas",
+  "categoria": "Alquimia e história do conhecimento",
+  "especialidades": "Alquimia; medicina histórica; natureza; transformação",
+  "temas_fundo": [
+    "fogo",
+    "biblioteca_velas",
+    "tinta_fumaca"
+  ],
+  "fundos": [
+    "fogo_1",
+    "biblioteca_a_luz_de_velas_1",
+    "tinta_e_fumaca_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "fogo_1_clenched_teeth",
+    "biblioteca_a_luz_de_velas_1_sad_trio",
+    "tinta_e_fumaca_1_virtutes_instrumenti"
+  ],
+  "musica_indice": 0
+}

@@ -1,0 +1,12 @@
+{
+  "nome": "Chris Voss",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.4031,
+    "pm_santa": 0.2257,
+    "hm_psi": 0.192,
+    "bm_george": 0.1793
+  },
+  "velocidade": 0.923,
+  "tom": 1.013
+}

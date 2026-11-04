@@ -1,0 +1,10 @@
+{
+  "nome": "Marcus Aurelius",
+  "descricao": "grave, lenta, serena",
+  "mistura": {
+    "pm_santa": 0.6,
+    "am_onyx": 0.4
+  },
+  "velocidade": 0.88,
+  "tom": 0.9
+}

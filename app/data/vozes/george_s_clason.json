@@ -1,0 +1,12 @@
+{
+  "nome": "George S. Clason",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.421,
+    "pm_santa": 0.093,
+    "em_alex": 0.1531,
+    "bm_fable": 0.3328
+  },
+  "velocidade": 0.851,
+  "tom": 0.868
+}

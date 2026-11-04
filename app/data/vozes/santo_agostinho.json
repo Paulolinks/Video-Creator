@@ -1,0 +1,12 @@
+{
+  "nome": "Santo Agostinho",
+  "descricao": "masculina, adulta, calma",
+  "mistura": {
+    "pm_alex": 0.3939,
+    "pm_santa": 0.1378,
+    "zm_yunxia": 0.1291,
+    "bm_fable": 0.3393
+  },
+  "velocidade": 0.896,
+  "tom": 1.043
+}

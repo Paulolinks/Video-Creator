@@ -1,0 +1,11 @@
+{
+  "nome": "Lao-Tsé",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.5488,
+    "pm_santa": 0.0191,
+    "am_echo": 0.432
+  },
+  "velocidade": 0.894,
+  "tom": 0.914
+}

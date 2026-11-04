@@ -1,0 +1,12 @@
+{
+  "nome": "Apóstolo Paulo",
+  "descricao": "masculina, adulta, enérgica",
+  "mistura": {
+    "pm_alex": 0.1902,
+    "pm_santa": 0.3561,
+    "em_alex": 0.1133,
+    "am_adam": 0.3404
+  },
+  "velocidade": 1.091,
+  "tom": 1.074
+}

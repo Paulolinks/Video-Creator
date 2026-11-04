@@ -1,0 +1,12 @@
+{
+  "nome": "Jeb Blount",
+  "descricao": "masculina, adulta, enérgica",
+  "mistura": {
+    "pm_alex": 0.3459,
+    "pm_santa": 0.1597,
+    "am_onyx": 0.1829,
+    "am_adam": 0.3115
+  },
+  "velocidade": 1.072,
+  "tom": 1.014
+}

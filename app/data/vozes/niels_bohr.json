@@ -1,0 +1,12 @@
+{
+  "nome": "Niels Bohr",
+  "descricao": "masculina, madura, calma",
+  "mistura": {
+    "pm_alex": 0.379,
+    "pm_santa": 0.1565,
+    "em_alex": 0.0658,
+    "am_adam": 0.3987
+  },
+  "velocidade": 0.881,
+  "tom": 0.907
+}

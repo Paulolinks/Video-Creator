@@ -1,0 +1,36 @@
+{
+  "id": "james_clear",
+  "nome": "James Clear",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\james_clear\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "natureza_zen_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\james_clear.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Psicologia e comportamento humano",
+  "categoria": "Hábitos e disciplina",
+  "especialidades": "Hábitos; identidade; disciplina",
+  "temas_fundo": [
+    "zen_natureza",
+    "particulas_douradas",
+    "matematica_geometria"
+  ],
+  "fundos": [
+    "natureza_zen_1",
+    "particulas_douradas",
+    "geometria_e_matematica_1"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "natureza_zen_1_ripples",
+    "particulas_douradas_1_promises_to_keep",
+    "geometria_e_matematica_1_dub_eastern"
+  ],
+  "musica_indice": 0
+}

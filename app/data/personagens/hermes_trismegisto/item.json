@@ -1,0 +1,38 @@
+{
+  "id": "hermes_trismegisto",
+  "nome": "Hermes Trismegisto",
+  "aliases": [
+    "Hermes"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\hermes_trismegisto\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "egito_antigo_2",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\hermes_trismegisto.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Hermetismo, misticismo e tradições antigas",
+  "categoria": "Filosofia hermética e leis universais",
+  "especialidades": "Hermetismo; correspondência; mentalismo; alquimia; transformação interior",
+  "temas_fundo": [
+    "egito",
+    "cosmos",
+    "particulas_douradas"
+  ],
+  "fundos": [
+    "egito_antigo_2",
+    "cosmos_1",
+    "particulas_douradas"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "egito_antigo_1_jalandhar",
+    "cosmos_1_mesmerizing_galaxy",
+    "particulas_douradas_1_promises_to_keep"
+  ],
+  "musica_indice": 0
+}

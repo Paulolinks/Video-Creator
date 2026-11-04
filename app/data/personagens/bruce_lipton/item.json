@@ -1,0 +1,38 @@
+{
+  "id": "bruce_lipton",
+  "nome": "Bruce Lipton",
+  "aliases": [
+    "Lipton"
+  ],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\bruce_lipton\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "cerebro_e_neuronios_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\bruce_lipton.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "criado_em": "2026-10-31 18:42",
+  "imagem_provisoria": true,
+  "nicho": "Ciência e realidade",
+  "categoria": "Biologia e crenças",
+  "especialidades": "Biologia; crenças; epigenética",
+  "temas_fundo": [
+    "cerebro_neuronios",
+    "fisica_atomos",
+    "particulas_douradas"
+  ],
+  "fundos": [
+    "cerebro_e_neuronios_1",
+    "atomos_1",
+    "particulas_douradas"
+  ],
+  "fundo_indice": 0,
+  "musicas": [
+    "cerebro_e_neuronios_1_ghostpocalypse_3_road_of_trials",
+    "atomos_1_ethernight_club",
+    "particulas_douradas_1_promises_to_keep"
+  ],
+  "musica_indice": 0
+}
