@@ -1,0 +1,12 @@
+{
+  "nome": "Inteligência Infinita · 3 Eterna",
+  "descricao": "serena e etérea, com eco amplo",
+  "mistura": {
+    "pm_alex": 0.6,
+    "bm_fable": 0.2,
+    "am_michael": 0.2
+  },
+  "velocidade": 0.82,
+  "tom": 0.9,
+  "efeito": "eterno"
+}

@@ -1,0 +1,12 @@
+{
+  "nome": "Inteligência Infinita · 2 Divina",
+  "descricao": "profunda, com uma voz grave por baixo e eco",
+  "mistura": {
+    "pm_alex": 0.55,
+    "am_onyx": 0.25,
+    "am_fenrir": 0.2
+  },
+  "velocidade": 0.84,
+  "tom": 0.92,
+  "efeito": "divino"
+}

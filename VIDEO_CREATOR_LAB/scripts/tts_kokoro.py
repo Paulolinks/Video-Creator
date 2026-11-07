@@ -4,7 +4,8 @@ Run with: C:/dev/Video Cutter/.runtime/voices/kokoro/Scripts/python.exe (PYTHOND
 Usage: tts_kokoro.py <scenes.json> <out_dir> [voice] [pt|en]
 
 voice: a built-in name (pm_alex) or the path of a character voice pack (.pt). A pack may have a
-sidecar .json with "velocidade" (Kokoro speed) and "tom" (pitch factor, applied with rubberband).
+sidecar .json with "velocidade" (Kokoro speed), "tom" (pitch factor, applied with rubberband) and "efeito"
+(optional voice character effect, see EFEITOS: catedral, divino, eterno).
 """
 import json
 import subprocess
@@ -23,6 +24,19 @@ WEIGHTS = Path(r"C:\Users\paulo\.cache\huggingface\hub\models--hexgrad--Kokoro-8
                r"\f3ff3571791e39611d31c381e3a41a3af07b4987")
 RATE = 24000
 LANG_CODES = {"pt": "p", "en": "a"}  # Kokoro: p = Brazilian Portuguese, a = American English
+# Optional "efeito" of a voice pack (ffmpeg filter graph, input [0:a], output [out]). apad leaves room for the tail.
+_ECO = "aecho=0.8:0.86:60|130|250|380:0.30|0.22|0.15|0.09"
+EFEITOS = {
+    # big stone hall: long multi-tap echo + a little more low end
+    "catedral": f"[0:a]apad=pad_dur=0.8,{_ECO},bass=g=2.5:f=110,alimiter=limit=0.95[out]",
+    # a deep shadow voice under the main one (pitch down, muffled) + cathedral echo
+    "divino": ("[0:a]apad=pad_dur=0.9,asplit=2[a][b];[b]rubberband=pitch=0.7:formant=preserved,lowpass=f=1800,"
+               f"volume=0.32[low];[a][low]amix=inputs=2:normalize=0,{_ECO},bass=g=3:f=100,alimiter=limit=0.95[out]"),
+    # ethereal: a slightly detuned double (soft chorus), wide airy echo, softened highs
+    "eterno": ("[0:a]apad=pad_dur=1.1,asplit=2[a][b];[b]rubberband=pitch=1.012,adelay=28,volume=0.28[d];"
+               "[a][d]amix=inputs=2:normalize=0,aecho=0.85:0.9:90|180|320|500:0.26|0.20|0.14|0.08,"
+               "highpass=f=70,treble=g=-2,alimiter=limit=0.95[out]"),
+}
 
 if __name__ == "__main__":
     scenes = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
@@ -54,7 +68,15 @@ if __name__ == "__main__":
             subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(path), "-af",
                             f"rubberband=pitch={pitch}:formant=preserved", str(tmp)], check=True)
             tmp.replace(path)
-        result["scenes"].append({"id": scene["id"], "wav": str(path), "duration_s": round(len(audio) / RATE, 3),
+        if style.get("efeito") in EFEITOS:  # voice character effect (e.g. cathedral echo), kept inside the voice
+            tmp = path.with_suffix(".efeito.wav")
+            subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(path), "-filter_complex",
+                            EFEITOS[style["efeito"]], "-map", "[out]", "-ar", str(RATE), "-ac", "1", str(tmp)],
+                           check=True)
+            tmp.replace(path)
+        with wave.open(str(path)) as w:  # the real length: an echo tail makes the file longer than the speech
+            dur = w.getnframes() / w.getframerate()
+        result["scenes"].append({"id": scene["id"], "wav": str(path), "duration_s": round(dur, 3),
                                  "synth_s": round(time.perf_counter() - t, 2)})
     me = measure.kernel32.GetCurrentProcess()
     result["total_s"] = round(time.perf_counter() - t0, 2)

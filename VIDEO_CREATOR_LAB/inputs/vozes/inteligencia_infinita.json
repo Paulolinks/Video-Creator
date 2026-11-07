@@ -1,0 +1,26 @@
+{
+  "inteligencia_infinita_1": {
+    "nome": "Inteligência Infinita · 1 Catedral",
+    "descricao": "grave, lenta, com eco de catedral",
+    "mistura": {"pm_alex": 0.55, "am_onyx": 0.30, "bm_george": 0.15},
+    "velocidade": 0.86,
+    "tom": 0.88,
+    "efeito": "catedral"
+  },
+  "inteligencia_infinita_2": {
+    "nome": "Inteligência Infinita · 2 Divina",
+    "descricao": "profunda, com uma voz grave por baixo e eco",
+    "mistura": {"pm_alex": 0.55, "am_onyx": 0.25, "am_fenrir": 0.20},
+    "velocidade": 0.84,
+    "tom": 0.92,
+    "efeito": "divino"
+  },
+  "inteligencia_infinita_3": {
+    "nome": "Inteligência Infinita · 3 Eterna",
+    "descricao": "serena e etérea, com eco amplo",
+    "mistura": {"pm_alex": 0.60, "bm_fable": 0.20, "am_michael": 0.20},
+    "velocidade": 0.82,
+    "tom": 0.90,
+    "efeito": "eterno"
+  }
+}

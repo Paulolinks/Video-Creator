@@ -1,0 +1,36 @@
+{
+  "id": "inteligencia_infinita",
+  "nome": "Inteligência Infinita",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\alan_watts.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "fundo_removido": false,
+  "criado_em": "2026-11-07 01:51",
+  "nicho": "Espiritualidade e Consciência",
+  "categoria": "Leis Universais e Expansão da Consciência",
+  "fundos": [
+    "biblioteca_a_luz_de_velas_1",
+    "inteligencia_infinita_222270_medium",
+    "inteligencia_infinita_27337_363287680_medium",
+    "inteligencia_infinita_148593_794221531_medium",
+    "inteligencia_infinita_217932_medium",
+    "inteligencia_infinita_145739_787427545_medium",
+    "inteligencia_infinita_6044_188286505_medium",
+    "inteligencia_infinita_8947_215890483_medium",
+    "inteligencia_infinita_368458_medium"
+  ],
+  "fundos_manual": true,
+  "imagens": [
+    "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte.png",
+    "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_2.png",
+    "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_3.png",
+    "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_4.png"
+  ]
+}
