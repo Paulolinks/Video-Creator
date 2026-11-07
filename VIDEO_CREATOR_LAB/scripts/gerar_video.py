@@ -86,13 +86,13 @@ if __name__ == "__main__":
             clips = sorted(raw.glob("*.mp4"))
             if clips:
                 shutil.move(str(clips[-1]), work / "fala" / f"{sc['id']}.mp4")
-            else:  # no face found: the scene is shown with 2.5D depth instead of a moving mouth
-                sc["mode"] = "dolly"
+            else:  # no face found: the pose over the moving background (or the still image in 2.5D)
+                sc["mode"] = "personagem" if sc.get("pose") and sc.get("fundo_video") else "dolly"
                 sem_rosto.append(sc["id"])
             shutil.rmtree(raw, ignore_errors=True)
         if sem_rosto:
             report["fala_sem_rosto"] = sem_rosto
-            print(f"Sem rosto humano para animar a boca em {', '.join(sem_rosto)}: essas cenas usam profundidade 2.5D.",
+            print(f"Sem rosto humano para animar a boca em {', '.join(sem_rosto)}: essas cenas mostram a pose sobre o fundo em movimento.",
                   flush=True)
             scenes_file = work / "cenas_composicao.json"  # the project's cenas.json stays as written by the app
             scenes_file.write_text(json.dumps(scenes, indent=2, ensure_ascii=False), encoding="utf-8")

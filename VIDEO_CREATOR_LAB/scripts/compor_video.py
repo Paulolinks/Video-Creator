@@ -45,7 +45,34 @@ class Composer:
         m = np.float32([[z, 0, (1 - z) * self.W / 2], [0, z, (1 - z) * self.H / 2]])
         return cv2.warpAffine(frame, m, (self.W, self.H), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REFLECT)
 
-    def talk(self, src, seconds, lead, path):
+    def background(self, src, seconds):
+        """Frames of a background video (looped), cover-cropped, darkened and slightly blurred like the still
+        composites the app builds; the last frame repeats if the video ends early."""
+        p = subprocess.Popen(["ffmpeg", "-v", "error", "-stream_loop", "-1", "-i", str(src), "-t", f"{seconds + 0.5:.3f}",
+                              "-an", "-vf", f"fps={self.FPS},scale={self.W}:{self.H}:force_original_aspect_ratio=increase,"
+                              f"crop={self.W}:{self.H},gblur=sigma=3,colorchannelmixer=rr=0.72:gg=0.72:bb=0.72",
+                              "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], stdout=subprocess.PIPE)
+        n, last = self.W * self.H * 3, None
+        try:
+            while True:
+                buf = p.stdout.read(n)
+                if len(buf) < n:
+                    break
+                last = np.frombuffer(buf, np.uint8).reshape(self.H, self.W, 3)
+                yield last
+            while last is not None:
+                yield last
+        finally:
+            p.kill()
+
+    def layer(self, pose):
+        """The character's pose (full-frame PNG with transparency) -> BGR image + alpha (H, W, 1) in 0..1."""
+        rgba = np.asarray(Image.open(pose).convert("RGBA").resize((self.W, self.H)))
+        return cv2.cvtColor(np.ascontiguousarray(rgba[..., :3]), cv2.COLOR_RGB2BGR), rgba[..., 3:4].astype(np.float32) / 255
+
+    def talk(self, src, seconds, lead, path, fundo=None, pose=None):
+        """SadTalker clip with a slow zoom. With fundo (video) + pose: the character, cut by the pose's alpha, is
+        put over the MOVING background instead of the still one SadTalker received."""
         cfg = self.tpl["modos_de_cena"]["fala"]["zoom_lento"]
         raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(src), "-vf",
                               f"fps={self.FPS},scale={self.W}:{self.H}:force_original_aspect_ratio=increase:flags=lanczos,"
@@ -53,9 +80,32 @@ class Composer:
                               f"start_duration={lead}:stop_mode=clone:stop_duration=5", "-t", f"{seconds:.3f}",
                               "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], capture_output=True, check=True).stdout
         frames = np.frombuffer(raw, np.uint8).reshape(-1, self.H, self.W, 3)
+        moving = self.background(fundo, seconds) if fundo and pose and Path(fundo).exists() else None
+        alpha = self.layer(pose)[1] if moving else None
         enc = self.encoder(path)
         for i, f in enumerate(frames):
+            if moving:
+                f = (f * alpha + next(moving) * (1 - alpha)).astype(np.uint8)
             e = ease(i / max(len(frames) - 1, 1))
+            enc.stdin.write(self.zoom(f, cfg["de"] + (cfg["ate"] - cfg["de"]) * e).tobytes())
+        enc.stdin.close()
+        enc.wait()
+
+    def character(self, pose, fundo, seconds, path):
+        """A character whose face SadTalker cannot animate (e.g. a cosmic being): the pose over the moving
+        background, gently 'breathing' (slow scale from the feet), with the same slow zoom as a talking scene."""
+        cfg = self.tpl["modos_de_cena"]["fala"]["zoom_lento"]
+        img, alpha = self.layer(pose)
+        moving = self.background(fundo, seconds)
+        n = round(seconds * self.FPS)
+        enc = self.encoder(path)
+        for i in range(n):
+            s = 1 + 0.012 * (1 - np.cos(2 * np.pi * i / (self.FPS * 4))) / 2  # one breath every 4 s
+            m = np.float32([[s, 0, (1 - s) * self.W / 2], [0, s, (1 - s) * self.H]])
+            fg = cv2.warpAffine(img, m, (self.W, self.H), flags=cv2.INTER_LINEAR)
+            a = cv2.warpAffine(alpha, m, (self.W, self.H), flags=cv2.INTER_LINEAR)[..., None]
+            f = (fg * a + next(moving) * (1 - a)).astype(np.uint8)
+            e = ease(i / max(n - 1, 1))
             enc.stdin.write(self.zoom(f, cfg["de"] + (cfg["ate"] - cfg["de"]) * e).tobytes())
         enc.stdin.close()
         enc.wait()
@@ -134,7 +184,10 @@ def compose(tpl, scenes, work, out):
         clip.parent.mkdir(exist_ok=True)
         image = Path(sc["image"]) if Path(sc["image"]).is_absolute() else LAB / sc["image"]
         if sc["mode"] == "fala":
-            c.talk(work / "fala" / f"{sc['id']}.mp4", seconds, lead if i == 0 else 0, clip)
+            c.talk(work / "fala" / f"{sc['id']}.mp4", seconds, lead if i == 0 else 0, clip,
+                   fundo=sc.get("fundo_video"), pose=sc.get("pose"))
+        elif sc["mode"] == "personagem":  # no human face to animate: pose over the moving background
+            c.character(sc["pose"], sc["fundo_video"], seconds, clip)
         elif sc["mode"] == "dolly":
             m = modes["dolly"]
             c.still(image, seconds, clip, m["ganho_profundidade"], m["zoom"]["de"], m["zoom"]["ate"])

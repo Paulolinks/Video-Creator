@@ -325,9 +325,10 @@ def _auto_images(batch_id, v):
     _update(batch_id, v["id"], etapa="Montando as imagens das cenas")
     enc = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))["video"]
     v = {**v, "imagens": [s.get("image") or "" for s in scenes]}
-    imgs, origens = cenas_auto.complete(v, v["projeto"], enc["largura"], enc["altura"])
-    for s, img in zip(scenes, imgs):
+    imgs, origens, extras = cenas_auto.complete(v, v["projeto"], enc["largura"], enc["altura"])
+    for i, (s, img) in enumerate(zip(scenes, imgs)):
         s["image"] = img
+        s.update(extras.get(i, {}))  # pose layer + moving background video for the composer
     cenas_file.write_text(json.dumps(scenes, indent=2, ensure_ascii=False), encoding="utf-8")
     fields = {"imagens": imgs, "imagens_origem": origens}
     if not v.get("capa_fonte"):

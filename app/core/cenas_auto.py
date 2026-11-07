@@ -98,7 +98,13 @@ def talking_image(pose, background, out, W, H, at=2.0):
     elif cut_l and not cut_r:
         x = min(x, 0)
     x = min(max(x, round(W * 0.25 - cx)), round(W * 0.75 - cx))  # the head stays in the middle half
-    bg.alpha_composite(p, (x, H - p.height))
+    # the pose alone on a transparent frame: the composer puts it over the MOVING background video (the still
+    # composite below is only what SadTalker needs to find and animate the face)
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    layer.alpha_composite(p, (x, H - p.height))
+    out = Path(out)
+    layer.save(out.with_name(out.stem + "_pose.png"))
+    bg.alpha_composite(layer)
     bg.convert("RGB").save(out, quality=95)
     return out
 
@@ -183,14 +189,15 @@ def _shuffled(items, last=None, key=lambda x: x):
 
 
 def complete(video, folder, W, H):
-    """Preenche as imagens que faltam (lista com uma posição por cena). Retorna (imagens, origens)."""
+    """Preenche as imagens que faltam (lista com uma posição por cena). Retorna (imagens, origens, extras):
+    extras[i] = {"pose": camada da pose sem fundo, "fundo_video": vídeo do fundo} nas cenas de FALA montadas."""
     folder = Path(folder) / "imagens_auto"
     folder.mkdir(parents=True, exist_ok=True)
     imgs = list(video.get("imagens") or [])
     imgs += [""] * (len(video["cenas"]) - len(imgs))
     ch = character_ready(video["personagens"][0] if video.get("personagens") else None)
     key = pixabay_key()
-    origens = []
+    origens, extras = [], {}
     # rotation: a new random order every video (no repeats in a row), not starting where the last video ended
     poses = _shuffled(library.images(ch), ch.get("ultima_pose")) if ch else []
     bgs = _shuffled(_bg_pool(ch), ch.get("ultimo_fundo"), key=lambda b: b["id"]) if ch else []
@@ -205,6 +212,9 @@ def complete(video, folder, W, H):
                                    "e fundo. Envie cena%d.png ou cadastre o personagem." % (i + 1))
             pose, bg = poses[used_pose % len(poses)], bgs[used_bg % len(bgs)]
             talking_image(pose, bg["arquivo"], out, W, H, at=2.0 + 1.5 * used_bg)
+            extras[i] = {"pose": str(out.with_name(out.stem + "_pose.png"))}
+            if Path(bg["arquivo"]).suffix.lower() in library.VIDEO_EXT:  # the scene's background keeps moving
+                extras[i]["fundo_video"] = bg["arquivo"]
             origens.append(f"Cena {i + 1}: {Path(pose).name} sobre o fundo {bg['nome']}")
             used_pose += 1
             used_bg += 1
@@ -232,4 +242,4 @@ def complete(video, folder, W, H):
     if ch and (used_pose or used_bg):  # remembered so the next video does not start with the same ones
         library.update_character(ch["id"], ultima_pose=poses[(used_pose - 1) % len(poses)] if used_pose else None,
                                  ultimo_fundo=bgs[(used_bg - 1) % len(bgs)]["id"] if used_bg else None)
-    return imgs, origens
+    return imgs, origens, extras
