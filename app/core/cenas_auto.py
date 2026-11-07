@@ -141,8 +141,12 @@ def pixabay_image(busca, descricao, idioma, out, key):
                 hits = json.loads(r.read().decode("utf-8")).get("hits", [])
             hits = [h for h in hits if h.get("largeImageURL") and max(h["imageWidth"], h["imageHeight"]) >= 1200]
             fresh = [h for h in hits if h["id"] not in used] or hits
-            if fresh:
-                h = random.choice(fresh[:6])
+            if fresh:  # prefer photos whose tags contain more of the searched words, then popularity
+                words = {w.lower()[:5] for w in q.split() if len(w) > 2}
+                score = lambda h: sum(any(t.strip().lower().startswith(w) for t in re.split(r"[,\s]+", h["tags"]))
+                                      for w in words)
+                best = max(score(h) for h in fresh)
+                h = random.choice([x for x in fresh if score(x) == best][:3])
                 with _get(h["largeImageURL"], 60) as r:
                     Path(out).write_bytes(r.read())
                 used.add(h["id"])

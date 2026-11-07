@@ -1,6 +1,7 @@
 # Segredos
 app/data/google/
 app/data/pixabay.json
+app/data/pixabay_usadas.json
 
 # Python
 __pycache__/
