@@ -208,13 +208,15 @@ def parse_script(path):
         for i, m in enumerate(f01):
             end = f01[i + 1].start() if i + 1 < len(f01) else len(text)
             body = text[m.end():end]
-            narr = re.search(r"(?:NARRA[ÇC][ÃA]O|NARRATION)\s*:\s*(.*?)(?=^IMAGE[M]?\s*:|\Z)", body,
-                             re.S | re.M | re.I)
-            img = re.search(r"^IMAGE[M]?\s*:\s*(.*)", body, re.S | re.M | re.I)
+            narr = re.search(r"(?:NARRA[ÇC][ÃA]O|NARRATION)\s*:\s*(.*?)(?=^IMAGE[M]?\s*:|^(?:BUSCA|SEARCH)\s*:|\Z)",
+                             body, re.S | re.M | re.I)
+            img = re.search(r"^IMAGE[M]?\s*:\s*(.*?)(?=^(?:BUSCA|SEARCH)\s*:|\Z)", body, re.S | re.M | re.I)
+            busca = re.search(r"^(?:BUSCA|SEARCH)\s*:\s*(.*)$", body, re.M | re.I)  # image-bank keywords
             mode = m.group(2).lower()
             result["cenas"].append({"id": f"CENA_{int(m.group(1)):02}", "mode": _MODES.get(mode, mode),
                                     "text": _clean(narr.group(1)) if narr else "",
-                                    "descricao_imagem": _clean(img.group(1)) if img else ""})
+                                    "descricao_imagem": _clean(img.group(1)) if img else "",
+                                    "busca": _clean(busca.group(1)) if busca else ""})
         if info["personagem"]:
             result["personagens"] = [info["personagem"].upper()]
     result["avisos_animacao"] = _animations(result["cenas"])

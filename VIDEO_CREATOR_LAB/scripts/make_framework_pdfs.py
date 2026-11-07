@@ -227,7 +227,8 @@ F01_EXAMPLE = [
      "text": "Alguém pode sorrir na sua frente, jurar lealdade e, pelas suas costas, escolher aquilo que lhe oferece "
              "mais vantagens.",
      "descricao_imagem": "Salão renascentista: uma nobre entrega uma carta selada a um homem, enquanto outro observa "
-                         "desconfiado ao fundo."},
+                         "desconfiado ao fundo.",
+     "busca": "secret letter candlelight"},
     {"id": "CENA_03", "mode": "fala", "image": "inputs/teste_maquiavel/cena3_maquiavel.png",
      "text": "Por isso, não julgue alguém pelo que promete. Observe o que faz quando seus interesses estão em jogo. [DESTAQUE: CARÁTER | "
              "aparece nas ações] É aí que o caráter se revela.",
@@ -237,7 +238,8 @@ F01_EXAMPLE = [
 F01_EXAMPLE_TXT = ("TÍTULO: QUEM REALMENTE SÃO AS PESSOAS?\nTEMA: lealdade e caráter segundo Maquiavel\n"
                    "FORMATO: PERSONAGEM_FALANDO\nPERSONAGEM: Maquiavel\n"
                    + "".join(f"\nCENA {c['id'][-2:]} | MODO: {c['mode'].upper()}\nNARRAÇÃO: {c['text']}\n"
-                             f"IMAGEM: {c['descricao_imagem']}\n" for c in F01_EXAMPLE) + "\nFIM\n\n"
+                             f"IMAGEM: {c['descricao_imagem']}\n" + (f"BUSCA: {c['busca']}\n" if c.get("busca") else "")
+                             for c in F01_EXAMPLE) + "\nFIM\n\n"
                    "METADADOS\nTÍTULO DO POST: Quem realmente são as pessoas?\n"
                    "DESCRIÇÃO: Maquiavel lembra que o caráter aparece nas ações, não nas promessas. Você já confiou "
                    "em alguém só pelo que ele dizia?\n"
@@ -257,6 +259,7 @@ IMAGEM: <o que aparece na cena>
 CENA 02 | MODO: DOLLY
 NARRAÇÃO: <texto integral>
 IMAGEM: <o que aparece na cena>
+BUSCA: <2 a 4 palavras-chave em inglês para o banco de imagens>
 
 CENA 03 | MODO: FALA
 NARRAÇÃO: <texto integral>
@@ -284,10 +287,13 @@ REGRAS DE ENTREGA (obrigatórias):
 - Use exatamente as palavras-chave do item 3: TÍTULO:, TEMA:, FORMATO:, PERSONAGEM:, SÉRIE:, EPISÓDIO:,
   "CENA 01 | MODO: FALA", NARRAÇÃO:, IMAGEM:. Escreva "CENA 01" com espaço (nunca CENA_01).
 - MODO só pode ser FALA, DOLLY ou ZOOM.
+- Nas cenas DOLLY e ZOOM, inclua a linha BUSCA: com 2 a 4 palavras-chave em inglês (ex.: running sunrise road):
+  o app usa essas palavras para buscar a foto da cena no Pixabay.
 - Dentro do bloco: sem negrito, sem títulos, sem comentários, sem JSON, sem fontes e sem nenhum <...> sobrando.
 - Animações: inclua 1 ou 2 marcações do item 5 ([CONTADOR: ...], [BARRAS: ...], [FLUXO: ...], [CARDS: ...] ou
   [DESTAQUE: ...]) dentro da NARRAÇÃO, logo antes da frase certa. Números da marcação precisam ser ditos na fala.
-- Depois do bloco, em texto normal: um PROMPT DE IMAGEM por cena (regras de imagem do item 4).
+- Depois do bloco, em texto normal: um PROMPT DE IMAGEM por cena (regras de imagem do item 4), para o caso de
+  eu preferir criar as imagens em vez de deixar o app montar.
 """
 
 
@@ -297,7 +303,8 @@ def f01():
                 "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.3 · ATUALIZADO EM 07/11/2026"), Spacer(1, 8)]
     s += [P("<b>Para que serve este PDF:</b> anexe este arquivo ao ChatGPT junto com o prompt do item 2. O ChatGPT "
             "devolve o roteiro em texto simples, já no formato que o Video Creator lê. Você cola esse texto no app "
-            "(ou salva como .txt) e envia as imagens das cenas. <b>Não envie este PDF ao app</b>: ele é só o modelo.")]
+            "(ou salva como .txt). As imagens das cenas são opcionais: com o personagem cadastrado, o app monta as "
+            "cenas sozinho (item 3). <b>Não envie este PDF ao app</b>: ele é só o modelo.")]
     s += [P("1. Como o vídeo fica", "h2"),
           P("Vertical 9:16. Nas cenas de <b>fala</b>, a imagem do personagem ganha boca sincronizada, piscadas e "
             "leves movimentos de cabeça, com um zoom lento. Nas cenas <b>sem fala</b>, a imagem ganha profundidade "
@@ -324,7 +331,20 @@ def f01():
                  ["<b>DOLLY</b>", "Cenas que ilustram a ideia (situações, lugares, ações) sem ninguém falando.",
                   "Cena com profundidade: primeiro plano, meio e fundo bem separados."],
                  ["<b>ZOOM</b>", "Imagens planas: símbolos, objetos isolados, gráficos sem texto.",
-                  "Qualquer imagem vertical; sem texto escrito dentro."]], [22, 70, 82])]
+                  "Qualquer imagem vertical; sem texto escrito dentro."]], [22, 70, 82]),
+          P("Imagens: enviar ou deixar o app montar", "h3"),
+          table([["Cena", "Se você enviar cenaN.png", "Se não enviar (automático)"],
+                 ["<b>FALA</b>", "O app anima o rosto da imagem enviada.",
+                  "O app monta a cena com uma pose recortada do personagem cadastrado sobre um dos fundos dele. "
+                  "A pose e o fundo mudam a cada cena."],
+                 ["<b>DOLLY / ZOOM</b>", "O app usa a imagem enviada.",
+                  "O app busca uma foto no Pixabay pelas palavras da linha <b>BUSCA:</b> (ou, sem ela, pela "
+                  "descrição da linha IMAGEM:). Sem resultado, usa um quadro de um fundo do personagem."]],
+                [26, 60, 88]),
+          P("Para o modo automático, o personagem precisa estar cadastrado no app com imagem recortada (sem fundo) e "
+            "pelo menos um fundo. Com 2 ou 3 poses diferentes e vários fundos, o vídeo fica mais variado. A linha "
+            "<b>BUSCA:</b> é opcional, mas melhora muito a foto encontrada: 2 a 4 palavras-chave em inglês que "
+            "descrevem o que aparece (ex.: <i>running sunrise road</i>).")]
     s += meta_section("Metadados da publicação")
     s += [P("4. Regras de escrita", "h2"),
           P("Narração", "h3")] + bullets([
@@ -344,13 +364,16 @@ def f01():
               "Mantenha o mesmo personagem (rosto, roupa, cenário) nas cenas de FALA.",
               "Uma imagem pode ser reutilizada em mais de uma cena.",
               "Personagens sem rosto humano (ex.: cabeça cósmica) <b>não podem</b> usar o modo FALA: use DOLLY ou ZOOM.",
-              "Nome dos arquivos: cena1.png, cena2.png... dentro da pasta do vídeo."])
+              "Nome dos arquivos: cena1.png, cena2.png... dentro da pasta do vídeo.",
+              "Pode enviar só algumas: as cenas sem imagem o app monta sozinho (item 3)."])
     s += [PageBreak()] + anim_section(5, F01_ANIM_QTD, F01_ANIM_EX)
     s += [P("6. Como enviar para o app", "h2")] + bullets([
         "Copie o bloco de código que o ChatGPT devolveu e cole em <b>Colar roteiro</b>, na página Criar vídeos "
         "(ou salve como <b>.txt</b> e arraste o arquivo).",
-        "Envie junto as imagens com o nome <b>cena1.png, cena2.png...</b> (uma por cena, na ordem). Para colar e "
-        "enviar imagens, coloque roteiro .txt e imagens numa pasta e arraste a pasta.",
+        "Imagens são opcionais. Com o personagem cadastrado (recorte + fundos), basta colar o roteiro: o app monta "
+        "as cenas de fala e busca no Pixabay as imagens das cenas sem fala.",
+        "Se quiser usar imagens suas, envie junto com o nome <b>cena1.png, cena2.png...</b> (uma por cena, na "
+        "ordem; pode ser só algumas). Para isso, coloque o roteiro .txt e as imagens numa pasta e arraste a pasta.",
         "O app mostra o template, o idioma, o título, as cenas e o que estiver faltando antes de gerar.",
         "Roteiro em inglês: mantenha as mesmas palavras-chave do item 3; o app identifica o idioma sozinho e a voz "
         "lê em inglês."])
@@ -599,8 +622,13 @@ Uma voz narra o vídeo todo. Para começar, peça: TEMA, PERSONAGEM QUE FALA e N
   - DOLLY: cena que ilustra a ideia, sem ninguém falando, com primeiro plano, meio e fundo bem separados.
   - ZOOM: imagem plana (símbolo, objeto isolado), sem texto escrito.
 - IMAGEM: uma frase descrevendo o que aparece na cena.
+- BUSCA: só nas cenas DOLLY e ZOOM, 2 a 4 palavras-chave em inglês (ex.: running sunrise road). O app usa essas
+  palavras para buscar a foto da cena no Pixabay.
+- Imagens são opcionais: com o personagem cadastrado no app (recorte + fundos), o app monta as cenas de FALA
+  sozinho (pose do personagem sobre um dos fundos dele) e busca no Pixabay as fotos das cenas DOLLY/ZOOM.
 - Depois do bloco: um prompt de imagem por cena (vertical 9:16, sem texto dentro da imagem, mesmo personagem,
-  roupa e cenário nas cenas de FALA). O usuário salva as imagens como cena1.png, cena2.png...
+  roupa e cenário nas cenas de FALA), para quando o usuário preferir criar as imagens. Ele salva como
+  cena1.png, cena2.png...
 
 {anim_md(F01_ANIM_QTD, F01_ANIM_EX)}
 

@@ -436,7 +436,7 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
       ? v.personagens.map((p) => v.personagens_status?.[p]
           ? `<span class="chip ok">${esc(p)}</span>`
           : `<span class="chip bad">${esc(p)}</span> <button class="link" data-cadastrar="${esc(p)}">cadastrar</button>`).join(" ")
-      : `${esc(v.personagens.join(", "))}<div class="muted small">Imagens: ${v.imagens.length}/${v.cenas.length} ${esc(v.origem_imagens)}</div>`;
+      : `${esc(v.personagens.join(", "))}<div class="muted small">Imagens: ${esc(v.imagens_resumo || `${v.imagens.filter(Boolean).length}/${v.cenas.length} ${v.origem_imagens}`)}</div>`;
     const tag = v.template === "F01" ? '<span class="chip t01">Personagem falando</span>'
       : v.template === "T02" ? '<span class="chip t02">Entrevista</span>' : '<span class="chip bad">Desconhecido</span>';
     const lang = v.idioma ? `<span class="chip">${v.idioma === "en" ? "Inglês" : "Português"}</span>` : "";

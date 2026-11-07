@@ -11,7 +11,7 @@ import threading
 import time
 from pathlib import Path
 
-from . import canais, capa, estilos, library, metadados
+from . import canais, capa, cenas_auto, estilos, library, metadados
 from .parser import IDIOMAS, SCRIPT_EXT, TEMPLATES, embedded_images, episode_label, parse_script
 
 APP = Path(__file__).resolve().parent.parent
@@ -72,7 +72,8 @@ def _scene_images(pdf, uploads, n):
             p.write_bytes(data)
             paths.append(str(p))
         return paths, "do PDF"
-    return [str(found[i]) for i in sorted(found)], "faltando"
+    # one slot per scene; an empty slot is filled when generating (registered character / Pixabay)
+    return [str(found[i]) if i in found else "" for i in range(1, n + 1)], "faltando"
 
 
 def check(video):
@@ -93,10 +94,22 @@ def check(video):
         if len(video["personagens"]) < 2:
             problems.append("A entrevista precisa de pelo menos dois personagens.")
     if video["template"] == "F01":
-        n = len(video["cenas"])
-        if len(video["imagens"]) < n:
-            problems.append(f"Faltam imagens: {len(video['imagens'])} de {n} cenas. Envie cena1.png, cena2.png... "
-                            "junto com o roteiro (ou coloque as imagens dentro do PDF).")
+        imgs = list(video["imagens"]) + [""] * (len(video["cenas"]) - len(video["imagens"]))
+        missing = [(i + 1, c["mode"]) for i, (c, p) in enumerate(zip(video["cenas"], imgs)) if not p]
+        ch = cenas_auto.character_ready(video["personagens"][0] if video["personagens"] else None)
+        key = cenas_auto.pixabay_key()
+        fala = [n for n, m in missing if m == "fala"]
+        outras = [n for n, m in missing if m != "fala"]
+        if fala and not ch:
+            problems.append(f"Faltam imagens das cenas de FALA ({', '.join(map(str, fala))}). Envie cena1.png, "
+                            "cena2.png... ou cadastre o personagem com imagem recortada (sem fundo) e fundos: aí o "
+                            "app monta essas cenas sozinho.")
+        if outras and not (key or ch):
+            problems.append(f"Faltam imagens das cenas sem fala ({', '.join(map(str, outras))}). Envie as imagens "
+                            "ou configure a chave do Pixabay para o app buscar sozinho.")
+        auto = len(missing)
+        video["imagens_resumo"] = (f"{len(imgs) - auto} enviadas" + (f" · {len(fala)} do personagem" if fala else "")
+                                   + (f" · {len(outras)} {'do Pixabay' if key else 'dos fundos'}" if outras else ""))
     video["problemas"] = problems
     video["pronto_para_gerar"] = not problems
     return video
@@ -196,11 +209,12 @@ def _build_project(batch, video, options):
                          video.get("idioma", "pt"), video["template"], options)
     video["formato"] = estilos.resolve(options.get("estilo"))["formato"]
     if video["template"] == "F01":
+        imgs = list(video["imagens"]) + [""] * (len(video["cenas"]) - len(video["imagens"]))
         scenes = [{"id": c["id"], "text": c["text"], "mode": c["mode"], "image": img,
                    "animacoes": c.get("animacoes") or []}
-                  for c, img in zip(video["cenas"], video["imagens"])]
+                  for c, img in zip(video["cenas"], imgs)]
         (folder / "cenas.json").write_text(json.dumps(scenes, indent=2, ensure_ascii=False), encoding="utf-8")
-        video["capa_fonte"] = {"fundo": video["imagens"][0]} if video["imagens"] else None
+        video["capa_fonte"] = {"fundo": imgs[0]} if imgs and imgs[0] else None  # auto images: set in _run
         video["passos_total"] = 3 + (1 if any(c["mode"] == "fala" for c in scenes) else 0)  # SadTalker: one step for all
     else:
         chars = {}
@@ -296,12 +310,34 @@ def stamp_cover(v, video_path, cover):
         return False
 
 
+def _auto_images(batch_id, v):
+    """F01: scenes without an uploaded image get one now (registered character + Pixabay), before the engine."""
+    cenas_file = Path(v["projeto"]) / "cenas.json"
+    scenes = json.loads(cenas_file.read_text(encoding="utf-8"))
+    if all(s.get("image") and Path(s["image"]).exists() for s in scenes):
+        return
+    _update(batch_id, v["id"], etapa="Montando as imagens das cenas")
+    enc = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))["video"]
+    v = {**v, "imagens": [s.get("image") or "" for s in scenes]}
+    imgs, origens = cenas_auto.complete(v, v["projeto"], enc["largura"], enc["altura"])
+    for s, img in zip(scenes, imgs):
+        s["image"] = img
+    cenas_file.write_text(json.dumps(scenes, indent=2, ensure_ascii=False), encoding="utf-8")
+    fields = {"imagens": imgs, "imagens_origem": origens}
+    if not v.get("capa_fonte"):
+        fields["capa_fonte"] = {"fundo": imgs[0]}
+    _update(batch_id, v["id"], **fields)
+
+
 def _run(batch_id, video_id):
     v = next(x for x in load(batch_id)["videos"] if x["id"] == video_id)
     script, _ = ENGINE[v["template"]]
     out_dir = Path(v["projeto"]) / "saida"
     log = Path(v["projeto"]) / "execucao.log"
     _update(batch_id, video_id, status="gerando", etapa="Preparando", inicio=time.time())
+    if v["template"] == "F01":
+        _auto_images(batch_id, v)
+        v = next(x for x in load(batch_id)["videos"] if x["id"] == video_id)  # images + cover source updated
     cover = make_cover(v, out_dir, batch_id) if v["template"] == "T02" else None
     if cover:  # T02: the composer puts the cover over the first second in its final pass (no extra encode)
         tpl = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))

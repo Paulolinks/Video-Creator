@@ -44,8 +44,13 @@ O que vier preenchido aparece pronto no app; o que faltar, o app completa com a 
   - DOLLY: cena que ilustra a ideia, sem ninguém falando, com primeiro plano, meio e fundo bem separados.
   - ZOOM: imagem plana (símbolo, objeto isolado), sem texto escrito.
 - IMAGEM: uma frase descrevendo o que aparece na cena.
+- BUSCA: só nas cenas DOLLY e ZOOM, 2 a 4 palavras-chave em inglês (ex.: running sunrise road). O app usa essas
+  palavras para buscar a foto da cena no Pixabay.
+- Imagens são opcionais: com o personagem cadastrado no app (recorte + fundos), o app monta as cenas de FALA
+  sozinho (pose do personagem sobre um dos fundos dele) e busca no Pixabay as fotos das cenas DOLLY/ZOOM.
 - Depois do bloco: um prompt de imagem por cena (vertical 9:16, sem texto dentro da imagem, mesmo personagem,
-  roupa e cenário nas cenas de FALA). O usuário salva as imagens como cena1.png, cena2.png...
+  roupa e cenário nas cenas de FALA), para quando o usuário preferir criar as imagens. Ele salva como
+  cena1.png, cena2.png...
 
 ## Animações na tela (Smart Motion)
 
@@ -96,6 +101,7 @@ IMAGEM: <o que aparece na cena>
 CENA 02 | MODO: DOLLY
 NARRAÇÃO: <texto integral>
 IMAGEM: <o que aparece na cena>
+BUSCA: <2 a 4 palavras-chave em inglês para o banco de imagens>
 
 CENA 03 | MODO: FALA
 NARRAÇÃO: <texto integral>
@@ -125,6 +131,7 @@ IMAGEM: Maquiavel em seu escritório renascentista, à luz de velas, olhando par
 CENA 02 | MODO: DOLLY
 NARRAÇÃO: Alguém pode sorrir na sua frente, jurar lealdade e, pelas suas costas, escolher aquilo que lhe oferece mais vantagens.
 IMAGEM: Salão renascentista: uma nobre entrega uma carta selada a um homem, enquanto outro observa desconfiado ao fundo.
+BUSCA: secret letter candlelight
 
 CENA 03 | MODO: FALA
 NARRAÇÃO: Por isso, não julgue alguém pelo que promete. Observe o que faz quando seus interesses estão em jogo. [DESTAQUE: CARÁTER | aparece nas ações] É aí que o caráter se revela.
