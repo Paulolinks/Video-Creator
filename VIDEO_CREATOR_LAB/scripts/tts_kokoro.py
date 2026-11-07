@@ -32,10 +32,11 @@ _SALA = "aecho=0.92:0.95:23|41:0.09|0.05"
 EFEITOS = {
     # deep, a little more low end, short room
     "catedral": f"[0:a]apad=pad_dur=0.2,{_SALA},bass=g=2.5:f=110,alimiter=limit=0.95[out]",
-    # a deep shadow voice under the main one (pitch down, muffled, quiet) + short room
-    "divino": ("[0:a]apad=pad_dur=0.2,asplit=2[a][b];[b]rubberband=pitch=0.7:formant=preserved,atrim=start=0.010,"
-               "asetpts=PTS-STARTPTS,lowpass=f=1600,volume=0.22[low];[a][low]amix=inputs=2:normalize=0:duration=first,"
-               f"{_SALA},bass=g=3:f=100,alimiter=limit=0.95[out]"),
+    # calm and warm: a soft lower shadow under the voice (2026-11-07: lighter, it was too deep), short room,
+    # gentle highs - a peaceful voice
+    "divino": ("[0:a]apad=pad_dur=0.2,asplit=2[a][b];[b]rubberband=pitch=0.8:formant=preserved,atrim=start=0.010,"
+               "asetpts=PTS-STARTPTS,lowpass=f=1400,volume=0.12[low];[a][low]amix=inputs=2:normalize=0:duration=first,"
+               f"{_SALA},bass=g=1:f=120,treble=g=-1.5,alimiter=limit=0.95[out]"),
     # ethereal: a very slightly detuned double (soft chorus, no audible delay), short room, softened highs
     "eterno": ("[0:a]apad=pad_dur=0.2,asplit=2[a][b];[b]rubberband=pitch=1.008,atrim=start=0.007,asetpts=PTS-STARTPTS,"
                "volume=0.22[d];[a][d]amix=inputs=2:normalize=0:duration=first,"
