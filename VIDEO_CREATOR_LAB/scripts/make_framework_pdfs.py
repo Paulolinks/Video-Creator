@@ -288,7 +288,7 @@ REGRAS DE ENTREGA (obrigatórias):
   "CENA 01 | MODO: FALA", NARRAÇÃO:, IMAGEM:. Escreva "CENA 01" com espaço (nunca CENA_01).
 - MODO só pode ser FALA, DOLLY ou ZOOM. Abra e feche com FALA; alterne com DOLLY/ZOOM no meio.
 - Nas cenas de FALA aparece o personagem cadastrado no app (as imagens dele, em rodízio).
-- Nas cenas DOLLY e ZOOM, inclua a linha BUSCA: com 2 a 4 palavras-chave em inglês (ex.: running sunrise road):
+- Nas cenas DOLLY e ZOOM, inclua a linha BUSCA: com 2 ou 3 palavras-chave comuns em inglês (ex.: running sunrise road):
   o app usa essas palavras para buscar a foto da cena no Pixabay.
 - Dentro do bloco: sem negrito, sem títulos, sem comentários, sem JSON, sem fontes e sem nenhum <...> sobrando.
 - Animações: inclua 1 ou 2 marcações do item 5 ([CONTADOR: ...], [BARRAS: ...], [FLUXO: ...], [CARDS: ...] ou
@@ -343,7 +343,7 @@ def f01():
                   "descrição da linha IMAGEM:). Sem resultado, usa um quadro de um fundo do personagem."]],
                 [26, 60, 88]),
           P('Cada personagem cadastrado no app tem o seu banco de imagens (poses recortadas, sem fundo) e os seus fundos. Nas cenas de FALA, o app usa essas imagens em rodízio embaralhado: cada cena de FALA mostra uma pose diferente sobre um fundo diferente. Nas cenas DOLLY e ZOOM o personagem não aparece: o app busca no Pixabay uma foto pela linha BUSCA:.'),
-          P("Como planejar as cenas", "h3")] + bullets(['Abra e feche com FALA (o personagem aparece). Use DOLLY ou ZOOM no meio para ilustrar exemplos, lugares, objetos e situações; alterne, por exemplo FALA, DOLLY, FALA, ZOOM, FALA.', 'A BUSCA: das cenas DOLLY/ZOOM descreve algo que existe em foto de banco de imagens: objeto, lugar, natureza, ação ou situação (ex.: <i>coins stack</i>, <i>empty office night</i>, <i>man running sunrise</i>). Nunca nomes de pessoas famosas, marcas, épocas muito específicas nem texto escrito.', 'Nas cenas de FALA, a linha IMAGEM: pode ser curta (ex.: "o personagem falando para a câmera"): a imagem vem do cadastro.']) + [
+          P("Como planejar as cenas", "h3")] + bullets(['Abra e feche com FALA (o personagem aparece). Use DOLLY ou ZOOM no meio para ilustrar exemplos, lugares, objetos e situações; alterne, por exemplo FALA, DOLLY, FALA, ZOOM, FALA.', 'A BUSCA: das cenas DOLLY/ZOOM descreve algo que existe em foto de banco de imagens: objeto, lugar, natureza, ação ou situação (ex.: <i>coins stack</i>, <i>empty office night</i>, <i>man running sunrise</i>). Use 2 ou 3 palavras comuns, o assunto principal primeiro, do jeito que um banco de fotos marca as imagens (ex.: <i>people waiting queue</i>, e não <i>bakery customers waiting line</i>). Nunca nomes de pessoas famosas, marcas, épocas muito específicas nem texto escrito.', 'Nas cenas de FALA, a linha IMAGEM: pode ser curta (ex.: "o personagem falando para a câmera"): a imagem vem do cadastro.']) + [
           P("Para o modo automático, o personagem precisa estar cadastrado no app com imagem recortada (sem fundo) e "
             "pelo menos um fundo. Com 2 ou 3 poses diferentes e vários fundos, o vídeo fica mais variado. A linha "
             "<b>BUSCA:</b> é opcional, mas melhora muito a foto encontrada: 2 a 4 palavras-chave em inglês que "
@@ -631,7 +631,7 @@ Uma voz narra o vídeo todo. Para começar, peça: TEMA, PERSONAGEM QUE FALA e N
   sozinho (pose do personagem sobre um dos fundos dele) e busca no Pixabay as fotos das cenas DOLLY/ZOOM.
 - Cada personagem cadastrado no app tem o seu banco de imagens (poses recortadas, sem fundo) e os seus fundos. Nas cenas de FALA, o app usa essas imagens em rodízio embaralhado: cada cena de FALA mostra uma pose diferente sobre um fundo diferente. Nas cenas DOLLY e ZOOM o personagem não aparece: o app busca no Pixabay uma foto pela linha BUSCA:.
 - Abra e feche com FALA (o personagem aparece). Use DOLLY ou ZOOM no meio para ilustrar exemplos, lugares, objetos e situações; alterne, por exemplo FALA, DOLLY, FALA, ZOOM, FALA.
-- A BUSCA: das cenas DOLLY/ZOOM descreve algo que existe em foto de banco de imagens: objeto, lugar, natureza, ação ou situação (ex.: coins stack, empty office night, man running sunrise). Nunca nomes de pessoas famosas, marcas, épocas muito específicas nem texto escrito.
+- A BUSCA: das cenas DOLLY/ZOOM descreve algo que existe em foto de banco de imagens: objeto, lugar, natureza, ação ou situação (ex.: coins stack, empty office night, man running sunrise). Use 2 ou 3 palavras comuns, o assunto principal primeiro, do jeito que um banco de fotos marca as imagens (ex.: people waiting queue, e não bakery customers waiting line). Nunca nomes de pessoas famosas, marcas, épocas muito específicas nem texto escrito.
 - Nas cenas de FALA, a linha IMAGEM: pode ser curta (ex.: "o personagem falando para a câmera"): a imagem vem do cadastro.
 - Depois do bloco: um prompt de imagem por cena (vertical 9:16, sem texto dentro da imagem, mesmo personagem,
   roupa e cenário nas cenas de FALA), para quando o usuário preferir criar as imagens. Ele salva como

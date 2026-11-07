@@ -117,8 +117,9 @@ def _queries(busca, descricao, idioma):
     """Tentativas da mais específica para a mais ampla (a API do Pixabay exige todas as palavras)."""
     out = []
     if busca:
-        words = busca.replace(",", " ").split()
-        out += [(" ".join(words[:4]), "en"), (" ".join(words[:2]), "en")]
+        words = busca.replace(",", " ").split()[:4]
+        out += [(" ".join(words), "en"), (" ".join(words[:3]), "en"), (" ".join(words[1:]), "en")]
+        out += [(f"{a} {b}", "en") for a, b in zip(words, words[1:])]  # neighbour pairs: "customers waiting"...
     words = [w for w in re.findall(r"[\wÀ-ú]+", descricao or "") if w.lower() not in _STOP and len(w) > 2]
     lang = "pt" if idioma == "pt" else "en"
     out += [(" ".join(words[:3]), lang), (" ".join(words[:2]), lang), (" ".join(words[:1]), lang)]
@@ -133,26 +134,44 @@ def _queries(busca, descricao, idioma):
 def pixabay_image(busca, descricao, idioma, out, key):
     """Baixa uma foto (vertical de preferência) que ainda não foi usada. Retorna (arquivo, crédito) ou None."""
     used = set(json.loads(USED_FILE.read_text(encoding="utf-8"))) if USED_FILE.exists() else set()
-    for q, lang in _queries(busca, descricao, idioma):
+    queries = _queries(busca, descricao, idioma)
+    # every result is scored against ALL the words of the scene's search (not only the shortened query): a photo
+    # must show at least half of them in its tags/title, otherwise a shorter query is tried (2026-11-07: a phone
+    # alone came for "worried employee smartphone office", cupcakes for "bakery customers waiting line")
+    first = queries[0][0] if queries else ""
+    words = {w.lower()[:5] for w in re.findall(r"[\wÀ-ú]+", first) if len(w) > 2}
+    need = max(1, -(-len(words) // 2))
+
+    def score(h):
+        tokens = re.split(r"[,\s\-/]+", (h.get("tags", "") + " " + h.get("pageURL", "")).lower())
+        return sum(any(t.startswith(w) for t in tokens if t) for w in words)
+
+    fallback = None
+    for q, lang in queries:
         for orient in ("vertical", "all"):
             params = {"key": key, "q": q[:100], "lang": lang, "image_type": "photo", "orientation": orient,
-                      "safesearch": "true", "per_page": 30, "order": "popular"}
+                      "safesearch": "true", "per_page": 50, "order": "popular"}
             with _get(f"{API}?{urllib.parse.urlencode(params)}") as r:
                 hits = json.loads(r.read().decode("utf-8")).get("hits", [])
             hits = [h for h in hits if h.get("largeImageURL") and max(h["imageWidth"], h["imageHeight"]) >= 1200]
             fresh = [h for h in hits if h["id"] not in used] or hits
-            if fresh:  # prefer photos whose tags contain more of the searched words, then popularity
-                words = {w.lower()[:5] for w in q.split() if len(w) > 2}
-                score = lambda h: sum(any(t.strip().lower().startswith(w) for t in re.split(r"[,\s]+", h["tags"]))
-                                      for w in words)
-                best = max(score(h) for h in fresh)
-                h = random.choice([x for x in fresh if score(x) == best][:3])
-                with _get(h["largeImageURL"], 60) as r:
-                    Path(out).write_bytes(r.read())
-                used.add(h["id"])
-                USED_FILE.write_text(json.dumps(sorted(used)[-3000:]), encoding="utf-8")
-                return out, f"Pixabay #{h['id']} ({h['pageURL']}), busca \"{q}\""
-    return None
+            if not fresh:
+                continue
+            best = max(score(h) for h in fresh)
+            pick = random.choice([x for x in fresh if score(x) == best][:3])
+            if best >= need:
+                return _baixar(pick, q, out, used)
+            if fallback is None or best > fallback[0]:
+                fallback = (best, pick, q)
+    return _baixar(fallback[1], fallback[2], out, used) if fallback else None
+
+
+def _baixar(h, q, out, used):
+    with _get(h["largeImageURL"], 60) as r:
+        Path(out).write_bytes(r.read())
+    used.add(h["id"])
+    USED_FILE.write_text(json.dumps(sorted(used)[-3000:]), encoding="utf-8")
+    return out, f"Pixabay #{h['id']} ({h['pageURL']}), busca \"{q}\""
 
 
 def _shuffled(items, last=None, key=lambda x: x):

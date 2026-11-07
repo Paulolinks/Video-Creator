@@ -7,7 +7,7 @@
   "fundo": "biblioteca_a_luz_de_velas_1",
   "voz": {
     "motor": "kokoro",
-    "voz": "D:\\Video-Creator\\app\\data\\vozes\\inteligencia_infinita_1.pt"
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\inteligencia_infinita_2.pt"
   },
   "autorizacao_voz": false,
   "transparente": true,
@@ -32,5 +32,7 @@
     "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_2.png",
     "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_3.png",
     "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_4.png"
-  ]
+  ],
+  "ultima_pose": "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_2.png",
+  "ultimo_fundo": "inteligencia_infinita_222270_medium"
 }

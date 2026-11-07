@@ -65,7 +65,9 @@ if __name__ == "__main__":
     fala = tpl["modos_de_cena"]["fala"]
     talking = [s for s in scenes if s["mode"] == "fala"]
     if talking:  # one SadTalker run for every talking scene: models load once, each image's face is analysed once
+        # pular_sem_rosto: a scene whose image has no human face (e.g. a cosmic character) does not stop the video
         jobs = {"preprocess": fala["preprocess"], "size": fala["tamanho"], "still": bool(fala["still"]),
+                "pular_sem_rosto": True,
                 "enhancer": fala["realce"] or None, "cenas": []}
         for sc in talking:
             raw = work / "fala" / f"_raw_{sc['id']}"
@@ -78,10 +80,22 @@ if __name__ == "__main__":
         jf.write_text(json.dumps(jobs, ensure_ascii=False), encoding="utf-8")
         step("fala", [str(SAD_PY), str(SCRIPTS / "sadtalker_lote.py"), str(jf)], report, cwd=SAD_DIR,
              log=logs / "fala.log")
+        sem_rosto = []
         for sc in talking:
             raw = work / "fala" / f"_raw_{sc['id']}"
-            shutil.move(str(sorted(raw.glob("*.mp4"))[-1]), work / "fala" / f"{sc['id']}.mp4")
+            clips = sorted(raw.glob("*.mp4"))
+            if clips:
+                shutil.move(str(clips[-1]), work / "fala" / f"{sc['id']}.mp4")
+            else:  # no face found: the scene is shown with 2.5D depth instead of a moving mouth
+                sc["mode"] = "dolly"
+                sem_rosto.append(sc["id"])
             shutil.rmtree(raw, ignore_errors=True)
+        if sem_rosto:
+            report["fala_sem_rosto"] = sem_rosto
+            print(f"Sem rosto humano para animar a boca em {', '.join(sem_rosto)}: essas cenas usam profundidade 2.5D.",
+                  flush=True)
+            scenes_file = work / "cenas_composicao.json"  # the project's cenas.json stays as written by the app
+            scenes_file.write_text(json.dumps(scenes, indent=2, ensure_ascii=False), encoding="utf-8")
 
     out = work / f"{proj.name}.mp4"
     step("composicao", [str(LAB_PY), str(SCRIPTS / "compor_video.py"), str(tpl_path), str(scenes_file),
