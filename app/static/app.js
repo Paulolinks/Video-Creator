@@ -377,7 +377,7 @@ $("#btn-colar").onclick = async () => {
 
 // "+ Adicionar roteiro": a popup over the list to paste (or pick) one more script into the same list
 function abrirAdd() {
-  const d = MODO === "trad" ? DROP.trad : DROP[TEMPLATE];
+  const d = DROP[dropKey()];
   $("#add-lbl-files").classList.toggle("hide", !d.arquivos);
   $("#add-lbl-folder").classList.toggle("hide", !d.pasta);
   $("#add-texto").classList.toggle("hide", !d.colar);
@@ -618,7 +618,7 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
 };
-const estilo = () => ({ formato: $(".fmt-card[aria-pressed=true]")?.dataset.fmt || "vertical", fonte: $("#opt-fonte").value,
+const estilo = () => ({ formato: $("#fmt-grid .fmt-card[aria-pressed=true]")?.dataset.fmt || "vertical", fonte: $("#opt-fonte").value,
   tamanho: +$("#opt-tamanho").value, cor: $("#opt-cor").value, cor_texto: $("#opt-cor-texto").value });
 
 function drawBoard() {  // VC motherboard outline, drawn at the panel's real size
@@ -681,9 +681,10 @@ async function loadEstilos() {
     aria-pressed="${id === saved.formato}"><span class="fmt-shape ${id === "horizontal" ? "h" : "v"}"></span>
     <span class="tpl-txt"><b>${esc(f.nome)}</b><span class="small muted">${esc(f.uso)} · ${f.largura}×${f.altura}</span></span>
     <span class="tpl-check">✓</span></button>`).join("");
-  if (!$(".fmt-card[aria-pressed=true]")) $(".fmt-card").setAttribute("aria-pressed", "true");
-  $$(".fmt-card").forEach((b) => (b.onclick = () => {
-    $$(".fmt-card").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+  // only the format grid: the "Modelo 1/2" cards reuse the fmt-card look but are a different choice
+  if (!$("#fmt-grid .fmt-card[aria-pressed=true]")) $("#fmt-grid .fmt-card").setAttribute("aria-pressed", "true");
+  $$("#fmt-grid .fmt-card").forEach((b) => (b.onclick = () => {
+    $$("#fmt-grid .fmt-card").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
     saveStyle();
   }));
   ["#opt-fonte", "#opt-tamanho", "#opt-cor", "#opt-cor-texto"].forEach((s) => ($(s).oninput = saveStyle));
@@ -766,12 +767,17 @@ const DROP = {
     arquivos: true, pasta: true, colar: true },
   T02: { titulo: "Envie os roteiros da entrevista", texto: "<b>Arraste aqui os roteiros</b> (.txt, .md ou .pdf). " +
     "Pode escolher mais de uma vez: cada roteiro entra na lista e vira um vídeo.", arquivos: true, pasta: false, colar: true },
+  F01_cadastrado: { titulo: "Envie os roteiros do Personagem falando", texto: "<b>Cole o roteiro</b> abaixo ou " +
+    "<b>arraste os roteiros</b> (.txt, .md ou .pdf). O personagem precisa estar cadastrado (poses sem fundo + vídeos " +
+    "de fundo): as cenas de fala usam o cadastro e as cenas sem fala buscam fotos no Pixabay.",
+    arquivos: true, pasta: false, colar: true },
   F01: { titulo: "Envie a pasta do episódio", texto: "<b>Escolha a pasta</b> com o roteiro e as imagens numeradas " +
     "(cena1.png, cena2.png...). Cada pasta é um episódio: escolha outra pasta para somar mais episódios, ou uma pasta " +
     "com várias pastas dentro.", arquivos: false, pasta: true, colar: false },
 };
+const dropKey = () => (MODO === "trad" ? "trad" : TEMPLATE === "F01" && MODELO_F === "cadastrado" ? "F01_cadastrado" : TEMPLATE);
 function syncDrop() {
-  const d = DROP[MODO === "trad" ? "trad" : TEMPLATE];
+  const d = DROP[dropKey()];
   $("#drop-txt").innerHTML = d.texto;
   $("#passo2-titulo").textContent = d.titulo;
   $("#lbl-files").classList.toggle("hide", !d.arquivos);
@@ -785,6 +791,7 @@ function escolherTemplate(t) {
   $$(".tpl-card").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tpl === t)));
   syncDrop();
   syncModeloEnt();
+  syncModeloF();
   if (BATCH) renderBatch(BATCH);
 }
 $$(".tpl-card").forEach((b) => (b.onclick = () => escolherTemplate(b.dataset.tpl)));
@@ -796,6 +803,20 @@ function syncModeloEnt() {
   box.classList.toggle("hide", MODO !== "trad" && TEMPLATE !== "T02");
   $$(".mod-card").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mod === MODELO_ENT)));
 }
+// Personagem falando: 1 = registered character (paste the script), 2 = one image per scene (folder upload)
+var MODELO_F = store.get("modelo_falando", "cadastrado") === "cenas" ? "cenas" : "cadastrado";
+function syncModeloF() {
+  const box = $("#modelo-falando");
+  if (!box) return;
+  box.classList.toggle("hide", MODO !== "trad" && TEMPLATE !== "F01");
+  $$(".modf-card").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.modf === MODELO_F)));
+}
+$$(".modf-card").forEach((b) => (b.onclick = () => {
+  MODELO_F = b.dataset.modf;
+  store.set("modelo_falando", MODELO_F);
+  syncModeloF();
+  syncDrop();
+}));
 $$(".mod-card").forEach((b) => (b.onclick = () => {
   MODELO_ENT = b.dataset.mod;
   store.set("modelo_entrevista", MODELO_ENT);
@@ -812,7 +833,9 @@ function setModo(m) {  // board on/off: the shared pieces (upload, list, music) 
   (trad ? $("#trad-lote") : $("#lote")).append($("#lote-box"));
   (trad ? $("#trad-opcoes") : $("#avancadas")).append($("#opcoes-box"));
   if (trad) $("#trad-opcoes").before($("#modelo-entrevista")); else $(".tpl-links").before($("#modelo-entrevista"));
+  $("#modelo-entrevista").before($("#modelo-falando"));
   syncModeloEnt();
+  syncModeloF();
   $("#lote-box").classList.toggle("inline", trad);
   $("#lote-titulo").textContent = trad ? "Identificado" : "Roteiros identificados";
   $("#lote").classList.add("hide");
