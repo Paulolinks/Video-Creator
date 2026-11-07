@@ -25,17 +25,21 @@ WEIGHTS = Path(r"C:\Users\paulo\.cache\huggingface\hub\models--hexgrad--Kokoro-8
 RATE = 24000
 LANG_CODES = {"pt": "p", "en": "a"}  # Kokoro: p = Brazilian Portuguese, a = American English
 # Optional "efeito" of a voice pack (ffmpeg filter graph, input [0:a], output [out]). apad leaves room for the tail.
-_ECO = "aecho=0.85:0.9:60|130|250:0.18|0.12|0.07"  # softened on 2026-11-07 (was 4 taps 0.30..0.09: too much echo)
+# A short room ambience, not an echo: two quiet reflections under 50 ms blend with the voice instead of being
+# heard as repeats (2026-11-07: the 60/130/250 ms taps sounded like delay). rubberband adds ~10 ms of latency, so
+# the pitched layers are trimmed by 10 ms to stay glued to the main voice.
+_SALA = "aecho=0.92:0.95:23|41:0.09|0.05"
 EFEITOS = {
-    # big stone hall: long multi-tap echo + a little more low end
-    "catedral": f"[0:a]apad=pad_dur=0.5,{_ECO},bass=g=2.5:f=110,alimiter=limit=0.95[out]",
-    # a deep shadow voice under the main one (pitch down, muffled) + cathedral echo
-    "divino": ("[0:a]apad=pad_dur=0.5,asplit=2[a][b];[b]rubberband=pitch=0.7:formant=preserved,lowpass=f=1800,"
-               f"volume=0.32[low];[a][low]amix=inputs=2:normalize=0,{_ECO},bass=g=3:f=100,alimiter=limit=0.95[out]"),
-    # ethereal: a slightly detuned double (soft chorus), wide airy echo, softened highs
-    "eterno": ("[0:a]apad=pad_dur=0.6,asplit=2[a][b];[b]rubberband=pitch=1.012,adelay=28,volume=0.28[d];"
-               "[a][d]amix=inputs=2:normalize=0,aecho=0.88:0.92:90|180|320:0.16|0.11|0.06,"
-               "highpass=f=70,treble=g=-2,alimiter=limit=0.95[out]"),
+    # deep, a little more low end, short room
+    "catedral": f"[0:a]apad=pad_dur=0.2,{_SALA},bass=g=2.5:f=110,alimiter=limit=0.95[out]",
+    # a deep shadow voice under the main one (pitch down, muffled, quiet) + short room
+    "divino": ("[0:a]apad=pad_dur=0.2,asplit=2[a][b];[b]rubberband=pitch=0.7:formant=preserved,atrim=start=0.010,"
+               "asetpts=PTS-STARTPTS,lowpass=f=1600,volume=0.22[low];[a][low]amix=inputs=2:normalize=0:duration=first,"
+               f"{_SALA},bass=g=3:f=100,alimiter=limit=0.95[out]"),
+    # ethereal: a very slightly detuned double (soft chorus, no audible delay), short room, softened highs
+    "eterno": ("[0:a]apad=pad_dur=0.2,asplit=2[a][b];[b]rubberband=pitch=1.008,atrim=start=0.007,asetpts=PTS-STARTPTS,"
+               "volume=0.22[d];[a][d]amix=inputs=2:normalize=0:duration=first,"
+               f"{_SALA},highpass=f=70,treble=g=-2,alimiter=limit=0.95[out]"),
 }
 
 if __name__ == "__main__":
