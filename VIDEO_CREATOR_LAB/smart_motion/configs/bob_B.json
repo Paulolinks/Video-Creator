@@ -1,0 +1,89 @@
+{
+  "version": "1.0",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30
+  },
+  "intensity": "balanced",
+  "profile": "T02",
+  "overlays": [
+    {
+      "id": "ov01",
+      "type": "keyword",
+      "start_at": {
+        "word": "O PARADIGMA",
+        "after_ms": 15000
+      },
+      "end_at": {
+        "word": "PERCEBER",
+        "offset_ms": 300
+      },
+      "payload": {
+        "text": "PARADIGMA",
+        "subtitle": "hábitos + crenças repetidos"
+      },
+      "priority": 2
+    },
+    {
+      "id": "ov02",
+      "type": "counter",
+      "start_at": {
+        "word": "GANHAR CEM MIL",
+        "offset_ms": -100
+      },
+      "end_at": {
+        "word": "POSSO",
+        "edge": "start",
+        "offset_ms": 500
+      },
+      "payload": {
+        "label": "Meta",
+        "from": 0,
+        "to": 100000,
+        "prefix": "US$ ",
+        "suffix": "por mês",
+        "count_ms": 1100
+      },
+      "animation": "ease_out",
+      "priority": 1
+    },
+    {
+      "id": "ov03",
+      "type": "bars",
+      "start_at": {
+        "word": "UM MILHÃO",
+        "after_ms": 60000,
+        "offset_ms": -150
+      },
+      "end_at": {
+        "word": "LUCRO",
+        "after_ms": 60000,
+        "offset_ms": 600
+      },
+      "payload": {
+        "title": "10% de margem",
+        "prefix": "US$ ",
+        "bars": [
+          {
+            "label": "Vendas",
+            "value": 1000000,
+            "at": {
+              "word": "UM MILHÃO",
+              "after_ms": 60000
+            }
+          },
+          {
+            "label": "Lucro",
+            "value": 100000,
+            "at": {
+              "word": "CEM MIL",
+              "after_ms": 60000
+            }
+          }
+        ]
+      },
+      "priority": 1
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "version": "1.0",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30
+  },
+  "intensity": "balanced",
+  "profile": "F01",
+  "overlays": [
+    {
+      "id": "m01",
+      "type": "cards",
+      "start_at": {
+        "word": "OS HOMENS JULGAM"
+      },
+      "end_at": {
+        "word": "MÃOS",
+        "offset_ms": 500
+      },
+      "payload": {
+        "cards": [
+          {
+            "title": "Olhos",
+            "text": "o que parece",
+            "tone": "positive",
+            "at": {
+              "word": "OLHOS"
+            }
+          },
+          {
+            "title": "Mãos",
+            "text": "o que é",
+            "tone": "negative",
+            "at": {
+              "word": "MÃOS"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "m02",
+      "type": "keyword",
+      "start_at": {
+        "word": "VANTAGENS",
+        "offset_ms": -100
+      },
+      "end_at": {
+        "word": "VANTAGENS",
+        "offset_ms": 900
+      },
+      "payload": {
+        "text": "VANTAGENS"
+      }
+    }
+  ]
+}

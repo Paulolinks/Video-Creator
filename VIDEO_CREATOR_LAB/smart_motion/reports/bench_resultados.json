@@ -1,0 +1,560 @@
+{
+  "T02_A0_remux": {
+    "video": "entrevista_bob_proctor",
+    "config": null,
+    "encoder": "remux",
+    "medida": {
+      "date": "2026-11-06T23:44:53",
+      "returncode": 0,
+      "wall_s": 0.21,
+      "cpu_s": 0.09,
+      "avg_cores_busy": 0.45,
+      "peak_ram_mb": 22.8,
+      "system_ram_delta_mb": 18.8,
+      "gpu_mem_baseline_mb": 1510.0,
+      "gpu_mem_peak_mb": 1510.0,
+      "gpu_mem_delta_mb": 0.0,
+      "gpu_util_max_pct": 9.0,
+      "nvenc_util_max_pct": 0.0,
+      "gpu_samples": 1
+    },
+    "etapas": {},
+    "saida": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 82.9
+    },
+    "original": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 82.9
+    },
+    "audio_identico": true
+  },
+  "T02_A_x264": {
+    "video": "entrevista_bob_proctor",
+    "config": null,
+    "encoder": "x264",
+    "medida": {
+      "date": "2026-11-06T23:45:32",
+      "returncode": 0,
+      "wall_s": 38.95,
+      "cpu_s": 0.17,
+      "avg_cores_busy": 0.0,
+      "peak_ram_mb": 32.6,
+      "system_ram_delta_mb": 1088.7,
+      "gpu_mem_baseline_mb": 1507.0,
+      "gpu_mem_peak_mb": 1507.0,
+      "gpu_mem_delta_mb": 0.0,
+      "gpu_util_max_pct": 51.0,
+      "nvenc_util_max_pct": 0.0,
+      "gpu_samples": 119
+    },
+    "etapas": {
+      "planejar_validar_s": 0.049,
+      "render_camadas_s": 0.0,
+      "compor_encode_s": 38.646,
+      "total_s": 38.695,
+      "overlays": [],
+      "avisos": []
+    },
+    "saida": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 81.1
+    },
+    "original": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 82.9
+    },
+    "audio_identico": true
+  },
+  "T02_B_x264": {
+    "video": "entrevista_bob_proctor",
+    "config": "bob_B.json",
+    "encoder": "x264",
+    "medida": {
+      "date": "2026-11-06T23:46:22",
+      "returncode": 0,
+      "wall_s": 48.93,
+      "cpu_s": 2.09,
+      "avg_cores_busy": 0.04,
+      "peak_ram_mb": 41.5,
+      "system_ram_delta_mb": 1151.5,
+      "gpu_mem_baseline_mb": 1487.0,
+      "gpu_mem_peak_mb": 1487.0,
+      "gpu_mem_delta_mb": 0.0,
+      "gpu_util_max_pct": 47.0,
+      "nvenc_util_max_pct": 0.0,
+      "gpu_samples": 148
+    },
+    "etapas": {
+      "planejar_validar_s": 0.047,
+      "render_camadas_s": 2.061,
+      "compor_encode_s": 46.474,
+      "total_s": 48.582,
+      "overlays": [
+        {
+          "id": "ov01",
+          "type": "keyword",
+          "start_s": 17.31,
+          "end_s": 21.49,
+          "marcas_s": []
+        },
+        {
+          "id": "ov02",
+          "type": "counter",
+          "start_s": 47.94,
+          "end_s": 50.96,
+          "marcas_s": []
+        },
+        {
+          "id": "ov03",
+          "type": "bars",
+          "start_s": 68.65,
+          "end_s": 74.18,
+          "marcas_s": [
+            68.8,
+            72.18
+          ]
+        }
+      ],
+      "avisos": []
+    },
+    "saida": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 81.2
+    },
+    "original": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 82.9
+    },
+    "audio_identico": true
+  },
+  "T02_C_x264": {
+    "video": "entrevista_bob_proctor",
+    "config": "bob_C.json",
+    "encoder": "x264",
+    "medida": {
+      "date": "2026-11-06T23:47:14",
+      "returncode": 0,
+      "wall_s": 52.07,
+      "cpu_s": 5.84,
+      "avg_cores_busy": 0.11,
+      "peak_ram_mb": 43.2,
+      "system_ram_delta_mb": 1320.9,
+      "gpu_mem_baseline_mb": 1345.0,
+      "gpu_mem_peak_mb": 1471.0,
+      "gpu_mem_delta_mb": 126.0,
+      "gpu_util_max_pct": 46.0,
+      "nvenc_util_max_pct": 0.0,
+      "gpu_samples": 158
+    },
+    "etapas": {
+      "planejar_validar_s": 0.049,
+      "render_camadas_s": 5.852,
+      "compor_encode_s": 45.841,
+      "total_s": 51.742,
+      "overlays": [
+        {
+          "id": "ov01",
+          "type": "keyword",
+          "start_s": 17.31,
+          "end_s": 21.49,
+          "marcas_s": []
+        },
+        {
+          "id": "ov04",
+          "type": "flow",
+          "start_s": 36.35,
+          "end_s": 44.05,
+          "marcas_s": [
+            36.55,
+            39.09,
+            41.37
+          ]
+        },
+        {
+          "id": "ov02",
+          "type": "counter",
+          "start_s": 47.94,
+          "end_s": 50.96,
+          "marcas_s": []
+        },
+        {
+          "id": "ov03",
+          "type": "bars",
+          "start_s": 68.65,
+          "end_s": 74.18,
+          "marcas_s": [
+            68.8,
+            72.18
+          ]
+        },
+        {
+          "id": "ov05",
+          "type": "cards",
+          "start_s": 88.14,
+          "end_s": 95.44,
+          "marcas_s": [
+            88.24,
+            91.46
+          ]
+        }
+      ],
+      "avisos": []
+    },
+    "saida": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 81.1
+    },
+    "original": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 82.9
+    },
+    "audio_identico": true
+  },
+  "T02_A_nvenc": {
+    "video": "entrevista_bob_proctor",
+    "config": null,
+    "encoder": "nvenc",
+    "medida": {
+      "date": "2026-11-06T23:47:27",
+      "returncode": 0,
+      "wall_s": 12.66,
+      "cpu_s": 0.17,
+      "avg_cores_busy": 0.01,
+      "peak_ram_mb": 32.3,
+      "system_ram_delta_mb": 759.4,
+      "gpu_mem_baseline_mb": 1269.0,
+      "gpu_mem_peak_mb": 1720.0,
+      "gpu_mem_delta_mb": 451.0,
+      "gpu_util_max_pct": 44.0,
+      "nvenc_util_max_pct": 98.0,
+      "gpu_samples": 43
+    },
+    "etapas": {
+      "planejar_validar_s": 0.054,
+      "render_camadas_s": 0.0,
+      "compor_encode_s": 12.277,
+      "total_s": 12.331,
+      "overlays": [],
+      "avisos": []
+    },
+    "saida": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 129.5
+    },
+    "original": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 82.9
+    },
+    "audio_identico": true
+  },
+  "T02_B_nvenc": {
+    "video": "entrevista_bob_proctor",
+    "config": "bob_B.json",
+    "encoder": "nvenc",
+    "medida": {
+      "date": "2026-11-06T23:47:42",
+      "returncode": 0,
+      "wall_s": 14.36,
+      "cpu_s": 2.09,
+      "avg_cores_busy": 0.15,
+      "peak_ram_mb": 41.7,
+      "system_ram_delta_mb": 797.9,
+      "gpu_mem_baseline_mb": 1409.0,
+      "gpu_mem_peak_mb": 1759.0,
+      "gpu_mem_delta_mb": 350.0,
+      "gpu_util_max_pct": 24.0,
+      "nvenc_util_max_pct": 98.0,
+      "gpu_samples": 49
+    },
+    "etapas": {
+      "planejar_validar_s": 0.044,
+      "render_camadas_s": 1.963,
+      "compor_encode_s": 12.097,
+      "total_s": 14.104,
+      "overlays": [
+        {
+          "id": "ov01",
+          "type": "keyword",
+          "start_s": 17.31,
+          "end_s": 21.49,
+          "marcas_s": []
+        },
+        {
+          "id": "ov02",
+          "type": "counter",
+          "start_s": 47.94,
+          "end_s": 50.96,
+          "marcas_s": []
+        },
+        {
+          "id": "ov03",
+          "type": "bars",
+          "start_s": 68.65,
+          "end_s": 74.18,
+          "marcas_s": [
+            68.8,
+            72.18
+          ]
+        }
+      ],
+      "avisos": []
+    },
+    "saida": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 129.7
+    },
+    "original": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 82.9
+    },
+    "audio_identico": true
+  },
+  "T02_C_nvenc": {
+    "video": "entrevista_bob_proctor",
+    "config": "bob_C.json",
+    "encoder": "nvenc",
+    "medida": {
+      "date": "2026-11-06T23:48:00",
+      "returncode": 0,
+      "wall_s": 18.07,
+      "cpu_s": 5.77,
+      "avg_cores_busy": 0.32,
+      "peak_ram_mb": 42.9,
+      "system_ram_delta_mb": 860.4,
+      "gpu_mem_baseline_mb": 1355.0,
+      "gpu_mem_peak_mb": 1632.0,
+      "gpu_mem_delta_mb": 277.0,
+      "gpu_util_max_pct": 44.0,
+      "nvenc_util_max_pct": 98.0,
+      "gpu_samples": 62
+    },
+    "etapas": {
+      "planejar_validar_s": 0.049,
+      "render_camadas_s": 5.754,
+      "compor_encode_s": 11.996,
+      "total_s": 17.799,
+      "overlays": [
+        {
+          "id": "ov01",
+          "type": "keyword",
+          "start_s": 17.31,
+          "end_s": 21.49,
+          "marcas_s": []
+        },
+        {
+          "id": "ov04",
+          "type": "flow",
+          "start_s": 36.35,
+          "end_s": 44.05,
+          "marcas_s": [
+            36.55,
+            39.09,
+            41.37
+          ]
+        },
+        {
+          "id": "ov02",
+          "type": "counter",
+          "start_s": 47.94,
+          "end_s": 50.96,
+          "marcas_s": []
+        },
+        {
+          "id": "ov03",
+          "type": "bars",
+          "start_s": 68.65,
+          "end_s": 74.18,
+          "marcas_s": [
+            68.8,
+            72.18
+          ]
+        },
+        {
+          "id": "ov05",
+          "type": "cards",
+          "start_s": 88.14,
+          "end_s": 95.44,
+          "marcas_s": [
+            88.24,
+            91.46
+          ]
+        }
+      ],
+      "avisos": []
+    },
+    "saida": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 129.7
+    },
+    "original": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 134.5,
+      "mb": 82.9
+    },
+    "audio_identico": true
+  },
+  "F01_A_x264": {
+    "video": "teste_maquiavel",
+    "config": null,
+    "encoder": "x264",
+    "medida": {
+      "date": "2026-11-06T23:48:11",
+      "returncode": 0,
+      "wall_s": 6.66,
+      "cpu_s": 0.16,
+      "avg_cores_busy": 0.02,
+      "peak_ram_mb": 32.2,
+      "system_ram_delta_mb": 1046.4,
+      "gpu_mem_baseline_mb": 1279.0,
+      "gpu_mem_peak_mb": 1283.0,
+      "gpu_mem_delta_mb": 4.0,
+      "gpu_util_max_pct": 10.0,
+      "nvenc_util_max_pct": 0.0,
+      "gpu_samples": 22
+    },
+    "etapas": {
+      "planejar_validar_s": 0.055,
+      "render_camadas_s": 0.0,
+      "compor_encode_s": 6.381,
+      "total_s": 6.435,
+      "overlays": [],
+      "avisos": []
+    },
+    "saida": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 24.2,
+      "mb": 11.6
+    },
+    "original": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 24.2,
+      "mb": 11.8
+    },
+    "audio_identico": true
+  },
+  "F01_2ov_x264": {
+    "video": "teste_maquiavel",
+    "config": "maquiavel_F01.json",
+    "encoder": "x264",
+    "medida": {
+      "date": "2026-11-06T23:48:21",
+      "returncode": 0,
+      "wall_s": 9.47,
+      "cpu_s": 1.17,
+      "avg_cores_busy": 0.12,
+      "peak_ram_mb": 40.8,
+      "system_ram_delta_mb": 1191.1,
+      "gpu_mem_baseline_mb": 1277.0,
+      "gpu_mem_peak_mb": 1277.0,
+      "gpu_mem_delta_mb": 0.0,
+      "gpu_util_max_pct": 8.0,
+      "nvenc_util_max_pct": 0.0,
+      "gpu_samples": 30
+    },
+    "etapas": {
+      "planejar_validar_s": 0.05,
+      "render_camadas_s": 0.997,
+      "compor_encode_s": 8.144,
+      "total_s": 9.191,
+      "overlays": [
+        {
+          "id": "m01",
+          "type": "cards",
+          "start_s": 5.14,
+          "end_s": 8.28,
+          "marcas_s": [
+            6.42,
+            7.36
+          ]
+        },
+        {
+          "id": "m02",
+          "type": "keyword",
+          "start_s": 14.49,
+          "end_s": 16.15,
+          "marcas_s": []
+        }
+      ],
+      "avisos": []
+    },
+    "saida": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 24.2,
+      "mb": 11.7
+    },
+    "original": {
+      "vcodec": "h264",
+      "res": "1080x1920",
+      "fps": 30.0,
+      "acodec": "aac",
+      "dur_s": 24.2,
+      "mb": 11.8
+    },
+    "audio_identico": true
+  }
+}

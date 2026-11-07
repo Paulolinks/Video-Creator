@@ -1,0 +1,48 @@
+{
+  "version": "1.0",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30
+  },
+  "intensity": "balanced",
+  "profile": "T02",
+  "overlays": [
+    {
+      "id": "ov02",
+      "type": "counter",
+      "start_at": {
+        "word": "GANHAR CEM MIL",
+        "offset_ms": -100
+      },
+      "end_at": {
+        "word": "POSSO",
+        "edge": "start",
+        "offset_ms": 500
+      },
+      "payload": {
+        "label": "Meta",
+        "from": 0,
+        "to": 250000,
+        "prefix": "US$ ",
+        "suffix": "por mês",
+        "count_ms": 1100
+      },
+      "animation": "ease_out",
+      "priority": 1
+    },
+    {
+      "id": "ov09",
+      "type": "flow",
+      "start_ms": 5000,
+      "end_ms": 7000,
+      "payload": {
+        "steps": [
+          {
+            "label": "só uma"
+          }
+        ]
+      }
+    }
+  ]
+}
