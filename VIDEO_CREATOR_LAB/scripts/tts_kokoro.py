@@ -25,16 +25,16 @@ WEIGHTS = Path(r"C:\Users\paulo\.cache\huggingface\hub\models--hexgrad--Kokoro-8
 RATE = 24000
 LANG_CODES = {"pt": "p", "en": "a"}  # Kokoro: p = Brazilian Portuguese, a = American English
 # Optional "efeito" of a voice pack (ffmpeg filter graph, input [0:a], output [out]). apad leaves room for the tail.
-_ECO = "aecho=0.8:0.86:60|130|250|380:0.30|0.22|0.15|0.09"
+_ECO = "aecho=0.85:0.9:60|130|250:0.18|0.12|0.07"  # softened on 2026-11-07 (was 4 taps 0.30..0.09: too much echo)
 EFEITOS = {
     # big stone hall: long multi-tap echo + a little more low end
-    "catedral": f"[0:a]apad=pad_dur=0.8,{_ECO},bass=g=2.5:f=110,alimiter=limit=0.95[out]",
+    "catedral": f"[0:a]apad=pad_dur=0.5,{_ECO},bass=g=2.5:f=110,alimiter=limit=0.95[out]",
     # a deep shadow voice under the main one (pitch down, muffled) + cathedral echo
-    "divino": ("[0:a]apad=pad_dur=0.9,asplit=2[a][b];[b]rubberband=pitch=0.7:formant=preserved,lowpass=f=1800,"
+    "divino": ("[0:a]apad=pad_dur=0.5,asplit=2[a][b];[b]rubberband=pitch=0.7:formant=preserved,lowpass=f=1800,"
                f"volume=0.32[low];[a][low]amix=inputs=2:normalize=0,{_ECO},bass=g=3:f=100,alimiter=limit=0.95[out]"),
     # ethereal: a slightly detuned double (soft chorus), wide airy echo, softened highs
-    "eterno": ("[0:a]apad=pad_dur=1.1,asplit=2[a][b];[b]rubberband=pitch=1.012,adelay=28,volume=0.28[d];"
-               "[a][d]amix=inputs=2:normalize=0,aecho=0.85:0.9:90|180|320|500:0.26|0.20|0.14|0.08,"
+    "eterno": ("[0:a]apad=pad_dur=0.6,asplit=2[a][b];[b]rubberband=pitch=1.012,adelay=28,volume=0.28[d];"
+               "[a][d]amix=inputs=2:normalize=0,aecho=0.88:0.92:90|180|320:0.16|0.11|0.06,"
                "highpass=f=70,treble=g=-2,alimiter=limit=0.95[out]"),
 }
 
