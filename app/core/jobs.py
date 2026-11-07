@@ -320,6 +320,12 @@ def _auto_images(batch_id, v):
     """F01: scenes without an uploaded image get one now (registered character + Pixabay), before the engine."""
     cenas_file = Path(v["projeto"]) / "cenas.json"
     scenes = json.loads(cenas_file.read_text(encoding="utf-8"))
+    auto_dir = (Path(v["projeto"]) / "imagens_auto").resolve()
+    for s in scenes:  # a retry rebuilds the automatic images too, so the pose + moving background come back
+        if s.get("image") and Path(s["image"]).resolve().parent == auto_dir:
+            s["image"] = ""
+            for k in ("pose", "fundo_video"):
+                s.pop(k, None)
     if all(s.get("image") and Path(s["image"]).exists() for s in scenes):
         return
     _update(batch_id, v["id"], etapa="Montando as imagens das cenas")
