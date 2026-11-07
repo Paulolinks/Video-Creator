@@ -180,12 +180,37 @@ def _baixar(h, q, out, used):
     return out, f"Pixabay #{h['id']} ({h['pageURL']}), busca \"{q}\""
 
 
-def _shuffled(items, last=None, key=lambda x: x):
-    items = list(items)
-    random.shuffle(items)
-    if len(items) > 1 and key(items[0]) == last:
-        items.append(items.pop(0))
-    return items
+class Fila:
+    """A character's rotation queue (poses or backgrounds), saved in the character so every scene takes the NEXT
+    item and the next video continues where this one stopped. All items are used before any repeats; each new
+    round is shuffled and never starts with the item that ended the previous round. Items added in the middle
+    of a round join the end of the current queue; removed ones leave it."""
+
+    def __init__(self, ch, field, items, key=lambda x: x):
+        self.ch, self.field, self.key = ch, field, key
+        self.by_id = {key(x): x for x in items}
+        state = (ch or {}).get(field) or {}
+        self.queue = [i for i in state.get("fila", []) if i in self.by_id]
+        self.round = [i for i in state.get("usados", []) if i in self.by_id]  # used in the current round
+        self.last = state.get("ultimo")
+        self.queue += [i for i in self.by_id if i not in self.queue and i not in self.round]  # new items
+        self.taken = 0
+
+    def next(self):
+        if not self.queue:
+            self.queue = list(self.by_id)
+            random.shuffle(self.queue)
+            if len(self.queue) > 1 and self.queue[0] == self.last:
+                self.queue.append(self.queue.pop(0))
+            self.round = []
+        item = self.queue.pop(0)
+        self.round.append(item)
+        self.last = item
+        self.taken += 1
+        return self.by_id[item]
+
+    def state(self):
+        return {"fila": self.queue, "usados": self.round, "ultimo": self.last}
 
 
 def complete(video, folder, W, H):
@@ -198,10 +223,9 @@ def complete(video, folder, W, H):
     ch = character_ready(video["personagens"][0] if video.get("personagens") else None)
     key = pixabay_key()
     origens, extras = [], {}
-    # rotation: a new random order every video (no repeats in a row), not starting where the last video ended
-    poses = _shuffled(library.images(ch), ch.get("ultima_pose")) if ch else []
-    bgs = _shuffled(_bg_pool(ch), ch.get("ultimo_fundo"), key=lambda b: b["id"]) if ch else []
-    used_pose = used_bg = 0
+    # rotation queues saved in the character: each scene takes the next pose/background, the next video goes on
+    poses = Fila(ch, "fila_poses", library.images(ch)) if ch else None
+    bgs = Fila(ch, "fila_fundos", _bg_pool(ch), key=lambda b: b["id"]) if ch else None
     for i, c in enumerate(video["cenas"]):
         if imgs[i] and Path(imgs[i]).exists():
             continue
@@ -210,14 +234,12 @@ def complete(video, folder, W, H):
             if not ch:
                 raise RuntimeError(f"Cena {i + 1} (FALA) sem imagem e o personagem não está cadastrado com recorte "
                                    "e fundo. Envie cena%d.png ou cadastre o personagem." % (i + 1))
-            pose, bg = poses[used_pose % len(poses)], bgs[used_bg % len(bgs)]
-            talking_image(pose, bg["arquivo"], out, W, H, at=2.0 + 1.5 * used_bg)
+            pose, bg = poses.next(), bgs.next()
+            talking_image(pose, bg["arquivo"], out, W, H, at=2.0 + 1.5 * bgs.taken)
             extras[i] = {"pose": str(out.with_name(out.stem + "_pose.png"))}
             if Path(bg["arquivo"]).suffix.lower() in library.VIDEO_EXT:  # the scene's background keeps moving
                 extras[i]["fundo_video"] = bg["arquivo"]
             origens.append(f"Cena {i + 1}: {Path(pose).name} sobre o fundo {bg['nome']}")
-            used_pose += 1
-            used_bg += 1
             imgs[i] = str(out)
             continue
         got = None
@@ -230,16 +252,14 @@ def complete(video, folder, W, H):
         if got:
             imgs[i] = str(got[0])
             origens.append(f"Cena {i + 1}: {got[1]}")
-        elif bgs:  # sem Pixabay: um quadro de outro fundo do personagem, sem pessoa
-            bg = bgs[used_bg % len(bgs)]
-            _cover(_frame(bg["arquivo"], 4.0 + 1.5 * used_bg), W, H).save(out, quality=95)
-            used_bg += 1
+        elif bgs and bgs.by_id:  # sem Pixabay: um quadro do próximo fundo do personagem, sem pessoa
+            bg = bgs.next()
+            _cover(_frame(bg["arquivo"], 4.0 + 1.5 * bgs.taken), W, H).save(out, quality=95)
             imgs[i] = str(out)
             origens.append(f"Cena {i + 1}: quadro do fundo {bg['nome']}")
         else:
             raise RuntimeError(f"Cena {i + 1} sem imagem: envie cena{i + 1}.png, configure a chave do Pixabay ou "
                                "cadastre fundos para o personagem.")
-    if ch and (used_pose or used_bg):  # remembered so the next video does not start with the same ones
-        library.update_character(ch["id"], ultima_pose=poses[(used_pose - 1) % len(poses)] if used_pose else None,
-                                 ultimo_fundo=bgs[(used_bg - 1) % len(bgs)]["id"] if used_bg else None)
+    if ch and (poses.taken or bgs.taken):  # the next video continues these queues
+        library.update_character(ch["id"], fila_poses=poses.state(), fila_fundos=bgs.state())
     return imgs, origens, extras
