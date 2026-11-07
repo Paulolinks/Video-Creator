@@ -3,12 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Video Creator</title>
-<link rel="stylesheet" href="/static/style.css">
+<title>Social Video Creator</title>
+<link rel="stylesheet" href="/static/style.css?v=20261105c">
 </head>
 <body>
+<div class="fx-grid" aria-hidden="true"></div>
+<div class="fx-scan" aria-hidden="true"></div>
+<div class="fx-dots" aria-hidden="true">
+  <span style="top:15%;left:10%"></span><span style="top:25%;left:85%;animation-delay:.5s"></span>
+  <span style="top:60%;left:20%;animation-delay:1s"></span><span style="top:80%;left:70%;animation-delay:1.5s"></span>
+  <span style="top:40%;left:50%;animation-delay:.8s"></span><span style="top:70%;left:40%;animation-delay:1.2s"></span>
+  <span style="top:10%;left:60%;animation-delay:.3s"></span><span style="top:50%;left:90%;animation-delay:1.8s"></span>
+  <span style="top:90%;left:15%;animation-delay:.6s"></span><span style="top:35%;left:75%;animation-delay:1.4s"></span>
+</div>
 <header class="top">
-  <div class="brand">VIDEO <b>CREATOR</b></div>
+  <div class="brand"><span class="logo-social">SOCIAL</span> <b>VIDEO CREATOR</b></div>
   <nav class="tabs">
     <button data-tab="criar" class="on">Criar vídeos</button>
     <button data-tab="fila">Vídeos criados <span id="fila-badge" class="badge hide"></span></button>
@@ -23,63 +32,205 @@
 </header>
 
 <main>
-  <!-- CRIAR -->
+  <!-- CRIAR (home page in the Video Cutter look: circuit board panel + reactor button) -->
   <section id="tab-criar" class="tab on">
-    <h1>Criar vídeos a partir dos roteiros</h1>
+   <!-- traditional mode: the page as it was before the circuit board (shown when the board is switched off) -->
+   <div id="modo-trad" class="hide">
+    <div class="trad-top">
+      <h1>Criar vídeos a partir dos roteiros</h1>
+      <button type="button" id="btn-ligar" class="power-btn off" title="Ligar a placa (modo novo)"><span class="power-ic">⏻</span> Ligar a placa</button>
+    </div>
     <p class="muted">Cada roteiro vira um vídeo. O app identifica sozinho o template (Personagem falando ou Entrevista),
       as cenas e os personagens. Para o template Personagem falando, envie as imagens das cenas junto
       (cena1.png, cena2.png...).</p>
+    <div id="trad-envio"></div>
+    <div id="trad-lote"></div>
+   </div>
 
-    <div id="drop" class="drop">
-      <div class="drop-icon">⬆</div>
-      <div><b>Arraste aqui os roteiros</b> (.txt, .md ou .pdf), ou uma pasta com roteiros e imagens</div>
-      <div class="drop-buttons">
-        <label class="btn">Escolher arquivos<input id="in-files" type="file" multiple accept=".txt,.md,.pdf,image/*" hidden></label>
-        <label class="btn ghost">Escolher pasta<input id="in-folder" type="file" webkitdirectory multiple hidden></label>
+   <div id="modo-placa">
+    <h1 class="logo">
+      <svg class="logo-icon" viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="5" y="12" width="46" height="34" rx="9" fill="none" stroke="currentColor" stroke-width="4"/>
+        <path d="M23 21 L37 29 L23 37 Z" fill="currentColor"/>
+        <path d="M52 38 l2.6 6.4 6.4 2.6 -6.4 2.6 -2.6 6.4 -2.6 -6.4 -6.4 -2.6 6.4 -2.6 Z" fill="#ff3131"/>
+      </svg>
+      <span class="logo-social">Social</span> <span class="logo-vc">Video Creator</span>
+    </h1>
+
+    <div class="placa-wrap" id="placa">
+      <svg class="placa-svg" id="placa-svg" aria-hidden="true">
+        <defs>
+          <filter id="neon" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="6" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <linearGradient id="placa-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#0a0a0c" stop-opacity=".96"/><stop offset=".5" stop-color="#101016" stop-opacity=".93"/>
+            <stop offset="1" stop-color="#0a0a0c" stop-opacity=".96"/></linearGradient>
+        </defs>
+        <path id="placa-path" fill="url(#placa-grad)" stroke="#00f7ff" stroke-width="4" filter="url(#neon)"/>
+        <g id="placa-deco"></g>
+      </svg>
+      <img src="/static/chip.png" class="chip-img" id="chip" alt="">
+
+      <div class="placa-content">
+        <button type="button" id="btn-desligar" class="power-btn" title="Desligar a placa: volta para o modo tradicional">
+          <span class="power-ic">⏻</span><span class="power-txt">Modo tradicional</span></button>
+        <div class="passo">
+          <div class="passo-h"><span class="n">1</span> Escolha o template</div>
+          <div class="tpl-grid">
+            <button type="button" class="tpl-card" data-tpl="F01" aria-pressed="false">
+              <img src="/static/modelos/capa_F01.jpg" alt="">
+              <span class="tpl-txt"><b>Personagem falando</b>
+                <span class="small muted">Um personagem fala para a câmera, com legenda karaokê. Envie a pasta com o roteiro e as imagens das cenas.</span></span>
+              <span class="tpl-check">✓</span>
+            </button>
+            <button type="button" class="tpl-card" data-tpl="T02" aria-pressed="false">
+              <img src="/static/modelos/capa_T02.jpg" alt="">
+              <span class="tpl-txt"><b>Entrevista com mentor</b>
+                <span class="small muted">Você pergunta, o mentor responde. Trocam retrato, lado, fundo e voz.</span></span>
+              <span class="tpl-check">✓</span>
+            </button>
+          </div>
+          <div id="modelo-entrevista" class="sub-modelos hide">
+            <div class="small sub-modelos-h"><b>Modelo da entrevista</b></div>
+            <div class="tpl-grid">
+              <button type="button" class="fmt-card mod-card" data-mod="T02" aria-pressed="false">
+                <span class="tpl-txt"><b>Modelo 1 · Imagem + ondinha</b>
+                  <span class="small muted">Retrato parado e as barrinhas do som de quem fala.</span></span>
+                <span class="tpl-check">✓</span></button>
+              <button type="button" class="fmt-card mod-card" data-mod="T03" aria-pressed="false">
+                <span class="tpl-txt"><b>Modelo 2 · Boca mexendo (SadTalker)</b>
+                  <span class="small muted">A boca de quem fala mexe com a voz, sem as barrinhas. Mais lento: ~5 min a mais por minuto de fala.</span></span>
+                <span class="tpl-check">✓</span></button>
+            </div>
+          </div>
+          <div class="small muted tpl-links">Exemplos e frameworks para o ChatGPT: <a href="#modelos">ver os modelos ↓</a></div>
+        </div>
+
+        <div class="passo">
+          <div class="passo-h"><span class="n">2</span> <span id="passo2-titulo">Envie o roteiro</span></div>
+          <div id="placa-envio">
+           <div id="envio">
+            <div id="drop" class="drop">
+              <div id="drop-txt"></div>
+              <div class="drop-buttons">
+                <label class="btn" id="lbl-files">Escolher arquivos<input id="in-files" type="file" multiple accept=".txt,.md,.pdf,image/*" hidden></label>
+                <label class="btn ghost" id="lbl-folder">Escolher pasta<input id="in-folder" type="file" webkitdirectory multiple hidden></label>
+              </div>
+              <div id="drop-status" class="small"></div>
+            </div>
+            <details class="card colar" id="colar">
+              <summary>📋 Colar roteiro (texto)</summary>
+              <textarea id="txt-roteiro" rows="8" spellcheck="false" placeholder="Cole aqui o bloco que o ChatGPT devolveu, de TÍTULO: até FIM"></textarea>
+              <div class="row"><button id="btn-colar" class="btn small">Ler roteiro</button>
+                <span class="muted small">Para vários vídeos, salve cada roteiro como .txt e arraste todos.</span></div>
+            </details>
+           </div>
+          </div>
+          <div id="lote-mini" class="lote-mini hide">
+            <span id="lote-mini-txt"></span>
+            <button type="button" id="lote-abrir" class="btn small">Ver roteiros</button>
+          </div>
+        </div>
+
+        <div class="passo">
+          <div class="passo-h"><span class="n">3</span> Formato do vídeo</div>
+          <div class="fmt-grid" id="fmt-grid"></div>
+          <p id="fmt-aviso" class="small muted hide">No horizontal, as imagens das cenas do Personagem falando devem ser
+            16:9 (deitadas); imagens em pé são cortadas no meio.</p>
+        </div>
+
+        <div class="passo">
+          <div class="passo-h"><span class="n">4</span> Legenda</div>
+          <div class="leg-grid">
+            <label>Tipo de letra<select id="opt-fonte"></select></label>
+            <label>Tamanho <span id="tam-val" class="muted small"></span>
+              <input id="opt-tamanho" type="range" min="40" max="140" step="2"></label>
+            <label>Cor da palavra falada<input id="opt-cor" type="color"></label>
+            <label>Cor do resto do texto<input id="opt-cor-texto" type="color"></label>
+          </div>
+          <div class="leg-prev-wrap">
+            <div id="leg-prev" class="leg-prev"><span id="leg-prev-txt"></span></div>
+            <button type="button" id="leg-padrao" class="link small">Voltar ao padrão</button>
+          </div>
+        </div>
+
+        <div class="passo" id="passo-capa">
+          <div class="passo-h"><span class="n">5</span> Título da capa</div>
+          <p id="capa-aviso" class="small muted hide">Para mudar daqui, reinicie o app quando a fila acabar. Até lá as
+            capas já saem mudando de cor a cada vídeo: amarelo, verde, branco, vermelho, azul neon.</p>
+          <div id="capa-ctrl">
+            <div class="leg-grid">
+              <label>Tipo de letra<select id="capa-fonte"></select></label>
+              <label>Cores<select id="capa-modo">
+                <option value="sequencia">Sequência: muda a cada vídeo</option>
+                <option value="unica">Uma cor só</option></select></label>
+            </div>
+            <div class="capa-cores" id="capa-cores"></div>
+            <div class="capa-sug"><span class="small muted">Adicionar:</span> <span id="capa-sug"></span></div>
+            <div class="leg-prev-wrap">
+              <div id="capa-prev" class="capa-prev"><span id="capa-prev-txt">TÍTULO<br>DA CAPA</span><i id="capa-prev-nome">CONVIDADO</i></div>
+              <span id="capa-prox" class="small muted"></span>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="avancadas-btn" id="btn-avancadas">⚙️ Opções avançadas</button>
+        <div id="avancadas" class="avancadas hide">
+          <div class="opcoes" id="opcoes-box">
+            <div class="card" id="card-musica">
+              <h3>Música de fundo</h3>
+              <select id="opt-musica"></select>
+              <div id="vol-wrap" class="row"><label>Volume</label><input id="opt-volume" type="range" min="5" max="50" value="10">
+                <span id="vol-val">10%</span></div>
+              <p class="muted small">A música abaixa sozinha quando alguém fala.</p>
+            </div>
+            <div class="card hide" id="card-fundos">
+              <h3>Fundo de cada personagem (Entrevista)</h3>
+              <div id="opt-fundos"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="reator-wrap">
+          <button id="btn-iniciar" class="reator" type="button" aria-label="Iniciar criação"><span class="reator-aneis"></span></button>
+          <span class="reator-label" id="reator-label">Iniciar criação</span>
+        </div>
       </div>
-      <div id="drop-status" class="muted"></div>
     </div>
 
-    <details class="card colar">
-      <summary>📋 Colar roteiro (texto)</summary>
-      <textarea id="txt-roteiro" rows="9" spellcheck="false" placeholder="Cole aqui o bloco que o ChatGPT devolveu, de TÍTULO: até FIM"></textarea>
-      <div class="row"><button id="btn-colar" class="btn">Ler roteiro</button>
-        <span class="muted small">Para vários vídeos de uma vez, salve cada roteiro como .txt e arraste todos acima.</span></div>
-    </details>
+    <div class="progresso">
+      <div class="prog-bar"><div id="prog-fill"></div></div>
+      <p id="etapa" class="small">Aguardando roteiro…</p>
+      <p id="start-info" class="small muted"></p>
+    </div>
+   </div>
 
-
-    <div id="lote" class="hide">
-      <div class="lote-head">
-        <h2>Identificado</h2>
-        <div id="resumo" class="chips"></div>
-        <button id="btn-reanalisar" class="btn ghost small">Reanalisar</button>
-      </div>
-      <div class="table-wrap"><table class="grid">
-        <thead><tr><th><input type="checkbox" id="chk-all" checked></th><th>Roteiro</th><th>Template</th><th>Título</th>
-          <th>Cenas</th><th>Personagens / imagens</th><th>Situação</th></tr></thead>
-        <tbody id="lote-rows"></tbody>
-      </table></div>
-
-      <div class="opcoes">
-        <div class="card">
-          <h3>Música de fundo</h3>
-          <select id="opt-musica"></select>
-          <div id="vol-wrap" class="row"><label>Volume</label><input id="opt-volume" type="range" min="5" max="50" value="10">
-            <span id="vol-val">10%</span></div>
-          <p class="muted small">A música abaixa sozinha quando alguém fala.</p>
+    <!-- identified scripts: a popup on the board; inline under the upload area in the traditional mode -->
+    <div id="lote" class="modal hide" role="dialog" aria-modal="true" aria-labelledby="lote-titulo">
+      <div class="modal-box card lote-box" id="lote-box">
+        <button type="button" class="x" id="lote-fechar-x" aria-label="Fechar">×</button>
+        <div class="lote-head">
+          <h2 id="lote-titulo">Roteiros identificados</h2>
+          <div id="resumo" class="chips"></div>
+          <button id="btn-add" class="btn small" title="Colar ou enviar mais um roteiro para esta mesma lista (o mesmo lote)">+ Adicionar roteiro</button>
+          <button id="btn-reanalisar" class="btn ghost small" title="Ler de novo depois de cadastrar um personagem">Reanalisar</button>
+          <button id="btn-limpar" class="btn ghost small" title="Tirar todos os roteiros da lista e começar de novo">Limpar lista</button>
         </div>
-        <div class="card" id="card-fundos">
-          <h3>Fundo de cada personagem (Entrevista)</h3>
-          <div id="opt-fundos"></div>
+        <div class="table-wrap"><table class="grid">
+          <thead><tr><th><input type="checkbox" id="chk-all" checked></th><th>Roteiro</th><th>Template</th><th>Título</th>
+            <th>Cenas</th><th>Personagens / imagens</th><th>Situação</th></tr></thead>
+          <tbody id="lote-rows"></tbody>
+        </table></div>
+        <div id="trad-opcoes"></div>
+        <div class="lote-foot">
+          <span id="lote-info" class="small muted"></span>
+          <button type="button" id="lote-fechar" class="btn ghost">Fechar</button>
+          <button type="button" id="lote-iniciar" class="btn">Iniciar criação</button>
         </div>
-      </div>
-      <div class="start-bar">
-        <span id="start-info" class="muted"></span>
-        <button id="btn-iniciar" class="btn big">Gerar vídeos</button>
       </div>
     </div>
 
-    <h1 style="margin-top:30px">Modelos de vídeo</h1>
+    <h1 id="modelos" style="margin-top:40px">Modelos de vídeo</h1>
     <p class="muted">Veja como cada modelo fica. Baixe o framework do modelo e anexe no ChatGPT (ou cole nas instruções
       de um Projeto do ChatGPT). Ele devolve o roteiro em texto, no formato certo, para você enviar lá em cima.
       O framework é só o modelo: não envie ele para o app.</p>
@@ -247,8 +398,26 @@
     <button id="g-fechar" class="btn ghost">Fechar</button></div>
 </div></div>
 
+<div id="modal-add" class="modal hide" role="dialog" aria-modal="true" aria-labelledby="add-titulo">
+  <div class="modal-box card add-box">
+    <button type="button" class="x" id="add-fechar-x" aria-label="Fechar">×</button>
+    <h3 id="add-titulo">Adicionar roteiro à lista</h3>
+    <p class="small muted">O roteiro entra na mesma lista (o mesmo lote). Adicione quantos quiser e depois clique em
+      Iniciar criação uma vez só.</p>
+    <textarea id="add-texto" rows="14" spellcheck="false" placeholder="Cole aqui o bloco que o ChatGPT devolveu, de TÍTULO: até FIM"></textarea>
+    <div class="row add-acts">
+      <label class="btn ghost" id="add-lbl-files">ou escolher arquivos<input id="add-files" type="file" multiple accept=".txt,.md,.pdf,image/*" hidden></label>
+      <label class="btn ghost" id="add-lbl-folder">ou escolher pasta<input id="add-folder" type="file" webkitdirectory multiple hidden></label>
+      <span id="add-msg" class="small"></span>
+      <button type="button" id="add-enviar" class="btn">Adicionar à lista</button>
+    </div>
+  </div>
+</div>
+
+<div id="dock" class="dock hide" aria-live="polite"></div>
+
 <div id="loading" class="modal hide"><div class="loading-box"><div class="spin"></div><div id="loading-text"></div></div></div>
 
-<script src="/static/app.js"></script>
+<script src="/static/app.js?v=20261105c"></script>
 </body>
 </html>

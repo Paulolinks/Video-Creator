@@ -169,6 +169,8 @@ F01_MODEL = """TÍTULO: <frase curta e intrigante>
 TEMA: <assunto do vídeo>
 FORMATO: PERSONAGEM_FALANDO
 PERSONAGEM: <quem fala>
+SÉRIE: <nome da série; deixe vazio se o vídeo for avulso>
+EPISÓDIO: <posição na série, ex.: 1 de 9; deixe vazio se for avulso>
 
 CENA 01 | MODO: FALA
 NARRAÇÃO: <texto integral que será falado>
@@ -191,11 +193,12 @@ F01_PROMPT = """Anexei o PDF "Framework F01 — Personagem Falando". Siga o item
 TEMA DO VÍDEO: [escreva o tema]
 PERSONAGEM QUE FALA: [ex.: Maquiavel, Sêneca, um mentor fictício]
 NÚMERO DE CENAS: [3 a 6]
+SÉRIE E EPISÓDIO (opcional): [ex.: Playbook Flávio Augusto, episódio 1 de 9; deixe em branco se for avulso]
 
 REGRAS DE ENTREGA (obrigatórias):
 - Primeiro, UM ÚNICO bloco de código (```text) com o roteiro, da linha "TÍTULO:" até a linha "FIM",
   seguido do bloco METADADOS (TÍTULO DO POST:, DESCRIÇÃO:, NOTA EDITORIAL: opcional, HASHTAGS: por último).
-- Use exatamente as palavras-chave do item 3: TÍTULO:, TEMA:, FORMATO:, PERSONAGEM:,
+- Use exatamente as palavras-chave do item 3: TÍTULO:, TEMA:, FORMATO:, PERSONAGEM:, SÉRIE:, EPISÓDIO:,
   "CENA 01 | MODO: FALA", NARRAÇÃO:, IMAGEM:. Escreva "CENA 01" com espaço (nunca CENA_01).
 - MODO só pode ser FALA, DOLLY ou ZOOM.
 - Dentro do bloco: sem negrito, sem títulos, sem comentários, sem JSON, sem fontes e sem nenhum <...> sobrando.
@@ -206,7 +209,7 @@ REGRAS DE ENTREGA (obrigatórias):
 def f01():
     s = [header("FORMATO 01 — PERSONAGEM FALANDO",
                 "Framework de roteiro para criar vídeos em que um personagem fala direto para a câmera.",
-                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.1 · ATUALIZADO EM 02/11/2026"), Spacer(1, 8)]
+                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.2 · ATUALIZADO EM 03/11/2026"), Spacer(1, 8)]
     s += [P("<b>Para que serve este PDF:</b> anexe este arquivo ao ChatGPT junto com o prompt do item 2. O ChatGPT "
             "devolve o roteiro em texto simples, já no formato que o Video Creator lê. Você cola esse texto no app "
             "(ou salva como .txt) e envia as imagens das cenas. <b>Não envie este PDF ao app</b>: ele é só o modelo.")]
@@ -226,6 +229,8 @@ def f01():
             "bloco <b>METADADOS</b>. Troque cada &lt;...&gt; pelo texto real e repita o bloco CENA quantas vezes "
             "precisar:"),
           code(F01_MODEL),
+          P("Série (opcional)", "h3"),
+          P("Se o vídeo faz parte de uma série, preencha <b>SÉRIE:</b> com o nome da série (coleção) e <b>EPISÓDIO:</b> com a posição e o total, no formato <b>1 de 9</b>. Com as duas linhas preenchidas, a capa mostra o nome da série e \"EPISÓDIO 1 DE 9\" acima do título. Vídeo avulso: deixe as duas linhas vazias (sem &lt;...&gt;) ou apague as duas; a capa sai no modelo normal."),
           P("Os três modos de cena", "h3"),
           table([["Modo", "Quando usar", "Exigência da imagem"],
                  ["<b>FALA</b>", "O personagem fala olhando para quem assiste. Use na abertura e no fechamento.",
@@ -294,6 +299,8 @@ T02_EXAMPLE_TXT = ("TÍTULO: DESCUBRA O QUE ESTÁ LIMITANDO SUA RENDA\n"
 T02_MODEL = """TÍTULO: <frase intrigante>
 SUBTÍTULO: Minha conversa com <MENTOR> sobre <assunto>
 FORMATO: ENTREVISTA_COM_MENTOR
+SÉRIE: <nome da série; deixe vazio se o vídeo for avulso>
+EPISÓDIO: <posição na série, ex.: 1 de 9; deixe vazio se for avulso>
 
 CENA 01 | PERSONAGEM: PAULO
 <pergunta de abertura>
@@ -317,11 +324,12 @@ MENTOR: [nome do mentor ou autor]
 TEMA DA CONVERSA: [assunto]
 NÚMERO DE CENAS: [4 a 8, sempre alternando PAULO e MENTOR]
 PERGUNTAS QUE EU QUERO FAZER (opcional): [liste, se tiver]
+SÉRIE E EPISÓDIO (opcional): [ex.: Playbook Flávio Augusto, episódio 1 de 9; deixe em branco se for avulso]
 
 REGRAS DE ENTREGA (obrigatórias):
 - Primeiro, UM ÚNICO bloco de código (```text) com o roteiro, da linha "TÍTULO:" até a linha "FIM",
   seguido do bloco METADADOS (TÍTULO DO POST:, DESCRIÇÃO:, NOTA EDITORIAL: opcional, HASHTAGS: por último).
-- Use exatamente as palavras-chave do item 3: TÍTULO:, SUBTÍTULO:, FORMATO:,
+- Use exatamente as palavras-chave do item 3: TÍTULO:, SUBTÍTULO:, FORMATO:, SÉRIE:, EPISÓDIO:,
   "CENA 01 | PERSONAGEM: NOME". Escreva "CENA 01" com espaço (nunca CENA_01).
 - NOME sempre em MAIÚSCULAS e sempre igual: PAULO e o nome do mentor (ex.: BOB PROCTOR).
 - A fala vem na linha de baixo, sem repetir o nome.
@@ -335,7 +343,7 @@ REGRAS DE ENTREGA (obrigatórias):
 def t02():
     s = [header("T02 — ENTREVISTA COM MENTOR",
                 "Framework de roteiro para conversas alternadas: você pergunta, o mentor responde.",
-                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.1 · ATUALIZADO EM 02/11/2026"), Spacer(1, 8)]
+                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.2 · ATUALIZADO EM 03/11/2026"), Spacer(1, 8)]
     s += [P("<b>Para que serve este PDF:</b> anexe este arquivo ao ChatGPT junto com o prompt do item 2. Ele "
             "devolve o roteiro em texto simples, já no formato que o Video Creator lê. Você cola esse texto no app "
             "(ou salva como .txt). <b>Não envie este PDF ao app</b>: ele é só o modelo.")]
@@ -355,6 +363,8 @@ def t02():
             "bloco <b>METADADOS</b>. Troque cada &lt;...&gt; pelo texto real e repita os blocos alternando até 8 "
             "cenas:"),
           code(T02_MODEL),
+          P("Série (opcional)", "h3"),
+          P("Se o vídeo faz parte de uma série, preencha <b>SÉRIE:</b> com o nome da série (coleção) e <b>EPISÓDIO:</b> com a posição e o total, no formato <b>1 de 9</b>. Com as duas linhas preenchidas, a capa mostra o nome da série e \"EPISÓDIO 1 DE 9\" acima do título. Vídeo avulso: deixe as duas linhas vazias (sem &lt;...&gt;) ou apague as duas; a capa sai no modelo normal."),
           P("Papéis", "h3"),
           table([["Personagem", "Função", "Tamanho da fala"],
                  ["<b>PAULO</b>", "Pergunta, traz um exemplo real ou uma dúvida concreta do público. Fala em primeira "
@@ -414,6 +424,10 @@ RULES = """## Regras de entrega
 6. Se faltar alguma informação, pergunte antes de escrever.
 7. Roteiro em inglês: escreva as falas e os metadados em inglês, mas mantenha as palavras-chave do modelo
    (TÍTULO:, CENA 01 | ..., FIM, METADADOS...). O app identifica o idioma sozinho.
+8. Série (opcional): se o vídeo faz parte de uma série, preencha SÉRIE: com o nome da série (coleção) e
+   EPISÓDIO: com a posição do vídeo e o total, no formato "1 de 9". Com as duas linhas preenchidas, a capa
+   mostra o nome da série e "EPISÓDIO 1 DE 9" acima do título. Vídeo avulso: deixe SÉRIE: e EPISÓDIO: vazias
+   (sem <...>) ou apague as duas linhas; a capa sai no modelo normal.
 
 ## Metadados da publicação
 

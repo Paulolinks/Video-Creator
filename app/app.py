@@ -13,7 +13,7 @@ from pathlib import Path
 from flask import Flask, abort, jsonify, request, send_file, send_from_directory
 from werkzeug.utils import secure_filename
 
-from core import canais, gdrive, jobs, library, metadados, recorte
+from core import canais, capa, estilos, gdrive, jobs, library, metadados, recorte
 from core.parser import SCRIPT_EXT
 
 APP = Path(__file__).resolve().parent
@@ -38,6 +38,35 @@ def media():
     if not path.is_file() or library.DATA.resolve() not in path.parents:
         abort(404)
     return send_file(path, conditional=True)
+
+
+@app.get("/api/capa")
+def capa_config():
+    """Cover title colour(s) and font: one colour, or a sequence that changes on every new cover."""
+    return jsonify({**capa.config(), "sugeridas": capa.CORES_SUGERIDAS})
+
+
+@app.post("/api/capa")
+def capa_salvar():
+    try:
+        return jsonify({**capa.save_config(request.get_json(force=True) or {}), "sugeridas": capa.CORES_SUGERIDAS})
+    except ValueError as e:
+        return jsonify({"erro": str(e)}), 400
+
+
+@app.get("/api/estilos")
+def estilos_lista():
+    """Fonts, video formats and the default caption look for the home page."""
+    return jsonify(estilos.catalog())
+
+
+@app.get("/fontes/<fid>")
+def fonte(fid):
+    """Font file for the caption preview on the home page."""
+    path = estilos.font_file(fid)
+    if not path:
+        abort(404)
+    return send_file(path, mimetype="font/ttf", max_age=86400)
 
 
 @app.get("/api/biblioteca")
@@ -259,8 +288,9 @@ def iniciar(bid):
 
 @app.post("/api/lotes/<bid>/videos/<vid>/metadados")
 def gerar_metadados(bid, vid):
-    """The card's "Novo" button: redo the description and hashtags even when they are filled."""
-    return jsonify(jobs.generate_meta(bid, vid, refazer=True))
+    """The card's "Novo" button: redo the description and hashtags even when they are filled.
+    ?faltando=1 (the batch's "Gerar metadados", one video at a time): fill only the empty fields."""
+    return jsonify(jobs.generate_meta(bid, vid, refazer=request.args.get("faltando") != "1"))
 
 
 @app.put("/api/lotes/<bid>/videos/<vid>/metadados")

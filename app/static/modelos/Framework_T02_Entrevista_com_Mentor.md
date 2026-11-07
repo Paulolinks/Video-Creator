@@ -16,6 +16,10 @@ Para começar, peça: MENTOR, TEMA DA CONVERSA, NÚMERO DE CENAS (4 a 8) e pergu
 6. Se faltar alguma informação, pergunte antes de escrever.
 7. Roteiro em inglês: escreva as falas e os metadados em inglês, mas mantenha as palavras-chave do modelo
    (TÍTULO:, CENA 01 | ..., FIM, METADADOS...). O app identifica o idioma sozinho.
+8. Série (opcional): se o vídeo faz parte de uma série, preencha SÉRIE: com o nome da série (coleção) e
+   EPISÓDIO: com a posição do vídeo e o total, no formato "1 de 9". Com as duas linhas preenchidas, a capa
+   mostra o nome da série e "EPISÓDIO 1 DE 9" acima do título. Vídeo avulso: deixe SÉRIE: e EPISÓDIO: vazias
+   (sem <...>) ou apague as duas linhas; a capa sai no modelo normal.
 
 ## Metadados da publicação
 
@@ -45,6 +49,8 @@ O que vier preenchido aparece pronto no app; o que faltar, o app completa com a 
 TÍTULO: <frase intrigante>
 SUBTÍTULO: Minha conversa com <MENTOR> sobre <assunto>
 FORMATO: ENTREVISTA_COM_MENTOR
+SÉRIE: <nome da série; deixe vazio se o vídeo for avulso>
+EPISÓDIO: <posição na série, ex.: 1 de 9; deixe vazio se for avulso>
 
 CENA 01 | PERSONAGEM: PAULO
 <pergunta de abertura>

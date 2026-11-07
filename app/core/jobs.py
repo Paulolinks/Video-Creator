@@ -11,17 +11,21 @@ import threading
 import time
 from pathlib import Path
 
-from . import canais, capa, library, metadados
-from .parser import IDIOMAS, SCRIPT_EXT, TEMPLATES, embedded_images, parse_script
+from . import canais, capa, estilos, library, metadados
+from .parser import IDIOMAS, SCRIPT_EXT, TEMPLATES, embedded_images, episode_label, parse_script
 
 APP = Path(__file__).resolve().parent.parent
 BATCHES = library.DATA / "lotes"
 LAB = Path(r"D:\Video-Creator\VIDEO_CREATOR_LAB")
 ENGINE = {"F01": (LAB / "scripts" / "gerar_video.py", LAB / "templates" / "formato_01_personagem_falando.json"),
-          "T02": (LAB / "scripts" / "gerar_entrevista.py", LAB / "templates" / "T02_entrevista.json")}
+          "T02": (LAB / "scripts" / "gerar_entrevista.py", LAB / "templates" / "T02_entrevista.json"),
+          # T03 = the T02 interview with the speaker's mouth moving (SadTalker) and no sound bars; same scripts
+          "T03": (LAB / "scripts" / "gerar_entrevista.py", LAB / "templates" / "T03_entrevista_falando.json")}
 IMAGE_EXT = (".png", ".jpg", ".jpeg", ".webp")
 STEP_NAMES = [(r"^voz", "Gerando voz"), (r"^alinhamento", "Sincronizando legenda"),
-              (r"^fala_CENA_(\d+)", "Animando rosto (cena {0})"), (r"^composicao", "Montando o vídeo")]
+              (r"^fala_CENA_(\d+)", "Animando rosto (cena {0})"), (r"^fala$", "Animando os rostos"), (r"^composicao", "Montando o vídeo"),
+              (r"^checagem", "Conferindo a voz"), (r"^correcao", "Corrigindo trechos da voz"),
+              (r"^idioma", "Identificando o idioma das vozes")]
 
 _lock = threading.RLock()
 _queue = queue.Queue()
@@ -74,6 +78,7 @@ def _scene_images(pdf, uploads, n):
 def check(video):
     """Recompute problems against the current library (e.g. after registering a new character)."""
     problems = list(video["problemas_pdf"])
+    video["fotos_faltando"] = []  # registered characters still on the grey placeholder: the list shows a button
     if video["template"] == "T02":
         video["personagens_status"] = {}
         for name in video["personagens"]:
@@ -82,7 +87,9 @@ def check(video):
             if not ch:
                 problems.append(f"Personagem '{name.title()}' não cadastrado.")
             elif ch.get("imagem_provisoria"):
-                problems.append(f"{ch['nome']} ainda está com imagem provisória: envie o PNG na aba Personagens.")
+                problems.append(f"{ch['nome']} está cadastrado, mas sem foto (só a silhueta cinza): "
+                                "clique no botão abaixo para enviar o PNG.")
+                video["fotos_faltando"].append({"id": ch["id"], "nome": ch["nome"]})
         if len(video["personagens"]) < 2:
             problems.append("A entrevista precisa de pelo menos dois personagens.")
     if video["template"] == "F01":
@@ -113,6 +120,8 @@ def analyse(batch_id, files, channel=None):
                  "template_nome": TEMPLATES.get(parsed["template"], "Desconhecido"), "titulo": parsed["titulo"],
                  "subtitulo": parsed["subtitulo"], "idioma": parsed["idioma"], "idioma_nome": IDIOMAS[parsed["idioma"]],
                  "cenas": parsed["cenas"], "personagens": parsed["personagens"],
+                 "serie": parsed.get("serie"), "episodio": parsed.get("episodio"),
+                 "episodio_txt": episode_label(parsed["episodio"], parsed["idioma"]) if parsed.get("episodio") else None,
                  "problemas_pdf": parsed["problemas"], "imagens": [], "origem_imagens": "",
                  "status": "analisado", "etapa": "", "passos_feitos": 0, "passos_total": 0}
         if parsed["metadados"]:  # title/description/hashtags written in the script itself: the AI won't redo them
@@ -138,8 +147,9 @@ def recheck(batch_id):
     return batch
 
 
-def _template_copy(template_path, folder, music_item, volume, voice=None, idioma="pt"):
+def _template_copy(template_path, folder, music_item, volume, voice=None, idioma="pt", template_id="F01", options=None):
     tpl = json.loads(Path(template_path).read_text(encoding="utf-8"))
+    estilos.apply(tpl, template_id, (options or {}).get("estilo"))  # format + caption look chosen on the home page
     if voice:  # F01: narrate with the registered character's voice
         tpl["voz"]["voz"] = voice
     tpl["idioma"] = idioma  # the voices and the caption timing read the script in this language
@@ -178,14 +188,17 @@ def _build_project(batch, video, options):
         ch = library.find_character(video["personagens"][0])
         voice = ch["voz"]["voz"] if ch and ch["voz"]["motor"] == "kokoro" else None
     video["voz"] = voice
-    tpl = _template_copy(ENGINE[video["template"]][1], folder, music_item, float(options.get("volume", 0.10)), voice,
-                         video.get("idioma", "pt"))
+    # an interview script (T02) can be made with either interview model: the batch option picks it
+    video["modelo"] = "T03" if video["template"] == "T02" and options.get("modelo_entrevista") == "T03" else video["template"]
+    tpl = _template_copy(ENGINE[video["modelo"]][1], folder, music_item, float(options.get("volume", 0.10)), voice,
+                         video.get("idioma", "pt"), video["template"], options)
+    video["formato"] = estilos.resolve(options.get("estilo"))["formato"]
     if video["template"] == "F01":
         scenes = [{"id": c["id"], "text": c["text"], "mode": c["mode"], "image": img}
                   for c, img in zip(video["cenas"], video["imagens"])]
         (folder / "cenas.json").write_text(json.dumps(scenes, indent=2, ensure_ascii=False), encoding="utf-8")
         video["capa_fonte"] = {"fundo": video["imagens"][0]} if video["imagens"] else None
-        video["passos_total"] = 3 + sum(1 for c in scenes if c["mode"] == "fala")
+        video["passos_total"] = 3 + (1 if any(c["mode"] == "fala" for c in scenes) else 0)  # SadTalker: one step for all
     else:
         chars = {}
         for name in video["personagens"]:
@@ -200,7 +213,10 @@ def _build_project(batch, video, options):
                    "personagens": chars, "cenas": video["cenas"]}
         (folder / "roteiro.json").write_text(json.dumps(roteiro, indent=2, ensure_ascii=False), encoding="utf-8")
         voices = {json.dumps(c["voz"], sort_keys=True) for c in chars.values()}
-        video["passos_total"] = len(voices) + 2
+        motors = [json.loads(x).get("motor") for x in voices]
+        # Chatterbox voices run in one step; + alignment, voice check and composition (fix rounds may add more)
+        video["passos_total"] = ((1 if "chatterbox" in motors else 0) + motors.count("kokoro") + 3
+                                 + (1 if video["modelo"] == "T03" else 0))
     return folder, tpl
 
 
@@ -245,15 +261,22 @@ def _update(batch_id, video_id, **fields):
         save(batch)
 
 
-def make_cover(v, out_dir):
-    """capa.png beside the video; a failed cover never fails the video."""
+def make_cover(v, out_dir, batch_id=None):
+    """capa.png beside the video; a failed cover never fails the video.
+    The title colour/font is picked once (the colour sequence moves on) and kept in the video, so a redo keeps it."""
     src = v.get("capa_fonte")
     if not src:
         return None
     try:
         Path(out_dir).mkdir(parents=True, exist_ok=True)
+        enc = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))["video"]
+        look = v.get("capa_estilo") or capa.next_style()
+        if batch_id and not v.get("capa_estilo"):
+            v["capa_estilo"] = look
+            _update(batch_id, v["id"], capa_estilo=look)
         return capa.make(v["titulo"] or Path(v["arquivo"]).stem, Path(out_dir) / "capa.png", src["fundo"],
-                         src.get("retrato"), src.get("nome"))
+                         src.get("retrato"), src.get("nome"), size=(enc["largura"], enc["altura"]),
+                         serie=v.get("serie"), episodio=v.get("episodio_txt"), cor=look["cor"], fonte=look["fonte"])
     except Exception as e:  # noqa: BLE001
         print("capa:", e, file=sys.stderr)
         return None
@@ -263,7 +286,7 @@ def stamp_cover(v, video_path, cover):
     """Cover over the first second, encoded like the template; a failure keeps the video as it was."""
     try:
         enc = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))["video"]
-        capa.stamp(video_path, cover, (enc["codec"], enc["preset"], enc["crf"]))
+        capa.stamp(video_path, cover, (enc["codec"], enc["preset"], enc["crf"]), size=(enc["largura"], enc["altura"]))
         return True
     except Exception as e:  # noqa: BLE001
         print("capa no vídeo:", e, file=sys.stderr)
@@ -276,7 +299,7 @@ def _run(batch_id, video_id):
     out_dir = Path(v["projeto"]) / "saida"
     log = Path(v["projeto"]) / "execucao.log"
     _update(batch_id, video_id, status="gerando", etapa="Preparando", inicio=time.time())
-    cover = make_cover(v, out_dir) if v["template"] == "T02" else None
+    cover = make_cover(v, out_dir, batch_id) if v["template"] == "T02" else None
     if cover:  # T02: the composer puts the cover over the first second in its final pass (no extra encode)
         tpl = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))
         tpl["capa"] = {"arquivo": cover, "segundos": 1.0}
@@ -304,8 +327,12 @@ def _run(batch_id, video_id):
     outputs = sorted(out_dir.glob("*.mp4"))
     if proc.returncode == 0 and outputs:
         report = out_dir / "relatorio.json"
-        stamped = report.exists() and json.loads(report.read_text(encoding="utf-8")).get("capa_no_video", False)
-        cover = cover or make_cover(v, out_dir)
+        rep = json.loads(report.read_text(encoding="utf-8")) if report.exists() else {}
+        stamped = rep.get("capa_no_video", False)
+        # voice check (T02): defects found in the narration, and what is still left after the automatic fix
+        _update(batch_id, video_id, voz_alertas=rep.get("voz_alertas"), ritmo=rep.get("ritmo"),
+                voz_corrigidos=max(0, (rep.get("voz_problemas_encontrados") or 0) - len(rep.get("voz_alertas") or [])))
+        cover = cover or make_cover(v, out_dir, batch_id)
         if cover and not stamped:  # F01, or the original composer was used: stamp it afterwards
             _update(batch_id, video_id, etapa="Colocando a capa no 1º segundo", passos_feitos=done)
             stamped = stamp_cover(v, outputs[-1], cover)

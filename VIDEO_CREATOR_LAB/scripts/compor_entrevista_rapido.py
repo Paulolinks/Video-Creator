@@ -42,6 +42,29 @@ def final_encoder(v, nvenc):
     return ["-c:v", v["codec"], "-preset", v["preset"], "-crf", str(v["crf"]), "-pix_fmt", "yuv420p"]
 
 
+_KERNEL = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+
+
+def edge_zone(alpha, width=28):
+    """The part of the portrait within `width` px of its outline: only there can SadTalker's grey band show."""
+    inside = (alpha > 0.02).astype(np.uint8)
+    return cv2.distanceTransform(inside, cv2.DIST_L2, 5) < width
+
+
+def grey_cut(anim, still, alpha, zone):
+    """T03: SadTalker's face comes back a few pixels smaller/shifted than the photo, so the grey it was flattened on
+    (128, see gerar_entrevista.talking_faces) shows as a band inside the PNG outline (beside the beard, the hair).
+    Those pixels are cut out: near that grey AND different from the photo (a grey shirt that did not move stays)."""
+    a = anim.astype(np.int16)
+    grey = np.abs(a - 128).max(axis=2) < 22
+    moved = np.abs(a - still.astype(np.int16)).max(axis=2) > 24
+    cut = cv2.dilate((grey & moved & zone).astype(np.uint8), _KERNEL)
+    if not cut.any():
+        return alpha
+    soft = cv2.GaussianBlur(cut.astype(np.float32), (0, 0), 1.5)
+    return alpha * (1 - np.clip(soft * 1.5, 0, 1))
+
+
 def render_scene(args):
     """Same drawing as compor_entrevista.render_scene; only the encoder differs. Runs in a worker process."""
     tpl, char, bg_loop, audio_path, lead, seconds, out, enc_args = args
@@ -49,18 +72,29 @@ def render_scene(args):
     cv2.setNumThreads(2)  # several scenes run at once: keep each process light
     W, H, fps = tpl["video"]["largura"], tpl["video"]["altura"], tpl["video"]["fps"]
     rc = tpl["retrato"]
-    png = Image.open(char["imagem"]).convert("RGBA")
+    talking = char.get("fala_video")  # T03: SadTalker clip of this scene (mouth moving), drawn inside the outline
+    png = Image.open(char["fala_alpha"] if talking else char["imagem"]).convert("RGBA")
     rgba = np.asarray(png)
     rgb = cv2.cvtColor(np.ascontiguousarray(rgba[..., :3]), cv2.COLOR_RGB2BGR)
     alpha = np.ascontiguousarray(rgba[..., 3].astype(np.float32) / 255.0)
     pw, ph = png.size
-    base = rc["largura"] / pw
+    base = min(rc["largura"] / pw, rc.get("altura_max", 10**9) / ph)  # altura_max: 16:9 keeps the head in frame
     left = char["lado"] == "esquerda"
     ax = (-rc["deslocamento_borda"] if left else W - rc["largura"] + rc["deslocamento_borda"]) + rc["largura"] / 2
     ay = H
-    wave_x0 = (W - 40 - (tpl["onda"]["barras"] * (tpl["onda"]["largura_barra"] + tpl["onda"]["espaco"]))) if left else 40
-    audio, rate = read_wav(audio_path)
-    wf = Waveform(audio, rate, tpl["onda"], fps)
+    onda = tpl.get("onda") or {}
+    wf = None
+    if onda and onda.get("ativa", True):  # T03 has no sound bars: the moving mouth shows who is talking
+        wave_x0 = (W - 40 - (onda["barras"] * (onda["largura_barra"] + onda["espaco"]))) if left else 40
+        audio, rate = read_wav(audio_path)
+        wf = Waveform(audio, rate, onda, fps)
+    face = None
+    if talking:  # frames at the video's fps and the portrait's size; frame k is audio time k/fps
+        face = subprocess.Popen(["ffmpeg", "-v", "error", "-i", talking, "-vf", f"fps={fps},scale={pw}:{ph}",
+                                 "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], stdout=subprocess.PIPE,
+                                stderr=subprocess.DEVNULL)
+        still_rgb = rgb
+        zone = edge_zone(alpha)
     n = round(seconds * fps)
     bg = subprocess.Popen(["ffmpeg", "-v", "error", "-stream_loop", "-1", "-i", str(bg_loop), "-t", f"{seconds:.3f}",
                            "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], stdout=subprocess.PIPE,
@@ -74,6 +108,14 @@ def render_scene(args):
             break
         frame = np.frombuffer(buf, np.uint8).reshape(H, W, 3).copy()
         t = i / fps
+        al_src = alpha
+        if face is not None:
+            rgb = still_rgb
+            if t - lead >= 0:  # while the voice plays: the animated face; before and after: the still portrait
+                fb = face.stdout.read(pw * ph * 3)
+                if len(fb) == pw * ph * 3:
+                    rgb = np.frombuffer(fb, np.uint8).reshape(ph, pw, 3)
+                    al_src = grey_cut(rgb, still_rgb, alpha, zone)
         p = i / max(n - 1, 1)
         s = base * (rc["respiracao"]["de"] + (rc["respiracao"]["pico"] - rc["respiracao"]["de"]) * np.sin(np.pi * p))
         m = np.float32([[s, 0, ax - s * pw / 2], [0, s, ay - s * ph]])
@@ -82,14 +124,18 @@ def render_scene(args):
         m_roi = m.copy()
         m_roi[1, 2] -= y_top
         fg = cv2.warpAffine(rgb, m_roi, (W, H - y_top), flags=cv2.INTER_CUBIC, borderValue=0)
-        al = cv2.warpAffine(alpha, m_roi, (W, H - y_top), flags=cv2.INTER_LINEAR, borderValue=0)
+        al = cv2.warpAffine(al_src, m_roi, (W, H - y_top), flags=cv2.INTER_LINEAR, borderValue=0)
         # same alpha blend as the original, in OpenCV (~15x faster, and saturates instead of wrapping at the edges)
         frame[roi] = cv2.blendLinear(fg, frame[roi], al, 1 - al)
         audio_t = t - lead
-        wf.draw(frame, audio_t if audio_t >= 0 else -1, wave_x0)
+        if wf is not None:
+            wf.draw(frame, audio_t if audio_t >= 0 else -1, wave_x0)
         enc.stdin.write(frame.tobytes())
     bg.stdout.close()
     bg.wait()
+    if face is not None:
+        face.stdout.close()
+        face.wait()
     enc.stdin.close()
     enc.wait()
     if enc.returncode:
@@ -153,13 +199,38 @@ def compose(tpl, roteiro, work, out):
     t = time.perf_counter()
     (work / "cenas").mkdir(exist_ok=True)
     clips = [work / "cenas" / f"{sc['id']}.mp4" for sc in scenes]
-    jobs = [(tpl, chars[sc["personagem"]], loops[sc["personagem"]], tts[sc["id"]]["wav"], lead if i == 0 else 0,
+    jobs = [(tpl, {**chars[sc["personagem"]], "fala_video": sc.get("fala_video"), "fala_alpha": sc.get("fala_alpha")},
+             loops[sc["personagem"]], tts[sc["id"]]["wav"], lead if i == 0 else 0,
              durations[i] + (xf if i < len(scenes) - 1 else 0), clips[i], NVENC_TEMP if nvenc else X264_TEMP)
             for i, sc in enumerate(scenes)]
     workers = int(tpl["video"].get("cenas_em_paralelo") or min(4, max(1, (os.cpu_count() or 4) // 4)))
+
+    def clip_key(job):
+        """Everything a scene clip depends on: when nothing changed (a retry, or only other scenes' voices were
+        fixed) the clip already in cenas/ is reused instead of drawn and encoded again."""
+        tpl_, char, bg_loop, audio_path, lead_, seconds, out_, enc_args = job
+        look = {k: tpl_.get(k) for k in ("video", "retrato", "onda", "fundo")}
+        img, bg = Path(char["imagem"]).stat(), Path(bg_loop).stat()
+        face = Path(char["fala_video"]).stat() if char.get("fala_video") else None
+        look["rosto"] = [char.get("fala_video"), face.st_size, face.st_mtime, "sem_cinza_1"] if face else None
+        raw = json.dumps([look, char["imagem"], img.st_size, img.st_mtime, char.get("lado"), str(bg_loop), bg.st_size,
+                          bg.st_mtime, hashlib.sha1(Path(audio_path).read_bytes()).hexdigest(), lead_,
+                          round(seconds, 3), enc_args], sort_keys=True, default=str)
+        return hashlib.sha1(raw.encode()).hexdigest()
+
+    keys = [clip_key(j) for j in jobs]
+    todo = [i for i, (clip, key) in enumerate(zip(clips, keys))
+            if not (clip.exists() and clip.with_suffix(".key").exists()
+                    and clip.with_suffix(".key").read_text(encoding="utf-8") == key)]
+    for i in set(range(len(jobs))) - set(todo):
+        stages[f"render_{scenes[i]['id']}_s"] = "reaproveitada"
+    for i in todo:  # a clip being redrawn is not valid until its key is written again
+        clips[i].with_suffix(".key").unlink(missing_ok=True)
     with ProcessPoolExecutor(max_workers=workers) as pool:
-        for sc, secs in zip(scenes, pool.map(render_scene, jobs)):
-            stages[f"render_{sc['id']}_s"] = secs
+        for i, secs in zip(todo, pool.map(render_scene, [jobs[i] for i in todo])):
+            stages[f"render_{scenes[i]['id']}_s"] = secs
+            clips[i].with_suffix(".key").write_text(keys[i], encoding="utf-8")
+    stages["cenas_reaproveitadas"] = len(jobs) - len(todo)
     stages["cenas_paralelo"] = workers
     stages["cenas_total_s"] = round(time.perf_counter() - t, 2)
 
@@ -168,7 +239,7 @@ def compose(tpl, roteiro, work, out):
     ass_path = work / "legenda.ass"
     write_ass(ass_path, tpl, timeline, labels, total)
     ass = ass_path.as_posix().replace(":", "\\:")
-    fonts = FONTS.as_posix().replace(":", "\\:")
+    fonts = Path(tpl["legenda"].get("fontes_dir") or FONTS).as_posix().replace(":", "\\:")
     inputs = sum((["-i", str(c)] for c in clips), [])
     n_in = len(clips)  # input index of the next -i
     graph, last, acc = [], "0:v", 0.0

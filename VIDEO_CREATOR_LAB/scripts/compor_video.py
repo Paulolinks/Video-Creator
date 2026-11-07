@@ -17,7 +17,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from montagem import VOICE_FX, write_ass
-from run_test_b import SH, SW, estimate_depth, soften
+from run_test_b import estimate_depth, soften
 
 LAB = Path(__file__).resolve().parent.parent
 FONTS = LAB / "inputs" / "fonts"
@@ -31,6 +31,7 @@ class Composer:
     def __init__(self, tpl):
         v = tpl["video"]
         self.tpl, self.W, self.H, self.FPS = tpl, v["largura"], v["altura"], v["fps"]
+        self.SW, self.SH = 2 * self.W, 2 * self.H  # working source size (2x output), any aspect
         self.enc_args = ["-c:v", v["codec"], "-preset", v["preset"], "-crf", str(v["crf"]), "-pix_fmt", "yuv420p"]
 
     def encoder(self, path):
@@ -45,7 +46,8 @@ class Composer:
     def talk(self, src, seconds, lead, path):
         cfg = self.tpl["modos_de_cena"]["fala"]["zoom_lento"]
         raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(src), "-vf",
-                              f"fps={self.FPS},scale={self.W}:{self.H}:flags=lanczos,tpad=start_mode=clone:"
+                              f"fps={self.FPS},scale={self.W}:{self.H}:force_original_aspect_ratio=increase:flags=lanczos,"
+                              f"crop={self.W}:{self.H},tpad=start_mode=clone:"
                               f"start_duration={lead}:stop_mode=clone:stop_duration=5", "-t", f"{seconds:.3f}",
                               "-f", "rawvideo", "-pix_fmt", "bgr24", "-"], capture_output=True, check=True).stdout
         frames = np.frombuffer(raw, np.uint8).reshape(-1, self.H, self.W, 3)
@@ -62,8 +64,9 @@ class Composer:
         if abs(w / h - self.W / self.H) > 0.01:  # centre-crop to the output aspect
             cw = round(h * self.W / self.H)
             img = img.crop(((w - cw) // 2, 0, (w - cw) // 2 + cw, h))
+        SW, SH = self.SW, self.SH
         img = img.resize((SW, SH), Image.Resampling.LANCZOS)
-        depth = soften(estimate_depth(img)[0]) if depth_gain else np.zeros((SH, SW), np.float32)
+        depth = soften(estimate_depth(img, (SH, SW))[0]) if depth_gain else np.zeros((SH, SW), np.float32)
         src = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
         pu, pv = np.meshgrid((np.arange(self.W, dtype=np.float32) + 0.5) / self.W - 0.5,
                              (np.arange(self.H, dtype=np.float32) + 0.5) / self.H - 0.5)
@@ -151,9 +154,11 @@ def compose(tpl, scenes, work, out):
          "-t", f"{total:.3f}", *c.enc_args, str(base)])
 
     ass_path = work / "legenda.ass"
-    write_ass(ass_path, timeline, tpl["legenda"]["estilo"] == "karaoke")
+    lg = tpl["legenda"]
+    style = {**lg.get("ass", {}), "margem_inferior": lg.get("margem_inferior", 560)}
+    write_ass(ass_path, timeline, lg["estilo"] == "karaoke", style, (c.W, c.H))
     ass = ass_path.as_posix().replace(":", "\\:")
-    fonts = FONTS.as_posix().replace(":", "\\:")
+    fonts = Path(lg.get("fontes_dir") or FONTS).as_posix().replace(":", "\\:")
     lufs = tpl["voz"]["loudness_lufs"]
     voice_chain = (f"[0:a]aresample=48000,aformat=channel_layouts=stereo,{VOICE_FX},"
                    f"loudnorm=I={lufs}:TP=-1.5:LRA=11,aresample=48000")  # loudnorm upsamples internally

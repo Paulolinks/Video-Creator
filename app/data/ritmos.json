@@ -1,0 +1,26 @@
+{
+  "_como_funciona": "Ritmo da conversa nas Entrevistas. O app lê o nicho, a categoria e as especialidades de cada personagem do vídeo e usa o PRIMEIRO assunto da lista cujas palavras aparecerem ali. 'velocidade' multiplica a fala sem mudar o tom: 1.00 = como a voz sai, 1.08 = 8% mais rápido, 0.95 = 5% mais devagar. Para mudar, edite os números (ou as palavras) e salve: vale para o próximo vídeo, sem reiniciar o app.",
+  "padrao": {"nome": "Conversa natural", "velocidade": 1.04},
+  "ritmos": [
+    {"nome": "Vendas e negociação", "velocidade": 1.09,
+     "palavras": ["vend", "negocia", "fechamento", "closer", "prospec", "comercial"]},
+    {"nome": "Marketing e tráfego", "velocidade": 1.08,
+     "palavras": ["marketing", "tráfego", "trafego", "copywr", "persuas", "lançamento", "funil", "redes sociais"]},
+    {"nome": "Negócios e empreendedorismo", "velocidade": 1.07,
+     "palavras": ["empreend", "negócio", "negocio", "startup", "empresa", "lideran", "gestão", "gestao"]},
+    {"nome": "Motivação e alta performance", "velocidade": 1.06,
+     "palavras": ["motiva", "performance", "produtividade", "hábito", "habito", "disciplina", "sucesso", "mentalidade"]},
+    {"nome": "Dinheiro e investimentos", "velocidade": 1.04,
+     "palavras": ["financ", "invest", "riqueza", "dinheiro", "bolsa", "poupança", "patrimônio"]},
+    {"nome": "Ciência e tecnologia", "velocidade": 1.03,
+     "palavras": ["ciência", "ciencia", "física", "fisica", "tecnolog", "matemát", "inteligência artificial", "simulação"]},
+    {"nome": "Psicologia e comportamento", "velocidade": 1.02,
+     "palavras": ["psicolog", "comportament", "vieses", "decisõ", "mente", "neuroci", "inconsciente"]},
+    {"nome": "História e estratégia", "velocidade": 1.01,
+     "palavras": ["históri", "histori", "estratég", "guerra", "polític", "politic", "poder"]},
+    {"nome": "Filosofia e reflexão", "velocidade": 1.0,
+     "palavras": ["filosof", "consciên", "conscien", "existencial", "sabedoria", "estoic", "ética", "realidade"]},
+    {"nome": "Espiritualidade e religião", "velocidade": 0.98,
+     "palavras": ["espiritual", "religi", "teolog", "medita", "mística", "mistica", "sagrad", "fé "]}
+  ]
+}

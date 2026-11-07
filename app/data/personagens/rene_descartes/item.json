@@ -1,0 +1,19 @@
+{
+  "id": "rene_descartes",
+  "nome": "René Descartes",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\rene_descartes\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\adam_grant.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "fundo_removido": false,
+  "criado_em": "2026-11-04 22:54",
+  "nicho": "Filosofia e Consciência",
+  "categoria": "Realidade e Percepção",
+  "fundo_indice": 6
+}

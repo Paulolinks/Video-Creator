@@ -341,36 +341,90 @@ drop.addEventListener("drop", async (e) => {
   await Promise.all([...e.dataTransfer.items].map((it) => it.webkitGetAsEntry()).filter(Boolean).map((en) => walk(en, out)));
   upload(out);
 });
-$("#btn-colar").onclick = () => {
-  const text = $("#txt-roteiro").value.replace(/^\s*```\w*\s*$/gm, "").trim();  // tolerate pasted code fences
-  if (!text) return $("#txt-roteiro").focus();
+function colado(raw) {  // pasted text -> a .txt item; a second paste with the same title gets _2, _3... (never replaces)
+  const text = raw.replace(/^\s*```\w*\s*$/gm, "").trim();  // tolerate pasted code fences
+  if (!text) return null;
   const title = (text.match(/^T[ÍI]TULO[^:]*:\s*(.+)$/im) || [, "roteiro"])[1];
-  const name = title.normalize("NFD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "_").slice(0, 50) || "roteiro";
-  upload([{ file: new File([text], `${name}.txt`, { type: "text/plain" }), path: `${name}.txt` }]);
+  const base = title.normalize("NFD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "_").slice(0, 50) || "roteiro";
+  const used = new Set((BATCH ? ITENS : []).map((x) => x.path));
+  let name = `${base}.txt`;
+  for (let i = 2; used.has(name); i++) name = `${base}_${i}.txt`;
+  return { file: new File([text], name, { type: "text/plain" }), path: name };
+}
+$("#btn-colar").onclick = async () => {
+  const item = colado($("#txt-roteiro").value);
+  if (!item) return $("#txt-roteiro").focus();
+  if (await upload([item])) $("#txt-roteiro").value = "";  // read: the box is empty for the next one
+};
+
+// "+ Adicionar roteiro": a popup over the list to paste (or pick) one more script into the same list
+function abrirAdd() {
+  const d = MODO === "trad" ? DROP.trad : DROP[TEMPLATE];
+  $("#add-lbl-files").classList.toggle("hide", !d.arquivos);
+  $("#add-lbl-folder").classList.toggle("hide", !d.pasta);
+  $("#add-texto").classList.toggle("hide", !d.colar);
+  $("#add-msg").textContent = d.colar ? "" : "Personagem falando: escolha a pasta do episódio (roteiro + imagens).";
+  $("#add-texto").value = "";
+  $("#modal-add").classList.remove("hide");
+  if (d.colar) $("#add-texto").focus();
+}
+const fecharAdd = () => $("#modal-add").classList.add("hide");
+async function adicionar(items) {
+  $("#add-msg").textContent = "Lendo…";
+  if (await upload(items)) { fecharAdd(); $("#add-texto").value = ""; }
+  else $("#add-msg").innerHTML = $("#drop-status").innerHTML;
+}
+$("#btn-add").onclick = abrirAdd;
+$("#add-fechar-x").onclick = fecharAdd;
+$("#modal-add").onclick = (e) => { if (e.target.id === "modal-add") fecharAdd(); };
+$("#add-enviar").onclick = () => {
+  const item = colado($("#add-texto").value);
+  if (!item) return $("#add-texto").focus();
+  adicionar([item]);
+};
+$("#add-files").onchange = (e) => { adicionar([...e.target.files].map((f) => ({ file: f, path: f.name }))); e.target.value = ""; };
+$("#add-folder").onchange = (e) => {
+  adicionar([...e.target.files].map((f) => ({ file: f, path: f.webkitRelativePath || f.name }))); e.target.value = "";
 };
 $("#in-files").onchange = (e) => upload([...e.target.files].map((f) => ({ file: f, path: f.name })));
 $("#in-folder").onchange = (e) => upload([...e.target.files].map((f) => ({ file: f, path: f.webkitRelativePath || f.name })));
 
+let ITENS = [];  // everything picked since the last start/clear: each new pick is added to the same list
 async function upload(items) {
   items = items.filter((x) => /\.(txt|md|pdf|png|jpe?g|webp)$/i.test(x.path));
   if (!items.length) return ($("#drop-status").textContent = "Nenhum roteiro (.txt, .md, .pdf) ou imagem encontrado.");
+  const old = BATCH?.id;
+  if (old) {  // a list is open and not started yet: add to it (a file picked again replaces its old copy)
+    const novos = new Set(items.map((x) => x.path));
+    items = [...ITENS.filter((x) => !novos.has(x.path)), ...items];
+  }
   const fd = new FormData();
   items.forEach((x) => fd.append("arquivos", x.file, x.path));
   fd.append("canal", CANAL);
   $("#drop-status").textContent = `Lendo ${items.filter((x) => /\.(txt|md|pdf)$/i.test(x.path)).length} roteiro(s)...`;
   try {
     BATCH = await api("/api/lotes", { method: "POST", body: fd });
+    ITENS = items;
+    if (old) api(`/api/lotes/${old}`, { method: "DELETE" }).catch(() => {});  // the merged list replaced it
     $("#drop-status").textContent = "";
     renderBatch(BATCH);
+    abrirLote();
+    return true;
   } catch (err) {
     $("#drop-status").innerHTML = `<span style="color:var(--bad)">${esc(err.message)}</span>`;
+    return false;
+  } finally {
+    $("#in-files").value = $("#in-folder").value = "";
   }
-  $("#in-files").value = $("#in-folder").value = "";
 }
 
 // ------------------------------------------------------------------ batch review
-function renderBatch(b) {
-  $("#lote").classList.remove("hide");
+// same template + same scenes (speaker/mode and text) = the same video
+const assinatura = (v) => `${v.template}|${JSON.stringify((v.cenas || []).map((c) => [c.personagem || c.mode || "", c.text]))}`;
+let FILA_SIGS = new Map();  // signature -> title, for the videos queued or rendering now (filled by loadQueue)
+
+function renderBatch(b) {  // refreshes the popup; upload() is what opens it
+  const vistos = new Set();
   const count = (t) => b.videos.filter((v) => v.template === t).length;
   const ok = b.videos.filter((v) => v.pronto_para_gerar).length;
   $("#resumo").innerHTML = `<span class="chip">${b.videos.length} roteiro(s)</span>
@@ -387,13 +441,43 @@ function renderBatch(b) {
       : v.template === "T02" ? '<span class="chip t02">Entrevista</span>' : '<span class="chip bad">Desconhecido</span>';
     const lang = v.idioma ? `<span class="chip">${v.idioma === "en" ? "Inglês" : "Português"}</span>` : "";
     const status = v.pronto_para_gerar ? '<span class="chip ok">Pronto</span>'
-      : `<ul class="problems">${v.problemas.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>`;
-    return `<tr class="${v.pronto_para_gerar ? "" : "blocked"}"><td><input type="checkbox" class="chk" value="${v.id}"
-      ${v.pronto_para_gerar ? "checked" : "disabled"}></td><td>${esc(v.arquivo)}</td><td>${tag} ${lang}</td>
-      <td><b>${esc(v.titulo)}</b><div class="muted small">${esc(v.subtitulo)}</div></td><td>${v.cenas.length}</td>
+      : `<ul class="problems">${v.problemas.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>`
+        + (v.fotos_faltando || []).map((c) => `<label class="btn small foto-falta">📷 Enviar foto de ${esc(c.nome)}<input
+            type="file" accept="image/*" data-fotofalta="${esc(c.id)}" hidden></label>`).join("");
+    const fora = MODO === "placa" && v.template && v.template !== TEMPLATE;  // not the template chosen on the board
+    const sig = assinatura(v);
+    const naFila = v.cenas?.length && FILA_SIGS.has(sig), repetido = v.cenas?.length && vistos.has(sig);
+    vistos.add(sig);
+    const dup = naFila || repetido;  // left unchecked: tick it to make it anyway
+    return `<tr class="${v.pronto_para_gerar && !dup ? "" : "blocked"}"><td><input type="checkbox" class="chk" value="${v.id}"
+      ${v.pronto_para_gerar ? (fora || dup ? "" : "checked") : "disabled"}></td><td>${esc(v.arquivo)}</td><td>${tag} ${lang}
+      ${fora ? '<div><span class="chip fora" title="Marque o template no painel, ou marque esta linha para gerar mesmo assim">template não escolhido</span></div>' : ""}
+      ${dup ? `<div><span class="chip bad" title="Mesmo texto e mesmas cenas. Ficou desmarcado; marque a linha só se quiser gerar de novo.">${naFila
+        ? "duplicado: já está na fila" : "duplicado: repetido nesta lista"}</span></div>` : ""}</td>
+      <td><b>${esc(v.titulo)}</b><div class="muted small">${esc(v.subtitulo)}</div>
+        ${v.serie ? `<div><span class="chip t02 serie" title="Capa de série: o nome da série e o episódio aparecem na capa">📺 ${esc(v.serie)} · ${esc(v.episodio_txt || "")}</span></div>`
+          : '<div class="muted small">Vídeo avulso (capa normal)</div>'}</td><td>${v.cenas.length}</td>
       <td>${people}</td><td>${status}</td></tr>`;
   }).join("");
+  // registered character without a photo: send it right here, then the list re-checks itself
+  $$("[data-fotofalta]").forEach((inp) => (inp.onchange = async () => {
+    if (!inp.files[0]) return;
+    const fd = new FormData();
+    fd.append("imagem", inp.files[0]);
+    inp.parentElement.firstChild.textContent = "Salvando a foto… (se tiver fundo, a remoção leva ~30 s) ";
+    inp.parentElement.classList.add("ocupado");
+    try {
+      await api(`/api/personagens/${inp.dataset.fotofalta}/imagem`, { method: "POST", body: fd });
+      await loadLib();
+      BATCH = await api(`/api/lotes/${b.id}/reanalisar`, { method: "POST" });
+      renderBatch(BATCH);
+    } catch (err) {
+      alert(err.message);
+      inp.parentElement.classList.remove("ocupado");
+    }
+  }));
   $$("[data-cadastrar]").forEach((btn) => (btn.onclick = () => {
+    fecharLote();
     showTab("personagens");
     form.nome.value = btn.dataset.cadastrar.replace(/\w\S*/g, (w) => w[0] + w.slice(1).toLowerCase());
     form.nome.focus();
@@ -418,22 +502,407 @@ $("#opt-musica").onchange = () => $("#vol-wrap").classList.toggle("hide", $("#op
 $("#opt-volume").oninput = (e) => ($("#vol-val").textContent = `${e.target.value}%`);
 $("#vol-wrap").classList.add("hide");
 
+function abrirLote() {  // board: popup; traditional mode: the list right under the upload area, as before
+  if (!BATCH) return;
+  if (MODO === "placa") return $("#lote").classList.remove("hide");
+  $("#trad-lote").classList.remove("hide");
+  $("#trad-lote").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function fecharLote() { $("#lote").classList.add("hide"); if (!BATCH) $("#trad-lote").classList.add("hide"); }
+async function limparLote() {
+  if (BATCH) api(`/api/lotes/${BATCH.id}`, { method: "DELETE" }).catch(() => {});
+  BATCH = null;
+  ITENS = [];
+  fecharLote();
+  $("#lote-mini").classList.add("hide");
+  $("#start-info").textContent = "";
+  syncStart();
+  updateHome([]);
+}
+$("#btn-limpar").onclick = () => { if (confirm("Tirar todos os roteiros da lista?")) limparLote(); };
+document.body.append($("#lote"));  // above the sticky header
+$("#lote-abrir").onclick = abrirLote;
+$("#lote-fechar").onclick = fecharLote;
+$("#lote-fechar-x").onclick = fecharLote;
+$("#lote").onclick = (e) => { if (e.target.id === "lote") fecharLote(); };
+document.addEventListener("keydown", (e) => {  // Esc closes the top popup first
+  if (e.key !== "Escape") return;
+  if (!$("#modal-add").classList.contains("hide")) return fecharAdd();
+  fecharLote();
+});
+$("#lote-iniciar").onclick = () => $("#btn-iniciar").click();
+
 function syncStart() {
-  const n = $$(".chk:checked").length;
-  $("#btn-iniciar").disabled = !n;
-  $("#btn-iniciar").textContent = n ? `Gerar ${n} vídeo${n > 1 ? "s" : ""}` : "Gerar vídeos";
-  $("#start-info").textContent = n ? `Os vídeos são gerados um por vez, para o canal "${canalNome(CANAL)}". ` +
-    "Acompanhe na aba Vídeos criados." : "Selecione ao menos um roteiro pronto.";
+  const n = BATCH ? $$(".chk:checked").length : 0;
+  if (BATCH) {  // summary on the panel + the popup's start button
+    const total = BATCH.videos.length, ok = BATCH.videos.filter((v) => v.pronto_para_gerar).length, bad = total - ok;
+    $("#lote-mini").classList.remove("hide");
+    $("#lote-mini-txt").innerHTML = `📄 <b>${total} roteiro${total > 1 ? "s" : ""} lido${total > 1 ? "s" : ""}</b>` +
+      ` · <span style="color:var(--ok)">${ok} pronto${ok === 1 ? "" : "s"}</span>` +
+      (bad ? ` · <span style="color:#ff9a92">${bad} com pendência</span>` : "") + ` · ${n} marcado${n === 1 ? "" : "s"}`;
+    const trad = MODO === "trad";
+    $("#lote-iniciar").disabled = !n;
+    $("#lote-iniciar").textContent = trad ? (n ? `Gerar ${n} vídeo${n > 1 ? "s" : ""}` : "Gerar vídeos")
+      : (n ? `Iniciar criação (${n})` : "Iniciar criação");
+    $("#lote-info").textContent = !n ? "Selecione ao menos um roteiro pronto."
+      : trad ? `Os vídeos são gerados um por vez, para o canal "${canalNome(CANAL)}". Acompanhe na aba Vídeos criados.`
+      : `Vai para o canal "${canalNome(CANAL)}". Formato, legenda e música vêm do painel.`;
+  }
+  $("#reator-label").textContent = n ? `Iniciar criação (${n})` : "Iniciar criação";
+  if (!BATCH) return;
+  $("#start-info").textContent = n ? `${n} vídeo${n > 1 ? "s" : ""} para o canal "${canalNome(CANAL)}". ` +
+    "Os vídeos são gerados um por vez." : "Marque ao menos um roteiro pronto na lista abaixo.";
+  if (!ATIVOS) $("#etapa").textContent = n ? "Pronto para criar. Clique no botão." : "Nenhum roteiro marcado.";
 }
 $("#btn-reanalisar").onclick = async () => { BATCH = await api(`/api/lotes/${BATCH.id}/reanalisar`, { method: "POST" }); renderBatch(BATCH); };
 $("#btn-iniciar").onclick = async () => {
+  if (!BATCH) {
+    $("#drop-status").innerHTML = '<span style="color:var(--warn)">Envie um roteiro primeiro (passo 2).</span>';
+    $("#drop").scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+  const ids = $$(".chk:checked").map((c) => c.value);
+  if (!ids.length) return abrirLote();
   const fundos = Object.fromEntries($$("#opt-fundos select").map((s) => [s.dataset.personagem, s.value]));
-  const opcoes = { musica: $("#opt-musica").value, volume: $("#opt-volume").value / 100, fundos, canal: CANAL };
-  await api(`/api/lotes/${BATCH.id}/iniciar`, json("POST", { videos: $$(".chk:checked").map((c) => c.value), opcoes }));
+  const opcoes = { musica: $("#opt-musica").value, volume: $("#opt-volume").value / 100, fundos, canal: CANAL,
+    modelo_entrevista: MODELO_ENT };
+  if (MODO === "placa") opcoes.estilo = estilo();  // traditional mode = the approved look (vertical, Poppins, gold)
+  try {
+    await api(`/api/lotes/${BATCH.id}/iniciar`, json("POST", { videos: ids, opcoes }));
+  } catch (err) {
+    const msg = `<span style="color:var(--bad)">${esc(err.message)}</span>`;
+    $("#lote-info").innerHTML = msg;
+    return ($("#start-info").innerHTML = msg);
+  }
   BATCH = null;
-  $("#lote").classList.add("hide");
-  showTab("fila");
+  ITENS = [];
+  fecharLote();
+  $("#lote-mini").classList.add("hide");
+  if (MODO === "trad") return showTab("fila");  // as before: go to the queue
+  $("#start-info").innerHTML = `${ids.length} vídeo${ids.length > 1 ? "s" : ""} na fila. ` +
+    '<a href="#" data-ir="fila">Acompanhar em Vídeos criados →</a>';
+  $("#etapa").textContent = "Na fila…";
+  syncStart();
+  loadQueue();
 };
+$("#start-info").onclick = (e) => { if (e.target.dataset.ir) { e.preventDefault(); showTab(e.target.dataset.ir); } };
+
+// ------------------------------------------------------------------ home panel: templates, format, captions
+let TEMPLATE = "T02";  // the one template chosen on the board
+let MODO = "placa";    // "placa" (circuit board) or "trad" (the page as it was before)
+let ESTILOS = null;  // fonts, formats and defaults from /api/estilos
+let ATIVOS = 0;      // videos queued or rendering (lights the board)
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
+};
+const estilo = () => ({ formato: $(".fmt-card[aria-pressed=true]")?.dataset.fmt || "vertical", fonte: $("#opt-fonte").value,
+  tamanho: +$("#opt-tamanho").value, cor: $("#opt-cor").value, cor_texto: $("#opt-cor-texto").value });
+
+function drawBoard() {  // VC motherboard outline, drawn at the panel's real size
+  const box = $("#placa"), w = box.offsetWidth, h = box.offsetHeight, o = 14, k = w / 600;
+  if (!w || !h) return;
+  const pts = [[40, 0], [15, 0], [0, 15], [0, h - 125], [10 * k, h - 105], [220 * k, h - 35], [250 * k, h - 15],
+    [280 * k, h], [w - 280 * k, h], [w - 250 * k, h - 15], [w - 220 * k, h - 35], [w - 10 * k, h - 105], [w, h - 125],
+    [w, 15], [w - 15, 0], [w - 40, 0]];
+  $("#placa-path").setAttribute("d", "M" + pts.map(([x, y]) => `${(x + o).toFixed(1)} ${(y + o).toFixed(1)}`).join(" L") + " Z");
+  let deco = "";
+  for (let y = 70, i = 0; y < h - 190; y += 96, i++) {  // traces in the side margins only, so they never run under text
+    const d = 16 + (i % 3) * 7;
+    for (const side of [0, 1]) {
+      const X = (x) => (side ? w - x : x) + o;
+      deco += `<path class="trace" d="M${X(0)} ${y + o} L${X(10)} ${y + o} L${X(10 + d)} ${y + o + d} L${X(10 + d)} ${y + o + d + 22}"/>` +
+        `<circle class="node" cx="${X(10 + d)}" cy="${y + o + d + 22}" r="3"/><circle class="node" cx="${X(10)}" cy="${y + o}" r="2.5"/>`;
+    }
+  }
+  for (const f of [0.28, 0.52]) {  // side connectors
+    deco += `<rect class="pin" x="${o - 10}" y="${o + h * f}" width="10" height="40" rx="2"/>` +
+      `<rect class="pin" x="${o + w}" y="${o + h * f}" width="10" height="40" rx="2"/>`;
+  }
+  deco += `<rect class="pin" x="${o}" y="${o}" width="10" height="10" opacity=".3"/><rect class="pin" x="${o + w - 10}" y="${o}" width="10" height="10" opacity=".3"/>`;
+  $("#placa-deco").innerHTML = deco;
+}
+new ResizeObserver(drawBoard).observe($("#placa"));
+
+function renderPreview() {
+  const e = estilo(), horiz = e.formato === "horizontal";
+  const frame = $("#leg-prev");
+  frame.classList.toggle("h", horiz);
+  const scale = frame.offsetWidth / (horiz ? 1920 : 1080);
+  const span = $("#leg-prev-txt");
+  span.style.fontFamily = `"leg-${e.fonte}", sans-serif`;
+  span.style.fontSize = `${(e.tamanho * scale).toFixed(1)}px`;
+  span.style.webkitTextStroke = `${(2 * Math.max(3, Math.round(7 * e.tamanho / 84)) * scale).toFixed(2)}px #000`;
+  span.style.color = e.cor_texto;
+  span.innerHTML = `<span style="position:static;color:${e.cor}">ESSA É</span> A SUA LEGENDA`;
+  $("#tam-val").textContent = `${e.tamanho} px`;
+  $("#fmt-aviso").classList.toggle("hide", !horiz);
+}
+
+function saveStyle() { store.set("estilo", estilo()); renderPreview(); }
+
+async function loadEstilos() {
+  ESTILOS = await api("/api/estilos");
+  const saved = { ...ESTILOS.padrao, ...store.get("estilo", {}) };
+  for (const f of ESTILOS.fontes) {  // the real font files, so the preview matches the video
+    new FontFace(`leg-${f.id}`, `url(${f.url})`, { display: "swap" }).load().then((ff) => { document.fonts.add(ff); renderPreview(); }).catch(() => {});
+  }
+  $("#opt-fonte").innerHTML = ESTILOS.fontes.map((f) => `<option value="${f.id}">${esc(f.nome)}</option>`).join("");
+  $("#opt-fonte").value = ESTILOS.fontes.some((f) => f.id === saved.fonte) ? saved.fonte : ESTILOS.padrao.fonte;
+  $("#opt-tamanho").min = ESTILOS.tamanho_min;
+  $("#opt-tamanho").max = ESTILOS.tamanho_max;
+  $("#opt-tamanho").value = saved.tamanho;
+  $("#opt-cor").value = saved.cor.toLowerCase();
+  $("#opt-cor-texto").value = saved.cor_texto.toLowerCase();
+  const ordem = ["vertical", "horizontal"];  // the JSON comes back sorted alphabetically
+  $("#fmt-grid").innerHTML = Object.entries(ESTILOS.formatos).sort(([a], [b]) => ordem.indexOf(a) - ordem.indexOf(b)).map(([id, f]) => `<button type="button" class="fmt-card" data-fmt="${id}"
+    aria-pressed="${id === saved.formato}"><span class="fmt-shape ${id === "horizontal" ? "h" : "v"}"></span>
+    <span class="tpl-txt"><b>${esc(f.nome)}</b><span class="small muted">${esc(f.uso)} · ${f.largura}×${f.altura}</span></span>
+    <span class="tpl-check">✓</span></button>`).join("");
+  if (!$(".fmt-card[aria-pressed=true]")) $(".fmt-card").setAttribute("aria-pressed", "true");
+  $$(".fmt-card").forEach((b) => (b.onclick = () => {
+    $$(".fmt-card").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    saveStyle();
+  }));
+  ["#opt-fonte", "#opt-tamanho", "#opt-cor", "#opt-cor-texto"].forEach((s) => ($(s).oninput = saveStyle));
+  renderPreview();
+}
+$("#leg-padrao").onclick = () => {
+  const p = ESTILOS.padrao;
+  $("#opt-fonte").value = p.fonte;
+  $("#opt-tamanho").value = p.tamanho;
+  $("#opt-cor").value = p.cor.toLowerCase();
+  $("#opt-cor-texto").value = p.cor_texto.toLowerCase();
+  saveStyle();
+};
+
+// cover title: font + one colour or a sequence (saved in the app, so every new cover follows it)
+let CAPA = null;
+const NOMES_COR = {};
+const nomeCor = (h) => NOMES_COR[h.toUpperCase()] || h;
+function renderCapa() {
+  const c = CAPA, seq = c.modo === "sequencia", prox = seq ? c.proxima : 0;
+  $("#capa-fonte").value = c.fonte;
+  $("#capa-modo").value = c.modo;
+  $("#capa-cores").innerHTML = c.cores.map((cor, i) => `<label class="capa-cor${i === prox ? " prox" : ""}">
+    <input type="color" value="${cor.toLowerCase()}" data-i="${i}"><span>${i === prox ? "próxima" : seq ? i + 1 + "ª" : ""}</span>
+    ${c.cores.length > 1 ? `<button type="button" class="x" data-x="${i}" title="Tirar esta cor">×</button>` : ""}</label>`).join("");
+  const cor = c.cores[prox];
+  $("#capa-prev-txt").style.color = cor;
+  $("#capa-prev-txt").style.fontFamily = `"leg-${c.fonte}", sans-serif`;
+  $("#capa-prev-nome").style.background = cor;
+  const depois = c.cores.slice(prox + 1).concat(c.cores.slice(0, prox)).map(nomeCor).join(", ");
+  $("#capa-prox").textContent = seq ? `Próxima capa: ${nomeCor(cor)}${depois ? " · depois " + depois : ""}` : `Todas as capas: ${nomeCor(cor)}`;
+  $$("#capa-cores input[type=color]").forEach((inp) => (inp.onchange = () => { c.cores[+inp.dataset.i] = inp.value.toUpperCase(); salvarCapa(); }));
+  $$("#capa-cores .x").forEach((b) => (b.onclick = (ev) => { ev.preventDefault(); c.cores.splice(+b.dataset.x, 1); c.proxima = 0; salvarCapa(); }));
+}
+async function salvarCapa() {
+  try {
+    CAPA = await api("/api/capa", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fonte: CAPA.fonte, modo: CAPA.modo, cores: CAPA.cores, proxima: CAPA.proxima }) });
+  } catch (err) { alert(err.message); }
+  renderCapa();
+}
+async function loadCapa() {
+  try { CAPA = await api("/api/capa"); } catch {
+    $("#passo-capa").classList.add("off");  // the running app is older than this page: restart it to use this
+    $("#capa-aviso").classList.remove("hide");
+    CAPA = { fonte: "poppins_extra", modo: "sequencia", cores: ["#FFD400", "#39FF14", "#FFFFFF", "#FF2A2A", "#00E5FF"], proxima: 2,
+      sugeridas: [{ nome: "Verde", cor: "#39FF14" }, { nome: "Branco", cor: "#FFFFFF" }, { nome: "Vermelho", cor: "#FF2A2A" },
+        { nome: "Azul neon", cor: "#00E5FF" }, { nome: "Amarelo", cor: "#FFD400" }] };
+  }
+  for (const x of CAPA.sugeridas) NOMES_COR[x.cor.toUpperCase()] = x.nome;
+  $("#capa-fonte").innerHTML = (ESTILOS?.fontes || []).map((f) => `<option value="${f.id}">${esc(f.nome)}</option>`).join("");
+  $("#capa-sug").innerHTML = CAPA.sugeridas.map((x) => `<button type="button" style="background:${x.cor}" title="${esc(x.nome)}" data-c="${x.cor}"></button>`).join("");
+  $$("#capa-sug button").forEach((b) => (b.onclick = () => { if (CAPA.cores.length < 12) { CAPA.cores.push(b.dataset.c); salvarCapa(); } }));
+  $("#capa-fonte").onchange = () => { CAPA.fonte = $("#capa-fonte").value; salvarCapa(); };
+  $("#capa-modo").onchange = () => { CAPA.modo = $("#capa-modo").value; salvarCapa(); };
+  renderCapa();
+}
+
+// voice check (T02): what the automatic fix could not solve, with a click to jump to it in the video
+const mmss = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
+function vozInfo(v) {
+  if (!Array.isArray(v.voz_alertas)) return "";
+  const fixed = v.voz_corrigidos ? ` · ${v.voz_corrigidos} trecho(s) corrigido(s) sozinho` : "";
+  if (!v.voz_alertas.length) return `<div class="small voz-ok" title="O áudio foi comparado com o roteiro">🎙️ Voz conferida${fixed}</div>`;
+  const rows = v.voz_alertas.map((a) => `<li><button type="button" class="link small voz-seek" data-t="${a.no_video_s ?? ""}">${a.no_video_s != null ? mmss(a.no_video_s) : "?"}</button>
+    ${esc(a.cena.replace("CENA_", "cena "))}: ${esc(a.tipo)} <span class="muted">${esc(a.detalhe)}</span></li>`).join("");
+  return `<details class="voz-alertas"><summary>⚠️ ${v.voz_alertas.length} trecho(s) da voz para ouvir${fixed}</summary><ul>${rows}</ul>
+    <p class="small muted">Clique no tempo para ir até o trecho. Se estiver ruim, use 🔄 para gerar de novo (as vozes boas são reaproveitadas).</p></details>`;
+}
+document.addEventListener("click", (ev) => {
+  const b = ev.target.closest(".voz-seek");
+  if (!b || b.dataset.t === "") return;
+  const video = b.closest(".vcard")?.querySelector("video");
+  if (video) { video.currentTime = Math.max(0, +b.dataset.t - 1); video.play().catch(() => {}); }
+});
+
+// one template at a time; the upload area changes with it
+const DROP = {
+  trad: { titulo: "Envie o roteiro", texto: "<b>Arraste aqui os roteiros</b> (.txt, .md ou .pdf), ou uma pasta com roteiros e imagens",
+    arquivos: true, pasta: true, colar: true },
+  T02: { titulo: "Envie os roteiros da entrevista", texto: "<b>Arraste aqui os roteiros</b> (.txt, .md ou .pdf). " +
+    "Pode escolher mais de uma vez: cada roteiro entra na lista e vira um vídeo.", arquivos: true, pasta: false, colar: true },
+  F01: { titulo: "Envie a pasta do episódio", texto: "<b>Escolha a pasta</b> com o roteiro e as imagens numeradas " +
+    "(cena1.png, cena2.png...). Cada pasta é um episódio: escolha outra pasta para somar mais episódios, ou uma pasta " +
+    "com várias pastas dentro.", arquivos: false, pasta: true, colar: false },
+};
+function syncDrop() {
+  const d = DROP[MODO === "trad" ? "trad" : TEMPLATE];
+  $("#drop-txt").innerHTML = d.texto;
+  $("#passo2-titulo").textContent = d.titulo;
+  $("#lbl-files").classList.toggle("hide", !d.arquivos);
+  $("#lbl-folder").classList.toggle("hide", !d.pasta);
+  $("#lbl-folder").classList.toggle("ghost", d.arquivos);  // the only button is the main one
+  $("#colar").classList.toggle("hide", !d.colar);
+}
+function escolherTemplate(t) {
+  TEMPLATE = t;
+  store.set("template", t);
+  $$(".tpl-card").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.tpl === t)));
+  syncDrop();
+  syncModeloEnt();
+  if (BATCH) renderBatch(BATCH);
+}
+$$(".tpl-card").forEach((b) => (b.onclick = () => escolherTemplate(b.dataset.tpl)));
+// the interview has two models: 1 = still portrait + sound bars (T02), 2 = mouth moving with SadTalker (T03)
+var MODELO_ENT = store.get("modelo_entrevista", "T03") === "T02" ? "T02" : "T03";
+function syncModeloEnt() {
+  const box = $("#modelo-entrevista");
+  if (!box) return;
+  box.classList.toggle("hide", MODO !== "trad" && TEMPLATE !== "T02");
+  $$(".mod-card").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mod === MODELO_ENT)));
+}
+$$(".mod-card").forEach((b) => (b.onclick = () => {
+  MODELO_ENT = b.dataset.mod;
+  store.set("modelo_entrevista", MODELO_ENT);
+  syncModeloEnt();
+}));
+
+function setModo(m) {  // board on/off: the shared pieces (upload, list, music) move to the visible layout
+  MODO = m;
+  store.set("modo", m);
+  const trad = m === "trad";
+  $("#modo-trad").classList.toggle("hide", !trad);
+  $("#modo-placa").classList.toggle("hide", trad);
+  (trad ? $("#trad-envio") : $("#placa-envio")).append($("#envio"));
+  (trad ? $("#trad-lote") : $("#lote")).append($("#lote-box"));
+  (trad ? $("#trad-opcoes") : $("#avancadas")).append($("#opcoes-box"));
+  if (trad) $("#trad-opcoes").before($("#modelo-entrevista")); else $(".tpl-links").before($("#modelo-entrevista"));
+  syncModeloEnt();
+  $("#lote-box").classList.toggle("inline", trad);
+  $("#lote-titulo").textContent = trad ? "Identificado" : "Roteiros identificados";
+  $("#lote").classList.add("hide");
+  $("#trad-lote").classList.toggle("hide", !(trad && BATCH));
+  syncDrop();
+  if (BATCH) renderBatch(BATCH); else syncStart();
+  if (!trad) requestAnimationFrame(drawBoard);
+}
+$("#btn-desligar").onclick = () => setModo("trad");
+$("#btn-ligar").onclick = () => setModo("placa");
+escolherTemplate(store.get("template", "T02") === "F01" ? "F01" : "T02");
+setModo(store.get("modo", "placa") === "trad" ? "trad" : "placa");
+$("#btn-avancadas").onclick = () => $("#avancadas").classList.toggle("hide");
+
+// ------------------------------------------------------------------ process dock (floating, every tab, never blocks)
+const TAREFAS = new Map();  // id -> {titulo, detalhe, pct, ir}
+let DOCK_FIM = null;        // short "done" note after the last task ends
+function tarefa(id, t) {
+  if (t) TAREFAS.set(id, t); else TAREFAS.delete(id);
+  renderDock();
+}
+function concluido(texto) {
+  DOCK_FIM = { texto, ate: Date.now() + 5000 };
+  renderDock();
+  setTimeout(renderDock, 5100);
+}
+function renderDock() {
+  const items = [...TAREFAS.values()], working = items.length > 0;
+  $("#btn-iniciar").classList.toggle("trabalhando", working);  // the reactor spins while anything is being done
+  $("#placa").classList.toggle("ativo", working);
+  const dock = $("#dock");
+  if (!working && DOCK_FIM && Date.now() < DOCK_FIM.ate) {
+    dock.innerHTML = `<div class="dock-item fim"><span class="dock-ok">✓</span><div class="dock-txt"><b>${esc(DOCK_FIM.texto)}</b></div></div>`;
+    return dock.classList.remove("hide");
+  }
+  dock.classList.toggle("hide", !working);
+  dock.innerHTML = items.map((t) => `<div class="dock-item" ${t.ir ? `data-ir="${t.ir}" title="Abrir ${t.ir === "fila" ? "Vídeos criados" : ""}"` : ""}>
+    <span class="dock-gear" aria-hidden="true"></span><div class="dock-txt">
+    <div class="dock-top"><b>${esc(t.titulo)}</b>${t.tempo ? `<span class="dock-tempo">${esc(t.tempo)}</span>` : ""}</div>
+    ${t.detalhe ? `<span class="dock-nome">${esc(t.detalhe)}</span>` : ""}
+    ${t.sub ? `<span>${esc(t.sub)}</span>` : ""}
+    <div class="dock-bar ${t.pct == null ? "indet" : ""}"><div style="width:${t.pct ?? 35}%"></div></div></div></div>`).join("");
+}
+$("#dock").onclick = (e) => { const it = e.target.closest("[data-ir]"); if (it) showTab(it.dataset.ir); };
+
+function acompanhar(chave, ativos, existem) {
+  // a "run" = every item that was active since the dock last went quiet, so it can say "2 of 5"
+  let run = store.get(chave, []).filter((k) => existem.has(k));  // deleted videos never count
+  if (!ativos.length) { store.set(chave, []); return { run, fim: true }; }
+  if (!ativos.some((k) => run.includes(k))) run = [];
+  run = [...new Set([...run, ...ativos])];
+  store.set(chave, run);
+  return { run, fim: false };
+}
+
+function updateDock(batches) {
+  const vids = batches.flatMap((b) => b.videos.map((v) => ({ ...v, key: `${b.id}/${v.id}` })));
+  const byKey = Object.fromEntries(vids.map((v) => [v.key, v]));
+  // videos being made
+  const ativos = vids.filter((v) => ["na_fila", "gerando"].includes(v.status));
+  const existem = new Set(vids.map((v) => v.key));
+  const r = acompanhar("run_videos", ativos.map((v) => v.key), existem);
+  if (ativos.length) {
+    const feitos = r.run.filter((k) => byKey[k] && !["na_fila", "gerando"].includes(byKey[k].status)).length;
+    const cur = ativos.find((v) => v.status === "gerando") || ativos[0];
+    const desde = cur.status === "gerando" && cur.inicio ? Date.now() / 1000 - cur.inicio : null;
+    tarefa("videos", { titulo: `Criando vídeo ${Math.min(feitos + 1, r.run.length)} de ${r.run.length}`, ir: "fila",
+      tempo: desde != null ? `⏱ ${fmt(desde)}` : "", detalhe: cur.titulo || cur.arquivo,
+      sub: [cur.template_nome, `${cur.cenas.length} cenas`, cur.status === "gerando" ? cur.etapa || "preparando" : "na fila"]
+        .filter(Boolean).join(" · "),
+      pct: cur.passos_total ? Math.min(95, (100 * cur.passos_feitos) / cur.passos_total) : 0 });
+  } else if (TAREFAS.has("videos")) {
+    const n = r.run.length, erros = r.run.filter((k) => byKey[k]?.status === "erro").length;
+    tarefa("videos", null);
+    concluido(erros ? `${n - erros} de ${n} vídeo(s) criados · ${erros} com erro` : n > 1 ? `${n} vídeos criados` : "Vídeo criado");
+  }
+  // uploads to Google Drive
+  const subindo = vids.filter((v) => v.drive_etapa);
+  const d = acompanhar("run_drive", subindo.map((v) => v.key), existem);
+  if (subindo.length) {
+    const feitos = d.run.filter((k) => byKey[k] && !byKey[k].drive_etapa).length;
+    tarefa("drive", { titulo: `Enviando para o Drive ${Math.min(feitos + 1, d.run.length)} de ${d.run.length}`, ir: "fila",
+      detalhe: `${subindo[0].titulo || subindo[0].arquivo} · ${subindo[0].drive_etapa}` });
+  } else if (TAREFAS.has("drive")) {
+    const erros = d.run.filter((k) => byKey[k]?.drive_erro).length;
+    tarefa("drive", null);
+    concluido(erros ? `Drive: ${d.run.length - erros} enviado(s), ${erros} com falha` : `${d.run.length} vídeo(s) enviados para o Drive`);
+  }
+}
+
+function updateHome(batches) {  // progress bar under the panel + the floating dock
+  updateDock(batches);
+  FILA_SIGS = new Map(batches.flatMap((b) => b.videos).filter((v) => ["na_fila", "gerando"].includes(v.status))
+    .map((v) => [assinatura(v), v.titulo]));
+  const videos = batches.flatMap((b) => b.videos);
+  const active = videos.filter((v) => ["na_fila", "gerando"].includes(v.status));
+  ATIVOS = active.length;
+  const cur = active.find((v) => v.status === "gerando");
+  const pct = cur?.passos_total ? Math.min(95, (100 * cur.passos_feitos) / cur.passos_total) : 0;
+  $("#prog-fill").style.width = `${ATIVOS ? pct : 0}%`;
+  if (cur) {
+    const rest = ATIVOS - 1;
+    $("#etapa").textContent = `Criando "${cur.titulo || cur.arquivo}": ${cur.etapa || "preparando"}` +
+      (rest ? ` · mais ${rest} na fila` : "");
+  } else if (ATIVOS) {
+    $("#etapa").textContent = `${ATIVOS} vídeo${ATIVOS > 1 ? "s" : ""} na fila…`;
+  } else if (!BATCH) {
+    $("#etapa").textContent = "Aguardando roteiro…";
+  } else {
+    syncStart();
+  }
+}
 
 // ------------------------------------------------------------------ queue (grid of videos per batch)
 const STATUS = { analisado: "Não iniciado", na_fila: "Na fila", gerando: "Gerando", pronto: "Pronto", erro: "Erro" };
@@ -467,11 +936,12 @@ function cardHTML(b, v) {
   const poster = v.capa ? `${media(v.capa)}&t=${Math.round(v.fim || 0)}` : "";
   const thumb = v.apagado
     ? `<div class="vthumb gone">${poster ? `<img src="${poster}" alt="" onerror="this.remove()">` : ""}<span>Vídeo apagado</span></div>`
-    : `<div class="vthumb"><video controls preload="none" playsinline ${poster ? `poster="${poster}"` : ""} src="${media(v.saida)}"></video></div>`;
+    : `<div class="vthumb ${v.formato === "horizontal" ? "h" : ""}"><video controls preload="none" playsinline ${poster ? `poster="${poster}"` : ""} src="${media(v.saida)}"></video></div>`;
   return `<div class="vcard" data-key="${key}" data-bid="${b.id}" data-vid="${v.id}">${thumb}
     <div class="vinfo">
       <div class="vtags"><span class="chip ${v.template === "T02" ? "t02" : "t01"}">${esc(v.template_nome)}</span>
         ${v.idioma ? `<span class="chip">${v.idioma === "en" ? "Inglês" : "Português"}</span>` : ""}
+        ${v.serie ? `<span class="chip" title="${esc(v.serie)}">📺 ${esc(v.episodio_txt || "")}</span>` : ""}
         ${v.drive?.video_id ? `<a class="chip ok" href="${esc(v.drive.link || "#")}" target="_blank" rel="noopener" title="ID no Drive: ${esc(v.drive.video_id)}">✅ Enviado</a>` : ""}
         ${v.drive_etapa ? `<span class="chip">☁️ ${esc(v.drive_etapa)}</span>` : ""}
         ${v.drive_erro ? `<span class="chip bad" title="${esc(v.drive_erro)}">⚠️ Falha no envio</span>` : ""}
@@ -481,6 +951,9 @@ function cardHTML(b, v) {
       <label>Título<input class="m-titulo" value="${esc(m.titulo || v.titulo || "")}" placeholder="Título do post"></label>
       <label>Descrição<textarea class="m-descricao" rows="4" placeholder="Contexto + pergunta provocativa">${esc(m.descricao || "")}</textarea></label>
       <label>Hashtags<textarea class="m-hashtags" rows="2" placeholder="#tema #nicho">${esc(m.hashtags || "")}</textarea></label>
+      ${v.inicio && v.fim ? `<div class="small muted tempo-criacao" title="Do início da geração até o vídeo ficar pronto">⏱ Levou ${fmt(v.fim - v.inicio)} para criar · ${v.cenas.length} cenas</div>` : ""}
+      ${vozInfo(v)}
+      ${v.ritmo ? `<div class="small muted" title="Tabela em app/data/ritmos.json">⏱️ Ritmo: ${esc(v.ritmo.nome)} (${Number(v.ritmo.fator).toFixed(2)}×)</div>` : ""}
       ${v.musica_credito ? `<div class="small muted">Crédito da música: ${esc(v.musica_credito)}</div>` : ""}
       <div class="vacts">
         <button class="btn small" data-act="novo" title="Refazer a descrição e as hashtags com a IA (substitui o que está escrito)">🆕 Novo</button>
@@ -507,7 +980,7 @@ function batchHead(b, vids) {
     <span>· ${ready.length} de ${vids.length} prontos ${b.opcoes?.musica && b.opcoes.musica !== "nenhuma" ? "· com música" : ""}</span>
     ${sentChip}</h2>
     <div class="lote-acts">
-      <button class="btn ghost small" data-lote-act="metadados" ${ready.length ? "" : "disabled"}>🤖 Gerar metadados que faltam</button>
+      <button class="btn ghost small" data-lote-act="metadados" ${ready.length ? "" : "disabled"}>🤖 Gerar metadados</button>
       <button class="btn small" data-lote-act="enviar" ${files ? "" : "disabled"}>${toSend
         ? `☁️ Enviar para o Drive (${toSend})` : "☁️ Enviar de novo para o Drive"}</button>
       ${CANAIS.length > 1 ? `<select class="mover-canal" title="Passar este lote (e os vídeos dele) para outro canal">
@@ -522,6 +995,7 @@ async function loadQueue() {
   const [batches, sys] = await Promise.all([api("/api/lotes"), api("/api/sistema")]);
   const all = batches.filter((b) => b.videos.some((v) => v.status !== "analisado"));
   const active = all.flatMap((b) => b.videos).filter((v) => ["na_fila", "gerando"].includes(v.status)).length;
+  updateHome(all);
   const started = all.filter((b) => canalDe(b) === CANAL);  // only the selected channel's batches
   $("#fila-canal").textContent = `· ${canalNome(CANAL)}`;
   $("#fila-badge").textContent = active;
@@ -591,8 +1065,10 @@ $("#fila").addEventListener("click", async (e) => {
       if (act === "novo") {
         if (($(".m-descricao", card).value.trim() || $(".m-hashtags", card).value.trim()) &&
           !confirm("Gerar novos metadados com a IA? A descrição e as hashtags que estão escritas serão substituídas.")) return;
-        busy("Gerando descrição e hashtags com a IA…");
-        await api(`${url}/metadados`, { method: "POST" });
+        const id = `meta-${card.dataset.bid}-${card.dataset.vid}`;
+        tarefa(id, { titulo: "Gerando metadados", detalhe: $(".m-titulo", card).value || "descrição e hashtags" });
+        try { await api(`${url}/metadados`, { method: "POST" }); } finally { tarefa(id, null); }
+        concluido("Metadados gerados");
       } else if (act === "salvar") {
         await api(`${url}/metadados`, json("PUT", { titulo: $(".m-titulo", card).value,
           descricao: $(".m-descricao", card).value, hashtags: $(".m-hashtags", card).value }));
@@ -615,9 +1091,26 @@ $("#fila").addEventListener("click", async (e) => {
     } else {
       const sec = btn.closest(".lote-fila"), bid = sec.dataset.bid;
       const act = btn.dataset.loteAct;
-      if (act === "metadados") {
-        busy("Gerando descrição e hashtags dos vídeos do lote…");
-        await api(`/api/lotes/${bid}/metadados`, json("POST", {}));
+      if (act === "metadados") {  // fills what is missing; when nothing is missing, offers to redo all
+        const prontos = (await api(`/api/lotes/${bid}`)).videos.filter((v) => v.status === "pronto");
+        const vazio = (v) => !(v.metadados?.descricao || "").trim() || !(v.metadados?.hashtags || "").trim();
+        let alvo = prontos.filter(vazio), refazer = false;
+        if (!alvo.length) {
+          if (!confirm(`Todos os ${prontos.length} vídeo(s) já têm descrição e hashtags.\n\nGerar de novo para todos? ` +
+            "O que está escrito será substituído.")) return;
+          alvo = prontos;
+          refazer = true;
+        }
+        const id = `meta-lote-${bid}`;
+        try {
+          for (const [i, v] of alvo.entries()) {
+            tarefa(id, { titulo: `Gerando metadados ${i + 1} de ${alvo.length}`, detalhe: v.titulo || v.arquivo,
+              pct: (100 * i) / alvo.length, ir: "fila" });
+            await api(`/api/lotes/${bid}/videos/${v.id}/metadados${refazer ? "" : "?faltando=1"}`, { method: "POST" });
+            loadQueue();
+          }
+        } finally { tarefa(id, null); }
+        concluido(`Metadados gerados para ${alvo.length} vídeo(s)`);
       } else if (act === "apagar") {
         const vids = (await api(`/api/lotes/${bid}`)).videos.filter((v) => v.status === "pronto" && !v.apagado);
         const unsent = vids.filter((v) => !v.drive?.video_id).length;
@@ -625,8 +1118,14 @@ $("#fila").addEventListener("click", async (e) => {
           (unsent ? `\n\nATENÇÃO: ${unsent} ainda não foram enviados para o Drive.` : "") +
           "\n\nA capa, os metadados e os arquivos do projeto ficam.")) return;
         $$("video", sec).forEach((el) => el.removeAttribute("src"));
-        busy("Apagando vídeos…");
-        for (const v of vids) await api(`/api/lotes/${bid}/videos/${v.id}/arquivo`, { method: "DELETE" });
+        const id = `apagar-${bid}`;
+        try {
+          for (const [i, v] of vids.entries()) {
+            tarefa(id, { titulo: `Apagando vídeo ${i + 1} de ${vids.length}`, detalhe: v.titulo || v.arquivo, pct: (100 * i) / vids.length });
+            await api(`/api/lotes/${bid}/videos/${v.id}/arquivo`, { method: "DELETE" });
+          }
+        } finally { tarefa(id, null); }
+        concluido(`${vids.length} vídeo(s) apagados`);
       } else if (act === "apagar-lote") {
         const vids = (await api(`/api/lotes/${bid}`)).videos.filter((v) => v.status === "pronto" && !v.apagado);
         const unsent = vids.filter((v) => !v.drive?.video_id).length;
@@ -634,8 +1133,9 @@ $("#fila").addEventListener("click", async (e) => {
           "de todos os vídeos dele. Não dá para desfazer." +
           (unsent ? `\n\nATENÇÃO: ${unsent} vídeo(s) pronto(s) ainda não foram enviados para o Drive.` : ""))) return;
         $$("video", sec).forEach((el) => el.removeAttribute("src"));
-        busy("Apagando o lote…");
-        await api(`/api/lotes/${bid}`, { method: "DELETE" });
+        tarefa(`apagar-lote-${bid}`, { titulo: "Apagando o lote", detalhe: "roteiros, vídeos, capas e metadados" });
+        try { await api(`/api/lotes/${bid}`, { method: "DELETE" }); } finally { tarefa(`apagar-lote-${bid}`, null); }
+        concluido("Lote apagado");
       } else if (act === "enviar") {
         await enviarDrive(bid);
       }
@@ -684,9 +1184,7 @@ async function enviarDrive(bid) {
   if (again && !confirm(`Todos os vídeos deste lote já foram enviados.\n\nQuer enviar novamente os ${ready.length} ` +
     `vídeo(s) para a pasta do canal "${canal.nome}"?\n${canal.pasta_link || ""}\n\nUse isso se a pasta mudou: ` +
     "os arquivos enviados antes continuam na pasta antiga, e a planilha do canal ganha linhas novas.")) return;
-  const r = await api(`/api/lotes/${bid}/drive`, json("POST", { de_novo: again }));
-  alert(`Enviando ${r.enviando} vídeo(s) para o Drive do canal "${canal.nome}". O andamento aparece em cada ` +
-    "vídeo; pode continuar usando o app.");
+  await api(`/api/lotes/${bid}/drive`, json("POST", { de_novo: again }));  // progress shows in the dock
 }
 
 // ------------------------------------------------------------------ channels + Google Drive settings
@@ -798,4 +1296,6 @@ $("#ia-salvar").onclick = async () => {
 $("#modal-close").onclick = () => { $("#modal-video").pause(); $("#modal").classList.add("hide"); };
 
 loadLib();
+loadEstilos().catch((err) => console.error("estilos:", err)).then(loadCapa);
 loadCanais().then(() => escolherCanal(CANAL));
+syncStart();

@@ -1,0 +1,19 @@
+{
+  "id": "b_f_skinner",
+  "nome": "B. F. Skinner",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\b_f_skinner\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "natureza_zen_2",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\adam_grant.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "fundo_removido": true,
+  "criado_em": "2026-11-04 22:57",
+  "nicho": "Psicologia e Comportamento Humano",
+  "categoria": "Disciplina e Procrastinação",
+  "fundo_indice": 4
+}

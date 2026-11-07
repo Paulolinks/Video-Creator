@@ -105,7 +105,7 @@ def render_scene(tpl, char, bg_loop, audio_path, lead, seconds, out):
     rgb = cv2.cvtColor(np.ascontiguousarray(rgba[..., :3]), cv2.COLOR_RGB2BGR)
     alpha = rgba[..., 3:] / 255.0
     pw, ph = png.size
-    base = rc["largura"] / pw
+    base = min(rc["largura"] / pw, rc.get("altura_max", 10**9) / ph)  # altura_max: 16:9 keeps the head in frame
     left = char["lado"] == "esquerda"
     # anchor = bottom-centre of the portrait on screen
     ax = (-rc["deslocamento_borda"] if left else W - rc["largura"] + rc["deslocamento_borda"]) + rc["largura"] / 2
@@ -295,7 +295,7 @@ def compose(tpl, roteiro, work, out):
     ass_path = work / "legenda.ass"
     write_ass(ass_path, tpl, timeline, labels, total)
     ass = ass_path.as_posix().replace(":", "\\:")
-    fonts = FONTS.as_posix().replace(":", "\\:")
+    fonts = Path(tpl["legenda"].get("fontes_dir") or FONTS).as_posix().replace(":", "\\:")
     lufs = tpl["voz"]["loudness_final_lufs"]
     rt = tpl["rotulos"]
     inputs = ["-i", str(audio / "narracao.wav"), "-i", str(base)]

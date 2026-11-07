@@ -114,16 +114,40 @@ def metadata(text):
     return {k: v for k, v in fields.items() if v and not re.search(r"<[^<>\n]{2,120}>", v)}
 
 
+def episode(value):
+    """'1 de 9', '1/9', 'Episódio 01 de 09', '1 of 9' -> {'numero': 1, 'total': 9}; '3' -> {'numero': 3, 'total': None};
+    empty, the model's <...> or anything without a number -> None."""
+    value = (value or "").strip()
+    if not value or _PLACEHOLDER.search(value) or "<" in value:
+        return None
+    m = re.search(r"(\d+)\s*(?:/|de|of|-)\s*(\d+)", value, re.I) or re.search(r"(\d+)", value)
+    if not m:
+        return None
+    total = int(m.group(2)) if m.lastindex and m.lastindex >= 2 else None
+    return {"numero": int(m.group(1)), "total": total}
+
+
+def episode_label(ep, idioma="pt"):
+    """{'numero': 1, 'total': 9} -> 'EPISÓDIO 1 DE 9' (or 'EPISODE 1 OF 9')."""
+    word, of = ("EPISODE", "OF") if idioma == "en" else ("EPISÓDIO", "DE")
+    return f"{word} {ep['numero']}" + (f" {of} {ep['total']}" if ep.get("total") else "")
+
+
 def _header(head):
-    """Title/subtitle/format from the lines before the first scene."""
-    info = {"titulo": "", "subtitulo": "", "formato": "", "personagem": ""}
+    """Title/subtitle/format (and the optional series/episode) from the lines before the first scene."""
+    info = {"titulo": "", "subtitulo": "", "formato": "", "personagem": "", "serie": "", "episodio": ""}
     loose = []
     for line in (x for x in head.splitlines() if x):
         m = re.match(r"^(T[ÍI]TULO(?: DA CAPA)?|SUBT[ÍI]TULO|FORMATO|PERSONAGEM|TEMA|(?:COVER )?TITLE|SUBTITLE|"
-                     r"FORMAT|CHARACTER|TOPIC|THEME|LANGUAGE|IDIOMA)\s*:\s*(.*)$", line, re.I)
+                     r"FORMAT|CHARACTER|TOPIC|THEME|LANGUAGE|IDIOMA|S[ÉE]RIES?|COLE[ÇC][ÃA]O|COLLECTION|"
+                     r"EPIS[ÓO]DIO|EPISODE|EP)\s*:\s*(.*)$", line, re.I)
         if m:
             key, value = m.group(1).upper(), m.group(2).strip()
-            if key.startswith("SUB"):
+            if key.startswith(("SÉRIE", "SERIE", "COLE", "COLLECTION")):
+                info["serie"] = "" if (_PLACEHOLDER.search(value) or "<" in value) else value
+            elif key.startswith("EP"):
+                info["episodio"] = value
+            elif key.startswith("SUB"):
                 info["subtitulo"] = value
             elif "TULO" in key or "TITLE" in key:
                 info["titulo"] = value
@@ -144,7 +168,8 @@ def _header(head):
 def parse_script(path):
     text = read_text(path)
     result = {"arquivo": Path(path).name, "template": None, "titulo": "", "subtitulo": "", "cenas": [],
-              "personagens": [], "problemas": [], "idioma": language(text), "metadados": metadata(text)}
+              "personagens": [], "problemas": [], "idioma": language(text), "metadados": metadata(text),
+              "serie": None, "episodio": None}
     if re.search(r"FRAMEWORK DE ROTEIRO|SCRIPT FRAMEWORK", text, re.I):
         result["problemas"].append("Este arquivo é o próprio framework (o modelo). Envie o roteiro que o ChatGPT "
                                    "criou a partir dele.")
@@ -158,6 +183,10 @@ def parse_script(path):
     f01 = list(_SCENE_F01.finditer(text))
     info = _header(text[:first])
     result.update(titulo=info["titulo"], subtitulo=info["subtitulo"])
+    # series cover only when BOTH are filled; empty/missing lines = a single video with the usual cover
+    ep = episode(info["episodio"])
+    result["serie"] = info["serie"] if info["serie"] and ep else None
+    result["episodio"] = ep if info["serie"] and ep else None
     fmt = info["formato"]
     if "ENTREVISTA" in fmt or "INTERVIEW" in fmt or (t02 and not f01):
         result["template"] = "T02"

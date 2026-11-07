@@ -7,6 +7,7 @@ Usage: align_whisper.py <scenes.json> <tts.json> <out.json> [pt|en]
 """
 import difflib
 import json
+import os
 import re
 import sys
 import time
@@ -74,4 +75,7 @@ if __name__ == "__main__":
     Path(sys.argv[3]).write_text(json.dumps(out, indent=2, ensure_ascii=False), encoding="utf-8")
     for s in out["scenes"]:
         print(s["id"], f"{s['matched_words']}/{s['total_words']} palavras casadas |", s["recognized"])
-    print("total", out["total_s"], "s  RAM", out["peak_ram_mb"], "MB")
+    print("total", out["total_s"], "s  RAM", out["peak_ram_mb"], "MB", flush=True)
+    # Leave without running the CUDA/CTranslate2 teardown: on Windows it sometimes crashes after all the work is saved
+    # (seen on a 132-scene video), and the non-zero exit made the whole video fail.
+    os._exit(0)

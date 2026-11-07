@@ -39,13 +39,26 @@ def crop_9x16(path, center_x):
     return im.crop((x0, 0, x0 + cw, h)).resize((SW, SH), Image.Resampling.LANCZOS)
 
 
-def estimate_depth(img):
-    processor = AutoImageProcessor.from_pretrained(MODEL)
-    model = AutoModelForDepthEstimation.from_pretrained(MODEL).eval()
+_DEPTH = {}  # the model is loaded once per process, not once per image
+DEPTH_CACHE = LAB / ".cache" / "profundidade"  # the model's small depth map per image, reused by later videos
+
+
+def estimate_depth(img, size=(SH, SW)):
+    import hashlib
+    key = hashlib.sha1(img.tobytes() + repr((img.size, img.mode, MODEL)).encode()).hexdigest()
+    cached = DEPTH_CACHE / f"{key}.npy"
     t = time.perf_counter()
-    with torch.no_grad():
-        pred = model(**processor(images=img, return_tensors="pt")).predicted_depth
-    depth = torch.nn.functional.interpolate(pred[None], size=(SH, SW), mode="bicubic")[0, 0].numpy()
+    if cached.exists():
+        pred = torch.from_numpy(np.load(cached))
+    else:
+        if not _DEPTH:
+            _DEPTH["processor"] = AutoImageProcessor.from_pretrained(MODEL)
+            _DEPTH["model"] = AutoModelForDepthEstimation.from_pretrained(MODEL).eval()
+        with torch.no_grad():
+            pred = _DEPTH["model"](**_DEPTH["processor"](images=img, return_tensors="pt")).predicted_depth
+        DEPTH_CACHE.mkdir(parents=True, exist_ok=True)
+        np.save(cached, pred.numpy())
+    depth = torch.nn.functional.interpolate(pred[None], size=size, mode="bicubic")[0, 0].numpy()
     seconds = time.perf_counter() - t
     lo, hi = np.percentile(depth, [2, 98])
     depth = np.clip((depth - lo) / (hi - lo), 0, 1).astype(np.float32)  # 1 = near

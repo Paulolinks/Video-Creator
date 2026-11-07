@@ -89,18 +89,24 @@ def caption_groups(words, max_words=3):
     return groups + ([cur] if cur else [])
 
 
-def write_ass(path, timeline, karaoke):
+def write_ass(path, timeline, karaoke, style=None, size=(OW, OH)):
+    """style (optional, ASS-ready values): fonte, negrito, tamanho, cor_falada, cor_aguardando, contorno,
+    margem_inferior, max_palavras. Without it the approved look is used (Poppins 84, gold over white)."""
     # Colours are &HAABBGGRR. Karaoke: Secondary (white) turns Primary (gold) as each word is spoken.
-    primary = "&H0045D7FF" if karaoke else "&H00FFFFFF"
-    lines = ["[Script Info]", "ScriptType: v4.00+", f"PlayResX: {OW}", f"PlayResY: {OH}", "WrapStyle: 0", "",
+    st = style or {}
+    waiting = st.get("cor_aguardando", "&H00FFFFFF")
+    primary = st.get("cor_falada", "&H0045D7FF") if karaoke else waiting
+    bold = -1 if st.get("negrito", True) else 0
+    lines = ["[Script Info]", "ScriptType: v4.00+", f"PlayResX: {size[0]}", f"PlayResY: {size[1]}", "WrapStyle: 0", "",
              "[V4+ Styles]",
              "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, "
              "Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, "
              "Alignment, MarginL, MarginR, MarginV, Encoding",
-             f"Style: Main,Poppins,84,{primary},&H00FFFFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,7,2,"
-             "2,90,90,560,1", "",
+             f"Style: Main,{st.get('fonte', 'Poppins')},{st.get('tamanho', 84)},{primary},{waiting},&H00000000,"
+             f"&H64000000,{bold},0,0,0,100,100,0,0,1,{st.get('contorno', 7)},2,"
+             f"2,90,90,{st.get('margem_inferior', 560)},1", "",
              "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"]
-    flat = [g for scene in timeline for g in caption_groups(scene)]
+    flat = [g for scene in timeline for g in caption_groups(scene, st.get("max_palavras", 3))]
     for i, g in enumerate(flat):
         start = g[0]["start"]
         end = min(flat[i + 1][0]["start"], g[-1]["end"] + 0.6) if i + 1 < len(flat) else g[-1]["end"] + 0.6

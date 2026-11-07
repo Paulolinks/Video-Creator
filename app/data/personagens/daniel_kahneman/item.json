@@ -14,7 +14,7 @@
   "autorizacao_voz": false,
   "transparente": true,
   "criado_em": "2026-10-31 18:42",
-  "imagem_provisoria": true,
+  "imagem_provisoria": false,
   "nicho": "Psicologia científica, aprendizagem e comportamento",
   "categoria": "Psicologia das decisões",
   "especialidades": "Vieses cognitivos; heurísticas; decisões econômicas",
@@ -28,11 +28,12 @@
     "tinta_e_fumaca_1",
     "xadrez_1"
   ],
-  "fundo_indice": 0,
+  "fundo_indice": 3,
   "musicas": [
     "cerebro_e_neuronios_1_ghostpocalypse_3_road_of_trials",
     "tinta_e_fumaca_1_virtutes_instrumenti",
     "xadrez_1_enter_the_maze"
   ],
-  "musica_indice": 0
+  "musica_indice": 0,
+  "fundo_removido": false
 }

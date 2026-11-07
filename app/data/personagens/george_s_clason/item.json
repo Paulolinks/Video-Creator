@@ -15,7 +15,7 @@
   "autorizacao_voz": false,
   "transparente": true,
   "criado_em": "2026-10-31 18:42",
-  "imagem_provisoria": true,
+  "imagem_provisoria": false,
   "nicho": "Educação financeira e princípios de riqueza",
   "categoria": "Educação financeira",
   "especialidades": "Poupança; orçamento; patrimônio; prudência financeira",
@@ -29,11 +29,12 @@
     "dinheiro_e_ouro_1",
     "egito_antigo_2"
   ],
-  "fundo_indice": 0,
+  "fundo_indice": 3,
   "musicas": [
     "biblioteca_a_luz_de_velas_1_sad_trio",
     "dinheiro_e_ouro_1_loopster",
     "egito_antigo_1_jalandhar"
   ],
-  "musica_indice": 0
+  "musica_indice": 0,
+  "fundo_removido": true
 }

@@ -1,6 +1,8 @@
 TÍTULO: <frase intrigante>
 SUBTÍTULO: Minha conversa com <MENTOR> sobre <assunto>
 FORMATO: ENTREVISTA_COM_MENTOR
+SÉRIE: <nome da série; deixe vazio se o vídeo for avulso>
+EPISÓDIO: <posição na série, ex.: 1 de 9; deixe vazio se for avulso>
 
 CENA 01 | PERSONAGEM: PAULO
 <pergunta de abertura>

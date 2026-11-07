@@ -1,0 +1,19 @@
+{
+  "id": "nick_bostrom",
+  "nome": "Nick Bostrom",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\nick_bostrom\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "biblioteca_a_luz_de_velas_1",
+  "voz": {
+    "motor": "kokoro",
+    "voz": "D:\\Video-Creator\\app\\data\\vozes\\adam_grant.pt"
+  },
+  "autorizacao_voz": false,
+  "transparente": true,
+  "fundo_removido": false,
+  "criado_em": "2026-11-04 22:50",
+  "nicho": "Filosofia, Consciência e Realidade.",
+  "categoria": "Filosofia da Mente e Filosofia da Tecnologia.",
+  "fundo_indice": 4
+}

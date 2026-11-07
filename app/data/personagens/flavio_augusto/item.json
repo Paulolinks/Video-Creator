@@ -1,0 +1,19 @@
+{
+  "id": "flavio_augusto",
+  "nome": "Flávio Augusto",
+  "aliases": [],
+  "imagem": "D:\\Video-Creator\\app\\data\\personagens\\flavio_augusto\\recorte.png",
+  "lado": "esquerda",
+  "fundo": "dinheiro_e_ouro_2",
+  "voz": {
+    "motor": "chatterbox",
+    "referencia": "D:\\Video-Creator\\app\\data\\personagens\\flavio_augusto\\voz_referencia.wav"
+  },
+  "autorizacao_voz": true,
+  "transparente": true,
+  "fundo_removido": true,
+  "criado_em": "2026-11-03 22:41",
+  "nicho": "Empreendedorismo e Negócios",
+  "categoria": "Vendas, Liderança e Mentalidade Empreendedora",
+  "fundo_indice": 12
+}
