@@ -75,6 +75,8 @@ table.grid { width: 100%; border-collapse: collapse; }
 .grid th { background: var(--panel2); font-size: 12px; color: var(--muted); font-weight: 600; }
 .grid tr.blocked td { opacity: .75; }
 .problems { margin: 0; padding-left: 16px; color: #ffb3ad; font-size: 12px; }
+.avisos { margin: 4px 0 0; padding-left: 16px; color: #ffd27a; font-size: 12px; }
+.chip.anim { background: rgba(255, 215, 69, .15); color: #ffd745; }
 .link { background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; font: inherit; text-decoration: underline; }
 
 .opcoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin: 18px 0; }

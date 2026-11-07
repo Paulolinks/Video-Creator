@@ -18,6 +18,8 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from montagem import VOICE_FX, write_ass
 from run_test_b import estimate_depth, soften
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "smart_motion"))
+import smart_motion  # noqa: E402
 
 LAB = Path(__file__).resolve().parent.parent
 FONTS = LAB / "inputs" / "fonts"
@@ -174,8 +176,14 @@ def compose(tpl, scenes, work, out):
                "alimiter=limit=0.9[a]")
     else:
         mix = f"{voice_chain},alimiter=limit=0.9[a]"
+    # Smart Motion: animações marcadas no roteiro, na mesma passada (antes da legenda, que fica por cima)
+    sm_inputs, sm_graph, vlast, sm_info = smart_motion.aplicar_no_filtro(
+        tpl, "F01", scenes, timeline, total, work, inputs.count("-i"), "1:v")
+    stages["smart_motion"] = sm_info
+    inputs += sm_inputs
+    sm_chain = (";".join(sm_graph) + ";") if sm_graph else ""
     run(["ffmpeg", "-hide_banner", "-y", *inputs, "-filter_complex",
-         f"{mix};[1:v]subtitles='{ass}':fontsdir='{fonts}'[vout]", "-map", "[vout]", "-map", "[a]",
+         f"{mix};{sm_chain}[{vlast}]subtitles='{ass}':fontsdir='{fonts}'[vout]", "-map", "[vout]", "-map", "[a]",
          *c.enc_args, "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out)])
     base.unlink()
     stages["transicoes_legenda_audio_s"] = round(time.perf_counter() - t, 2)

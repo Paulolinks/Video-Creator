@@ -444,6 +444,8 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
       : `<ul class="problems">${v.problemas.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>`
         + (v.fotos_faltando || []).map((c) => `<label class="btn small foto-falta">📷 Enviar foto de ${esc(c.nome)}<input
             type="file" accept="image/*" data-fotofalta="${esc(c.id)}" hidden></label>`).join("");
+    const anim = (v.animacoes_total ? `<div><span class="chip anim" title="Animações marcadas no roteiro (Smart Motion)">🎬 ${v.animacoes_total} animaç${v.animacoes_total > 1 ? "ões" : "ão"}</span></div>` : "")
+      + ((v.avisos_animacao || []).length ? `<ul class="avisos">${v.avisos_animacao.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>` : "");
     const fora = MODO === "placa" && v.template && v.template !== TEMPLATE;  // not the template chosen on the board
     const sig = assinatura(v);
     const naFila = v.cenas?.length && FILA_SIGS.has(sig), repetido = v.cenas?.length && vistos.has(sig);
@@ -457,7 +459,7 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
       <td><b>${esc(v.titulo)}</b><div class="muted small">${esc(v.subtitulo)}</div>
         ${v.serie ? `<div><span class="chip t02 serie" title="Capa de série: o nome da série e o episódio aparecem na capa">📺 ${esc(v.serie)} · ${esc(v.episodio_txt || "")}</span></div>`
           : '<div class="muted small">Vídeo avulso (capa normal)</div>'}</td><td>${v.cenas.length}</td>
-      <td>${people}</td><td>${status}</td></tr>`;
+      <td>${people}</td><td>${status}${anim}</td></tr>`;
   }).join("");
   // registered character without a photo: send it right here, then the list re-checks itself
   $$("[data-fotofalta]").forEach((inp) => (inp.onchange = async () => {

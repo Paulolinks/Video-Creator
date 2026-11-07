@@ -4,7 +4,7 @@ FORMATO: PERSONAGEM_FALANDO
 PERSONAGEM: Maquiavel
 
 CENA 01 | MODO: FALA
-NARRAÇÃO: Você acredita que as pessoas mostram quem realmente são? Maquiavel já alertava: os homens julgam mais pelos olhos do que pelas mãos.
+NARRAÇÃO: Você acredita que as pessoas mostram quem realmente são? Maquiavel já alertava: [CARDS: Olhos: o que parece | Mãos: o que a pessoa faz] os homens julgam mais pelos olhos do que pelas mãos.
 IMAGEM: Maquiavel em seu escritório renascentista, à luz de velas, olhando para a câmera e gesticulando.
 
 CENA 02 | MODO: DOLLY
@@ -12,7 +12,7 @@ NARRAÇÃO: Alguém pode sorrir na sua frente, jurar lealdade e, pelas suas cost
 IMAGEM: Salão renascentista: uma nobre entrega uma carta selada a um homem, enquanto outro observa desconfiado ao fundo.
 
 CENA 03 | MODO: FALA
-NARRAÇÃO: Por isso, não julgue alguém pelo que promete. Observe o que faz quando seus interesses estão em jogo. É aí que o caráter se revela.
+NARRAÇÃO: Por isso, não julgue alguém pelo que promete. Observe o que faz quando seus interesses estão em jogo. [DESTAQUE: CARÁTER | aparece nas ações] É aí que o caráter se revela.
 IMAGEM: Maquiavel sentado à mesa com livros e mapas, inclinado para a câmera, em tom de conselho.
 
 FIM

@@ -20,6 +20,8 @@ Uma voz narra o vídeo todo. Para começar, peça: TEMA, PERSONAGEM QUE FALA e N
    EPISÓDIO: com a posição do vídeo e o total, no formato "1 de 9". Com as duas linhas preenchidas, a capa
    mostra o nome da série e "EPISÓDIO 1 DE 9" acima do título. Vídeo avulso: deixe SÉRIE: e EPISÓDIO: vazias
    (sem <...>) ou apague as duas linhas; a capa sai no modelo normal.
+9. Animações (opcional, recomendado): marque contadores, barras, fluxos, cards e destaques dentro da fala,
+   com a sintaxe da seção "Animações na tela". A marcação não é falada.
 
 ## Metadados da publicação
 
@@ -44,6 +46,38 @@ O que vier preenchido aparece pronto no app; o que faltar, o app completa com a 
 - IMAGEM: uma frase descrevendo o que aparece na cena.
 - Depois do bloco: um prompt de imagem por cena (vertical 9:16, sem texto dentro da imagem, mesmo personagem,
   roupa e cenário nas cenas de FALA). O usuário salva as imagens como cena1.png, cena2.png...
+
+## Animações na tela (Smart Motion)
+
+O app pode mostrar animações sincronizadas com a fala. Para pedir uma, escreva uma marcação entre colchetes
+dentro da fala, logo antes da frase em que ela deve aparecer. Quantidade recomendada: 1 ou 2 por vídeo (no máximo 1 por cena).
+
+| Marcação | O que aparece na tela | Quando usar | Exemplo |
+|---|---|---|---|
+| `[CONTADOR: valor | texto]` | Um número que sobe do zero até o valor, com um texto curto embaixo. | A fala cita um valor importante: dinheiro, porcentagem, quantidade, anos. | `[CONTADOR: US$ 100.000 | por mês]` |
+| `[BARRAS: título | Nome = valor | Nome = valor]` | 2 a 5 barras horizontais; cada uma cresce quando o seu número é falado. | A fala compara dois ou mais valores. | `[BARRAS: 10% de margem | Vendas = US$ 1.000.000 | Lucro = US$ 100.000]` |
+| `[FLUXO: etapa | etapa | etapa]` | 2 a 5 blocos numerados ligados por setas; cada etapa acende quando as palavras dela são faladas. | Passo a passo, processo, sequência ("primeiro... depois... por fim"). | `[FLUXO: Consciência do padrão | Novo padrão | Ações consistentes]` |
+| `[CARDS: errado: detalhe | certo: detalhe]` | Dois cartões lado a lado: o 1º com um X (o que não fazer, o antes, o mito), o 2º com sinal de certo (o que fazer, o depois, a verdade). O 2º entra quando o título dele é falado. Com um só cartão, ele aparece com o sinal de certo. | Contraste entre duas ideias. | `[CARDS: Só pensamento positivo: não substitui estratégia | Visão clara: orienta o trabalho concreto]` |
+| `[DESTAQUE: PALAVRA | subtítulo]` | Uma palavra grande com sublinhado dourado e um subtítulo opcional. | O conceito-chave que o vídeo quer fixar. | `[DESTAQUE: PARADIGMA | hábitos + crenças repetidos]` |
+
+- A marcação vai dentro do texto falado, na mesma linha, logo antes da frase em que a animação deve aparecer. Ela não é falada e não aparece na legenda.
+- A animação começa na palavra seguinte à marcação e fica na tela até o fim daquela frase (no FLUXO, nos CARDS e nas BARRAS, até a frase do último item).
+- Escreva o nome do tipo em MAIÚSCULAS, depois dois-pontos, e separe os campos com |. Não use colchetes dentro da marcação.
+- Dentro da marcação, valores em dígitos com símbolo (US$ 100.000, 10%, R$ 1,5 milhão). Na fala, o número continua por extenso ("cem mil dólares").
+- CONTADOR e BARRAS só aparecem se o mesmo número for dito na fala daquela cena. Se não for, o app ignora a animação e avisa. Nunca invente um número que a fala não diz.
+- Textos curtos: etapas e títulos de cards com 1 a 4 palavras; detalhe do card com até 6 palavras; destaque com 1 ou 2 palavras.
+- Nas etapas do FLUXO e nos títulos dos CARDS, use palavras que aparecem na fala: é assim que o app sabe quando acender cada uma.
+- Quantidade: nunca duas na mesma frase. No Personagem falando, no máximo 1 por cena; na Entrevista, até 2 por resposta do mentor (em frases diferentes). Use as animações onde elas ajudam a entender, não em toda cena.
+- É opcional: um roteiro sem marcações gera o vídeo normal, sem animações.
+- A posição é automática: no Personagem falando, abaixo da legenda; na Entrevista, entre o nome de quem fala e a legenda. Por enquanto, só no formato vertical 9:16.
+
+Exemplo de cena com marcação:
+
+```text
+CENA 01 | MODO: FALA
+NARRAÇÃO: Você acredita que as pessoas mostram quem realmente são? Maquiavel já alertava: [CARDS: Olhos: o que parece | Mãos: o que a pessoa faz] os homens julgam mais pelos olhos do que pelas mãos.
+IMAGEM: Maquiavel em seu escritório renascentista, olhando para a câmera.
+```
 
 ## Modelo
 
@@ -85,7 +119,7 @@ FORMATO: PERSONAGEM_FALANDO
 PERSONAGEM: Maquiavel
 
 CENA 01 | MODO: FALA
-NARRAÇÃO: Você acredita que as pessoas mostram quem realmente são? Maquiavel já alertava: os homens julgam mais pelos olhos do que pelas mãos.
+NARRAÇÃO: Você acredita que as pessoas mostram quem realmente são? Maquiavel já alertava: [CARDS: Olhos: o que parece | Mãos: o que a pessoa faz] os homens julgam mais pelos olhos do que pelas mãos.
 IMAGEM: Maquiavel em seu escritório renascentista, à luz de velas, olhando para a câmera e gesticulando.
 
 CENA 02 | MODO: DOLLY
@@ -93,7 +127,7 @@ NARRAÇÃO: Alguém pode sorrir na sua frente, jurar lealdade e, pelas suas cost
 IMAGEM: Salão renascentista: uma nobre entrega uma carta selada a um homem, enquanto outro observa desconfiado ao fundo.
 
 CENA 03 | MODO: FALA
-NARRAÇÃO: Por isso, não julgue alguém pelo que promete. Observe o que faz quando seus interesses estão em jogo. É aí que o caráter se revela.
+NARRAÇÃO: Por isso, não julgue alguém pelo que promete. Observe o que faz quando seus interesses estão em jogo. [DESTAQUE: CARÁTER | aparece nas ações] É aí que o caráter se revela.
 IMAGEM: Maquiavel sentado à mesa com livros e mapas, inclinado para a câmera, em tom de conselho.
 
 FIM

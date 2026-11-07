@@ -123,6 +123,8 @@ def analyse(batch_id, files, channel=None):
                  "serie": parsed.get("serie"), "episodio": parsed.get("episodio"),
                  "episodio_txt": episode_label(parsed["episodio"], parsed["idioma"]) if parsed.get("episodio") else None,
                  "problemas_pdf": parsed["problemas"], "imagens": [], "origem_imagens": "",
+                 "avisos_animacao": parsed.get("avisos_animacao", []),
+                 "animacoes_total": sum(len(c.get("animacoes") or []) for c in parsed["cenas"]),
                  "status": "analisado", "etapa": "", "passos_feitos": 0, "passos_total": 0}
         if parsed["metadados"]:  # title/description/hashtags written in the script itself: the AI won't redo them
             video["metadados"] = {**parsed["metadados"], "origem": "roteiro",
@@ -194,7 +196,8 @@ def _build_project(batch, video, options):
                          video.get("idioma", "pt"), video["template"], options)
     video["formato"] = estilos.resolve(options.get("estilo"))["formato"]
     if video["template"] == "F01":
-        scenes = [{"id": c["id"], "text": c["text"], "mode": c["mode"], "image": img}
+        scenes = [{"id": c["id"], "text": c["text"], "mode": c["mode"], "image": img,
+                   "animacoes": c.get("animacoes") or []}
                   for c, img in zip(video["cenas"], video["imagens"])]
         (folder / "cenas.json").write_text(json.dumps(scenes, indent=2, ensure_ascii=False), encoding="utf-8")
         video["capa_fonte"] = {"fundo": video["imagens"][0]} if video["imagens"] else None

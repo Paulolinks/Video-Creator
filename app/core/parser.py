@@ -8,13 +8,19 @@ PDF page headers, extra sections such as sources after the last scene).
 English scripts use the same layout with English keywords (SCENE 01 | CHARACTER: NAME, or SCENE 01 — NAME;
 MODE / NARRATION / IMAGE; TITLE / SUBTITLE / FORMAT; END). The language ("pt" or "en") comes from a
 LANGUAGE:/IDIOMA: line, or is detected from the words of the text, and decides how the voice reads it.
+Animation markers inside the spoken text ([CONTADOR: ...], [BARRAS: ...], [FLUXO: ...], [CARDS: ...],
+[DESTAQUE: ...]) are removed from the text (never spoken) and kept per scene in "animacoes" (Smart Motion).
 """
 import io
 import re
+import sys
 from collections import Counter
 from pathlib import Path
 
 from pypdf import PdfReader
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "VIDEO_CREATOR_LAB" / "smart_motion"))
+import marcacoes  # noqa: E402  (stdlib only: markers + spoken numbers)
 
 TEMPLATES = {"T02": "Entrevista com mentor", "F01": "Personagem falando"}
 IDIOMAS = {"pt": "Português", "en": "Inglês"}
@@ -211,6 +217,7 @@ def parse_script(path):
                                     "descricao_imagem": _clean(img.group(1)) if img else ""})
         if info["personagem"]:
             result["personagens"] = [info["personagem"].upper()]
+    result["avisos_animacao"] = _animations(result["cenas"])
     if not result["template"]:
         result["problemas"].append("Não identifiquei o template: o roteiro precisa da linha FORMATO e dos blocos "
                                    "CENA 01 | PERSONAGEM: ... (Entrevista) ou CENA 01 | MODO: ... (Personagem falando).")
@@ -229,6 +236,27 @@ def parse_script(path):
         if c.get("mode") and c["mode"] not in ("fala", "dolly", "zoom"):
             result["problemas"].append(f"{c['id']}: modo '{c['mode']}' desconhecido (use FALA, DOLLY ou ZOOM).")
     return result
+
+
+def _animations(scenes):
+    """Strip the Smart Motion markers from each scene's text (they are not spoken) and keep them in
+    scene["animacoes"]. Returns warnings; an animation whose numbers are not spoken in the scene is dropped."""
+    warnings = []
+    for c in scenes:
+        c["text"], anims, notes = marcacoes.extrair(c["text"])
+        label = c["id"].replace("_", " ").title()
+        warnings += [f"{label}: {n}" for n in notes]
+        kept = []
+        for a in anims:
+            missing = marcacoes.checar_no_texto(a, c["text"])
+            if missing:
+                vals = ", ".join(f"{v:,.0f}".replace(",", ".") if v == int(v) else str(v) for v in missing)
+                warnings.append(f"{label}: {marcacoes.NOMES[a['tipo']]} ignorado, o valor {vals} não é dito na fala "
+                                "desta cena (escreva o número por extenso na fala).")
+            else:
+                kept.append(a)
+        c["animacoes"] = kept
+    return warnings
 
 
 def embedded_images(path, min_side=300):

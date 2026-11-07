@@ -22,6 +22,8 @@ import numpy as np
 from PIL import Image
 
 from compor_entrevista import FONTS, Waveform, prepare_background, read_wav, run, write_ass
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "smart_motion"))
+import smart_motion  # noqa: E402
 
 NVENC_TEMP = ["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr", "-cq", "14", "-b:v", "0", "-pix_fmt", "yuv420p"]
 X264_TEMP = ["-c:v", "libx264", "-preset", "veryfast", "-crf", "14", "-pix_fmt", "yuv420p"]
@@ -247,6 +249,15 @@ def compose(tpl, roteiro, work, out):
         acc += durations[i - 1]
         graph.append(f"[{last}][{i}:v]xfade=transition=fade:duration={xf}:offset={acc:.3f}[x{i}]")
         last = f"x{i}"
+    # Smart Motion: animações marcadas no roteiro, sob a legenda, depois da capa do primeiro segundo
+    cover0 = tpl.get("capa") or {}
+    capa_s = float(cover0.get("segundos", 1.0)) + 0.2 if cover0.get("arquivo") and Path(cover0["arquivo"]).exists() else 0
+    sm_inputs, sm_graph, last, sm_info = smart_motion.aplicar_no_filtro(
+        tpl, "T02", scenes, timeline, total, work, n_in, last, inicio_min=capa_s)
+    inputs += sm_inputs
+    n_in += sm_inputs.count("-i")
+    graph += sm_graph
+    stages["smart_motion"] = sm_info
     graph.append(f"[{last}]subtitles='{ass}':fontsdir='{fonts}'[s]")
     last = "s"
     rt = tpl["rotulos"]

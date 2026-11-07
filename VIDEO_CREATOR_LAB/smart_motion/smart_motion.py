@@ -27,6 +27,9 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from marcacoes import norm, numeros_falados  # noqa: E402
+
 HERE = Path(__file__).resolve().parent
 FONTS = HERE.parent / "inputs" / "fonts"
 FONT_XB = str(FONTS / "Poppins-ExtraBold.ttf")
@@ -48,12 +51,6 @@ class ConfigError(Exception):
 
 
 # ---------------------------------------------------------------- transcricao
-def norm(s):
-    s = unicodedata.normalize("NFD", s.upper())
-    s = "".join(c for c in s if unicodedata.category(c) != "Mn")
-    return re.sub(r"[^A-Z0-9%]", "", s)
-
-
 def ts(s):
     h, m, sec = s.strip().split(":")
     return int(h) * 3600 + int(m) * 60 + float(sec)
@@ -78,57 +75,6 @@ def ler_ass(path):
             t += dur
     words.sort(key=lambda x: x["start"])
     return words
-
-
-UNID = {"ZERO": 0, "UM": 1, "UMA": 1, "DOIS": 2, "DUAS": 2, "TRES": 3, "QUATRO": 4, "CINCO": 5, "SEIS": 6,
-        "SETE": 7, "OITO": 8, "NOVE": 9, "DEZ": 10, "ONZE": 11, "DOZE": 12, "TREZE": 13, "CATORZE": 14,
-        "QUATORZE": 14, "QUINZE": 15, "DEZESSEIS": 16, "DEZESSETE": 17, "DEZOITO": 18, "DEZENOVE": 19,
-        "VINTE": 20, "TRINTA": 30, "QUARENTA": 40, "CINQUENTA": 50, "SESSENTA": 60, "SETENTA": 70,
-        "OITENTA": 80, "NOVENTA": 90, "CEM": 100, "CENTO": 100, "DUZENTOS": 200, "DUZENTAS": 200,
-        "TREZENTOS": 300, "QUATROCENTOS": 400, "QUINHENTOS": 500, "SEISCENTOS": 600, "SETECENTOS": 700,
-        "OITOCENTOS": 800, "NOVECENTOS": 900}
-MULT = {"MIL": 1000, "MILHAO": 10**6, "MILHOES": 10**6, "BILHAO": 10**9, "BILHOES": 10**9}
-
-
-def numeros_falados(words):
-    """Valores numericos ditos na fala (digitos ou por extenso em pt-BR) com seus tempos."""
-    out, i = [], 0
-    while i < len(words):
-        n = words[i]["n"]
-        if re.fullmatch(r"[\d.,]+%?", words[i]["w"].strip(".,;:!?")) and any(c.isdigit() for c in n):
-            raw = words[i]["w"].strip(".,;:!?").replace("%", "")
-            raw = raw.replace(".", "") if re.fullmatch(r"\d{1,3}(\.\d{3})+", raw) else raw.replace(",", ".")
-            try:
-                out.append({"valor": float(raw), "start": words[i]["start"], "end": words[i]["end"], "texto": words[i]["w"]})
-            except ValueError:
-                pass
-            i += 1
-            continue
-        if n == "CENTO" and i > 0 and words[i - 1]["n"] == "POR":  # "dez por cento" -> 10, nao 100
-            i += 1
-            continue
-        if n in UNID:
-            total, cur, j, end = 0, 0, i, words[i]["end"]
-            while j < len(words):
-                nj = words[j]["n"]
-                if nj in UNID:
-                    cur += UNID[nj]
-                elif nj in MULT:
-                    total += max(cur, 1) * MULT[nj]
-                    cur = 0
-                elif nj == "E" and j + 1 < len(words) and (words[j + 1]["n"] in UNID or words[j + 1]["n"] in MULT):
-                    pass
-                else:
-                    break
-                end = words[j]["end"]
-                j += 1
-            val = total + cur
-            out.append({"valor": float(val), "start": words[i]["start"], "end": end,
-                        "texto": " ".join(w["w"] for w in words[i:j])})
-            i = j
-            continue
-        i += 1
-    return out
 
 
 def achar(words, spec, edge_default):
@@ -170,20 +116,22 @@ def valores_do_payload(ov):
     return []
 
 
-def preparar(cfg, words, duracao):
-    """Valida o JSON, resolve tempos e checa que os numeros animados foram ditos. Retorna overlays prontos."""
+def preparar(cfg, words, duracao, estrito=True):
+    """Valida o JSON, resolve tempos e checa que os numeros animados foram ditos. Retorna overlays prontos.
+    estrito=False (geracao no app): overlay com problema vira aviso e e pulado, sem derrubar o video."""
     erros, avisos, prontos = [], [], []
     if cfg.get("version") != "1.0":
         erros.append("version deve ser '1.0'")
     canvas = cfg.get("canvas", {})
-    if (canvas.get("width"), canvas.get("height"), canvas.get("fps")) != (1080, 1920, 30):
-        erros.append("canvas deve ser 1080x1920 a 30fps")
+    CW, CH = canvas.get("width", 1080), canvas.get("height", 1920)
+    if canvas.get("fps") not in (24, 25, 30, 60) or CW >= CH:
+        erros.append("canvas deve ser vertical (ex.: 1080x1920) com fps 24/25/30/60")
     zona = cfg.get("safe_zone") or PROFILES.get(cfg.get("profile", ""))
     if not zona:
         erros.append("defina safe_zone ou profile (F01/T02)")
     else:
-        if zona["x"] < 0 or zona["y"] < 0 or zona["x"] + zona["width"] > 1080 or zona["y"] + zona["height"] > 1920:
-            erros.append("safe_zone fora do quadro 1080x1920")
+        if zona["x"] < 0 or zona["y"] < 0 or zona["x"] + zona["width"] > CW or zona["y"] + zona["height"] > CH:
+            erros.append(f"safe_zone fora do quadro {CW}x{CH}")
     falados = numeros_falados(words)
     ids = set()
     for ov in cfg.get("overlays", []):
@@ -206,7 +154,8 @@ def preparar(cfg, words, duracao):
                 raise ConfigError(f"duracao {e - s:.2f}s fora de 0.8-12s")
             marcas = []
             for item in itens_com_tempo(ov):
-                marcas.append(achar(words, item["at"], "start") if "at" in item else s)
+                marcas.append(item["at_ms"] / 1000 if "at_ms" in item else
+                              achar(words, item["at"], "start") if "at" in item else s)
             for v in valores_do_payload(ov):
                 ok = [n for n in falados if abs(n["valor"] - float(v)) < 1e-6 and n["start"] <= e + 3 and n["end"] >= s - 3]
                 if not ok:
@@ -215,7 +164,7 @@ def preparar(cfg, words, duracao):
                                       f"(numeros falados ali: {perto or 'nenhum'}) - dado nao sustentado, bloqueado")
             prontos.append({**ov, "_s": s, "_e": e, "_marcas": marcas, "_zona": ov.get("zone", zona)})
         except (ConfigError, KeyError, TypeError, ValueError) as ex:
-            erros.append(f"{oid}: {ex}")
+            (erros if estrito else avisos).append(f"{ov.get('nome', oid)}: {ex}")
     prontos.sort(key=lambda o: (o["_s"], o.get("priority", 9)))
     finais = []
     for o in prontos:  # a zona comporta um overlay por vez; conflito -> mantem a maior prioridade
@@ -225,10 +174,10 @@ def preparar(cfg, words, duracao):
         elif o.get("priority", 9) < conflito.get("priority", 9):
             finais.remove(conflito)
             finais.append(o)
-            avisos.append(f"{conflito['id']} removido: sobrepoe {o['id']} (prioridade maior)")
+            avisos.append(f"{conflito.get('nome', conflito['id'])} removido: sobrepoe {o.get('nome', o['id'])}")
         else:
-            avisos.append(f"{o['id']} removido: sobrepoe {conflito['id']} (prioridade maior)")
-    if erros:
+            avisos.append(f"{o.get('nome', o['id'])} removido: sobrepoe {conflito.get('nome', conflito['id'])}")
+    if erros and (estrito or not zona):
         raise ConfigError("overlays.json invalido:\n  - " + "\n  - ".join(erros))
     return finais, avisos
 
@@ -332,7 +281,7 @@ def draw_counter(img, ov, t, D):
     dur = p.get("count_ms", 1300) / 1000
     v = p.get("from", 0) + (p["to"] - p.get("from", 0)) * ease_out((t - 0.15) / dur)
     dec = p.get("decimals", 0)
-    num = f"{p.get('prefix', '')}{fmt_num(v, dec)}"
+    num = f"{p.get('prefix', '')}{fmt_num(v, dec)}{p.get('unit', '')}"
     big = fonte(128)
     while big.getlength(num) > W - 120 and big.size > 60:
         big = fonte(big.size - 8)
@@ -643,6 +592,181 @@ def aplicar_com_fallback(video, ass, config, out, **kw):
         return Path(out), aplicar(video, ass, config, out, **kw)
     except Exception as ex:  # noqa: BLE001
         return Path(video), {"erro": f"{type(ex).__name__}: {ex}"}
+
+
+# ---------------------------------------------------------------- integracao com o app (marcacoes no roteiro)
+from marcacoes import NOMES  # noqa: E402
+
+_FIM_FRASE = re.compile(r"[.!?…]['\")\]]*$")
+_STOP = {"PARA", "COMO", "MAIS", "QUE", "COM", "UMA", "ESSE", "ESSA", "ISSO", "ESTE", "ESTA", "SEUS", "SUAS",
+         "SOBRE", "THE", "AND", "WITH", "THAT", "THIS", "YOUR", "FROM", "INTO", "MUITO", "PELO", "PELA", "NAO"}
+DURACAO = {"counter": (2.5, 6), "keyword": (2.0, 5), "bars": (3.0, 10), "flow": (3.0, 12), "cards": (3.0, 10)}
+
+
+def zona(tpl, modelo):
+    """Zona segura calculada do template já com o estilo escolhido (fonte/tamanho da legenda).
+    None = formato sem zona validada (horizontal 16:9): o vídeo sai sem animações."""
+    W, H = tpl["video"]["largura"], tpl["video"]["altura"]
+    if W >= H:
+        return None
+    lg = tpl.get("legenda") or {}
+    if modelo == "F01":  # legenda presa embaixo (MarginV): a animação fica abaixo dela
+        y0, y1 = H - int(lg.get("margem_inferior", 560)) + 70, H - 100
+    else:  # entrevista: entre o nome de quem fala e a legenda
+        y0 = int((tpl.get("rotulos") or {}).get("nome_y", 225)) + 55
+        y1 = int(lg.get("centro_y", 760)) - int(int(lg.get("tamanho", 84)) * 0.75) - 20
+    if y1 - y0 < 300:
+        return None
+    h = min(y1 - y0, 420)
+    return {"x": 80, "y": y0 + (y1 - y0 - h) // 2, "width": W - 160, "height": h}
+
+
+def _chaves(texto):
+    return {norm(w) for w in texto.split() if len(norm(w)) >= 4 and norm(w) not in _STOP}
+
+
+def _bate(n, chave):
+    return n == chave or (len(chave) >= 5 and len(n) >= 5 and n[:5] == chave[:5])
+
+
+def _achar_item(ws, ini, chaves):
+    """Primeira posição >= ini com o maior número de palavras-chave do item logo em seguida."""
+    if not chaves:
+        return None
+    melhor, pos = 0, None
+    for j in range(ini, min(len(ws), ini + 80)):
+        if not any(_bate(ws[j]["n"], c) for c in chaves):
+            continue
+        janela = ws[j:j + len(chaves) + 2]
+        score = sum(1 for c in chaves if any(_bate(w["n"], c) for w in janela))
+        if score > melhor:
+            melhor, pos = score, j
+    return pos
+
+
+def _fim_frase(ws, i):
+    for j in range(i, len(ws)):
+        if _FIM_FRASE.search(ws[j]["word"]):
+            return j
+    return len(ws) - 1
+
+
+def _indice_em(ws, t):
+    return next((j for j, w in enumerate(ws) if w["start"] >= t - 1e-3), len(ws) - 1)
+
+
+def planejar(anim, ws):
+    """Uma marcação + palavras da cena (tempo global) -> overlay com start_ms/end_ms e itens com at_ms."""
+    tipo, p = anim["tipo"], json.loads(json.dumps(anim["payload"]))
+    i0 = min(anim["palavra"], len(ws) - 1)
+    s = max(0.0, ws[i0]["start"] - 0.12)
+    ultimo = i0
+    itens = {"flow": p.get("steps"), "cards": p.get("cards"), "bars": p.get("bars")}.get(tipo) or []
+    marcas = []
+    if tipo in ("flow", "cards"):
+        cur = i0
+        for k, it in enumerate(itens):
+            if k == 0:
+                j = i0
+            else:
+                rot = it["label"] if tipo == "flow" else it["title"]
+                j = _achar_item(ws, cur, _chaves(rot))
+                if j is None and tipo == "cards":
+                    j = _achar_item(ws, cur, _chaves(it.get("text", "")))
+            if j is None:
+                marcas = []
+                break
+            marcas.append(ws[j]["start"])
+            cur, ultimo = j + 1, j
+    elif tipo == "bars":
+        falados = numeros_falados(ws[i0:])
+        t = s
+        for b in itens:
+            hit = next((n for n in falados if abs(n["valor"] - b["value"]) < 1e-6 and n["start"] >= t - 0.01), None)
+            if hit is None:
+                marcas = []
+                break
+            marcas.append(hit["start"])
+            t = hit["start"]
+        if marcas:
+            ultimo = _indice_em(ws, marcas[-1])
+    if itens and not marcas:  # palavras das etapas não encontradas na fala: acende uma por vez
+        marcas = [s + 0.15 + k * 1.4 for k in range(len(itens))]
+        ultimo = _indice_em(ws, marcas[-1])
+    for it, m in zip(itens, marcas):
+        it["at_ms"] = round(m * 1000)
+    e = ws[_fim_frase(ws, ultimo)]["end"] + 0.6
+    lo, hi = DURACAO[tipo]
+    e = min(max(e, s + lo, (marcas[-1] + 1.8) if marcas else 0), s + hi)
+    return {"type": tipo, "start_ms": round(s * 1000), "end_ms": round(e * 1000), "payload": p, "priority": 1}
+
+
+def overlays_do_roteiro(scenes, timeline, total, inicio_min=0.0):
+    ovs, avisos = [], []
+    for sc, words in zip(scenes, timeline):
+        ws = [{**w, "n": norm(w["word"])} for w in words]
+        for k, a in enumerate(sc.get("animacoes") or []):
+            nome = f"{NOMES.get(a['tipo'], a['tipo'])} da {sc['id'].replace('_', ' ').lower()}"
+            if not ws:
+                continue
+            try:
+                ov = planejar(a, ws)
+            except (KeyError, ValueError, TypeError, IndexError) as ex:
+                avisos.append(f"{nome}: {ex}")
+                continue
+            ov.update(id=f"{sc['id']}_{k + 1}", nome=nome)
+            ovs.append(ov)
+    ovs.sort(key=lambda o: o["start_ms"])
+    finais = []
+    for o in ovs:
+        o["start_ms"] = max(o["start_ms"], round(inicio_min * 1000))
+        o["end_ms"] = min(o["end_ms"], round((total - 0.1) * 1000))
+        if finais and finais[-1]["end_ms"] > o["start_ms"] - 150:  # uma por vez: a anterior encurta
+            finais[-1]["end_ms"] = o["start_ms"] - 150
+            if finais[-1]["end_ms"] - finais[-1]["start_ms"] < 1500:
+                avisos.append(f"{finais[-1]['nome']} removido: ficou curto demais antes de {o['nome']}")
+                finais.pop()
+        if o["end_ms"] - o["start_ms"] >= 1500:
+            finais.append(o)
+        else:
+            avisos.append(f"{o['nome']} removido: tempo de tela curto demais")
+    return finais, avisos
+
+
+def aplicar_no_filtro(tpl, modelo, scenes, timeline, total, work, primeiro_indice, ultimo_rotulo, inicio_min=0.0):
+    """Para os compositores: devolve (inputs, filtros, novo_rotulo, info). Os overlays entram na mesma passada
+    final da legenda (antes de subtitles=), sem encode extra. Qualquer falha -> vídeo normal + erro em info."""
+    info = {"animacoes": 0, "avisos": []}
+    sm = tpl.get("smart_motion") or {}
+    if sm.get("ativo") is False or not any(sc.get("animacoes") for sc in scenes):
+        return [], [], ultimo_rotulo, info
+    t0 = time.perf_counter()
+    try:
+        z = zona(tpl, modelo)
+        if not z:
+            info["avisos"].append("Animações ainda não disponíveis neste formato (só vertical 9:16): vídeo sem elas.")
+            return [], [], ultimo_rotulo, info
+        ovs, avisos = overlays_do_roteiro(scenes, timeline, total, inicio_min)
+        flat = [{"w": w["word"], "n": norm(w["word"]), "start": w["start"], "end": w["end"]} for ws in timeline for w in ws]
+        v = tpl["video"]
+        cfg = {"version": "1.0", "canvas": {"width": v["largura"], "height": v["altura"], "fps": v["fps"]},
+               "intensity": sm.get("intensidade", "balanced"), "safe_zone": z, "overlays": ovs}
+        finais, av2 = preparar(cfg, flat, total, estrito=False)
+        camadas = render_camadas(finais, Path(work) / "motion", v["fps"], cfg["intensity"])
+        inputs, graph, last = [], [], ultimo_rotulo
+        for k, c in enumerate(camadas):
+            inputs += ["-i", str(c["path"])]
+            graph.append(f"[{primeiro_indice + k}:v]setpts=PTS-STARTPTS+{c['s']:.3f}/TB[sm{k}]")
+            graph.append(f"[{last}][sm{k}]overlay=x={c['x']}:y={c['y']}:eof_action=pass:"
+                         f"enable='between(t,{c['s']:.3f},{c['e']:.3f})'[smv{k}]")
+            last = f"smv{k}"
+        info.update(animacoes=len(camadas), avisos=avisos + av2, render_s=round(time.perf_counter() - t0, 2),
+                    lista=[{"nome": o.get("nome"), "tipo": o["type"], "inicio_s": round(o["_s"], 2),
+                            "fim_s": round(o["_e"], 2)} for o in finais])
+        return inputs, graph, last, info
+    except Exception as ex:  # noqa: BLE001  fallback: nunca derruba a geração
+        info["erro"] = f"{type(ex).__name__}: {ex}"
+        return [], [], ultimo_rotulo, info
 
 
 # ---------------------------------------------------------------- CLI

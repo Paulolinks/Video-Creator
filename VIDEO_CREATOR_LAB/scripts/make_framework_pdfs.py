@@ -4,6 +4,7 @@ Each PDF is meant to be attached to ChatGPT so new scripts always come back in t
 Run with the lab venv (reportlab). Usage: make_framework_pdfs.py
 """
 import json
+import re
 import shutil
 from html import escape
 from pathlib import Path
@@ -139,11 +140,88 @@ def meta_section(title):
             code(META_MODEL), table(META_ROWS, [40, 134]), P(META_HOW)]
 
 
+# --------------------------------------------------------------------------------------------- animations
+# Smart Motion markers (VIDEO_CREATOR_LAB/smart_motion/marcacoes.py reads them; the app strips them before the voice)
+ANIM_ROWS = [
+    ["Marcação", "O que aparece na tela", "Quando usar", "Exemplo"],
+    ["<b>CONTADOR</b><br/>[CONTADOR: valor | texto]", "Um número que sobe do zero até o valor, com um texto curto "
+     "embaixo.", "A fala cita um valor importante: dinheiro, porcentagem, quantidade, anos.",
+     "[CONTADOR: US$ 100.000 | por mês]"],
+    ["<b>BARRAS</b><br/>[BARRAS: título | Nome = valor | Nome = valor]", "2 a 5 barras horizontais; cada uma "
+     "cresce quando o seu número é falado.", "A fala compara dois ou mais valores.",
+     "[BARRAS: 10% de margem | Vendas = US$ 1.000.000 | Lucro = US$ 100.000]"],
+    ["<b>FLUXO</b><br/>[FLUXO: etapa | etapa | etapa]", "2 a 5 blocos numerados ligados por setas; cada etapa "
+     "acende quando as palavras dela são faladas.", "Passo a passo, processo, sequência (\"primeiro... depois... "
+     "por fim\").", "[FLUXO: Consciência do padrão | Novo padrão | Ações consistentes]"],
+    ["<b>CARDS</b><br/>[CARDS: errado: detalhe | certo: detalhe]", "Dois cartões lado a lado: o 1º com um X (o "
+     "que não fazer, o antes, o mito), o 2º com sinal de certo (o que fazer, o depois, a verdade). O 2º entra quando o "
+     "título dele é falado. Com um só cartão, ele aparece com o sinal de certo.", "Contraste entre duas ideias.",
+     "[CARDS: Só pensamento positivo: não substitui estratégia | Visão clara: orienta o trabalho concreto]"],
+    ["<b>DESTAQUE</b><br/>[DESTAQUE: PALAVRA | subtítulo]", "Uma palavra grande com sublinhado dourado e um "
+     "subtítulo opcional.", "O conceito-chave que o vídeo quer fixar.",
+     "[DESTAQUE: PARADIGMA | hábitos + crenças repetidos]"],
+]
+
+ANIM_RULES = [
+    "A marcação vai <b>dentro do texto falado</b>, na mesma linha, <b>logo antes da frase</b> em que a animação "
+    "deve aparecer. Ela não é falada e não aparece na legenda.",
+    "A animação começa na palavra seguinte à marcação e fica na tela até o fim daquela frase (no FLUXO, nos CARDS e "
+    "nas BARRAS, até a frase do último item).",
+    "Escreva o nome do tipo em MAIÚSCULAS, depois dois-pontos, e separe os campos com <b>|</b>. Não use colchetes "
+    "dentro da marcação.",
+    "Dentro da marcação, valores em <b>dígitos com símbolo</b> (US$ 100.000, 10%, R$ 1,5 milhão). Na fala, o número "
+    "continua <b>por extenso</b> (\"cem mil dólares\").",
+    "CONTADOR e BARRAS só aparecem se o mesmo número for dito na fala daquela cena. Se não for, o app ignora a "
+    "animação e avisa. Nunca invente um número que a fala não diz.",
+    "Textos curtos: etapas e títulos de cards com 1 a 4 palavras; detalhe do card com até 6 palavras; destaque com "
+    "1 ou 2 palavras.",
+    "Nas etapas do FLUXO e nos títulos dos CARDS, use palavras que aparecem na fala: é assim que o app sabe "
+    "quando acender cada uma.",
+    "Quantidade: nunca duas na mesma frase. No Personagem falando, no máximo 1 por cena; na Entrevista, até 2 por "
+    "resposta do mentor (em frases diferentes). Use as animações onde elas ajudam a entender, não em toda cena.",
+    "É opcional: um roteiro sem marcações gera o vídeo normal, sem animações.",
+    "A posição é automática: no Personagem falando, abaixo da legenda; na Entrevista, entre o nome de quem fala e a "
+    "legenda. Por enquanto, só no formato vertical 9:16.",
+]
+
+
+def anim_section(num, quantos, exemplo):
+    rows = [ANIM_ROWS[0]] + [[r[0], r[1], r[2], f"<font name='Mono' size='7.4'>{escape(r[3])}</font>"]
+                             for r in ANIM_ROWS[1:]]
+    return [P(f"{num}. Animações na tela (Smart Motion)", "h2"),
+            P("O app pode mostrar animações sincronizadas com a fala: contadores, gráficos de barras, fluxos, cards de "
+              "comparação e palavras em destaque. Para pedir uma, escreva uma <b>marcação</b> entre colchetes no "
+              f"meio da fala. <b>Quantidade recomendada: {quantos}.</b>"),
+            table(rows, [40, 50, 38, 46]), P("Regras", "h3")] + bullets(ANIM_RULES) + [
+            KeepTogether([P("Exemplo de cena com marcação", "h3"), code(exemplo)])]
+
+
+def anim_md(quantos, exemplo):
+    linhas = "\n".join(f"| `{r[0].split('<br/>')[1]}` | {r[1]} | {r[2]} | `{r[3]}` |" for r in ANIM_ROWS[1:])
+    regras = "\n".join(f"- {re.sub(r'<[^>]+>', '', r)}" for r in ANIM_RULES)
+    return f"""## Animações na tela (Smart Motion)
+
+O app pode mostrar animações sincronizadas com a fala. Para pedir uma, escreva uma marcação entre colchetes
+dentro da fala, logo antes da frase em que ela deve aparecer. Quantidade recomendada: {quantos}.
+
+| Marcação | O que aparece na tela | Quando usar | Exemplo |
+|---|---|---|---|
+{linhas}
+
+{regras}
+
+Exemplo de cena com marcação:
+
+```text
+{exemplo}
+```"""
+
+
 # --------------------------------------------------------------------------------------------- F01
 F01_EXAMPLE = [
     {"id": "CENA_01", "mode": "fala", "image": "inputs/teste_maquiavel/cena1_maquiavel.png",
-     "text": "Você acredita que as pessoas mostram quem realmente são? Maquiavel já alertava: os homens julgam mais "
-             "pelos olhos do que pelas mãos.",
+     "text": "Você acredita que as pessoas mostram quem realmente são? Maquiavel já alertava: [CARDS: Olhos: o "
+             "que parece | Mãos: o que a pessoa faz] os homens julgam mais pelos olhos do que pelas mãos.",
      "descricao_imagem": "Maquiavel em seu escritório renascentista, à luz de velas, olhando para a câmera e gesticulando."},
     {"id": "CENA_02", "mode": "dolly", "image": "inputs/teste_maquiavel/cena2_traicao.png",
      "text": "Alguém pode sorrir na sua frente, jurar lealdade e, pelas suas costas, escolher aquilo que lhe oferece "
@@ -151,8 +229,8 @@ F01_EXAMPLE = [
      "descricao_imagem": "Salão renascentista: uma nobre entrega uma carta selada a um homem, enquanto outro observa "
                          "desconfiado ao fundo."},
     {"id": "CENA_03", "mode": "fala", "image": "inputs/teste_maquiavel/cena3_maquiavel.png",
-     "text": "Por isso, não julgue alguém pelo que promete. Observe o que faz quando seus interesses estão em jogo. É aí "
-             "que o caráter se revela.",
+     "text": "Por isso, não julgue alguém pelo que promete. Observe o que faz quando seus interesses estão em jogo. [DESTAQUE: CARÁTER | "
+             "aparece nas ações] É aí que o caráter se revela.",
      "descricao_imagem": "Maquiavel sentado à mesa com livros e mapas, inclinado para a câmera, em tom de conselho."},
 ]
 
@@ -188,6 +266,11 @@ FIM
 
 """ + META_MODEL
 
+F01_ANIM_EX = """CENA 01 | MODO: FALA
+NARRAÇÃO: Você acredita que as pessoas mostram quem realmente são? Maquiavel já alertava: [CARDS: Olhos: o que parece | Mãos: o que a pessoa faz] os homens julgam mais pelos olhos do que pelas mãos.
+IMAGEM: Maquiavel em seu escritório renascentista, olhando para a câmera."""
+F01_ANIM_QTD = "1 ou 2 por vídeo (no máximo 1 por cena)"
+
 F01_PROMPT = """Anexei o PDF "Framework F01 — Personagem Falando". Siga o item 3 à risca.
 
 TEMA DO VÍDEO: [escreva o tema]
@@ -202,6 +285,8 @@ REGRAS DE ENTREGA (obrigatórias):
   "CENA 01 | MODO: FALA", NARRAÇÃO:, IMAGEM:. Escreva "CENA 01" com espaço (nunca CENA_01).
 - MODO só pode ser FALA, DOLLY ou ZOOM.
 - Dentro do bloco: sem negrito, sem títulos, sem comentários, sem JSON, sem fontes e sem nenhum <...> sobrando.
+- Animações: inclua 1 ou 2 marcações do item 5 ([CONTADOR: ...], [BARRAS: ...], [FLUXO: ...], [CARDS: ...] ou
+  [DESTAQUE: ...]) dentro da NARRAÇÃO, logo antes da frase certa. Números da marcação precisam ser ditos na fala.
 - Depois do bloco, em texto normal: um PROMPT DE IMAGEM por cena (regras de imagem do item 4).
 """
 
@@ -209,7 +294,7 @@ REGRAS DE ENTREGA (obrigatórias):
 def f01():
     s = [header("FORMATO 01 — PERSONAGEM FALANDO",
                 "Framework de roteiro para criar vídeos em que um personagem fala direto para a câmera.",
-                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.2 · ATUALIZADO EM 03/11/2026"), Spacer(1, 8)]
+                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.3 · ATUALIZADO EM 07/11/2026"), Spacer(1, 8)]
     s += [P("<b>Para que serve este PDF:</b> anexe este arquivo ao ChatGPT junto com o prompt do item 2. O ChatGPT "
             "devolve o roteiro em texto simples, já no formato que o Video Creator lê. Você cola esse texto no app "
             "(ou salva como .txt) e envia as imagens das cenas. <b>Não envie este PDF ao app</b>: ele é só o modelo.")]
@@ -260,7 +345,8 @@ def f01():
               "Uma imagem pode ser reutilizada em mais de uma cena.",
               "Personagens sem rosto humano (ex.: cabeça cósmica) <b>não podem</b> usar o modo FALA: use DOLLY ou ZOOM.",
               "Nome dos arquivos: cena1.png, cena2.png... dentro da pasta do vídeo."])
-    s += [PageBreak(), P("5. Como enviar para o app", "h2")] + bullets([
+    s += [PageBreak()] + anim_section(5, F01_ANIM_QTD, F01_ANIM_EX)
+    s += [P("6. Como enviar para o app", "h2")] + bullets([
         "Copie o bloco de código que o ChatGPT devolveu e cole em <b>Colar roteiro</b>, na página Criar vídeos "
         "(ou salve como <b>.txt</b> e arraste o arquivo).",
         "Envie junto as imagens com o nome <b>cena1.png, cena2.png...</b> (uma por cena, na ordem). Para colar e "
@@ -268,8 +354,8 @@ def f01():
         "O app mostra o template, o idioma, o título, as cenas e o que estiver faltando antes de gerar.",
         "Roteiro em inglês: mantenha as mesmas palavras-chave do item 3; o app identifica o idioma sozinho e a voz "
         "lê em inglês."])
-    s += [P("6. Exemplo completo — Maquiavel", "h2"), code(F01_EXAMPLE_TXT)]
-    s += [KeepTogether([P("7. Padrão técnico fixo (não muda de vídeo para vídeo)", "h2"),
+    s += [P("7. Exemplo completo — Maquiavel", "h2"), code(F01_EXAMPLE_TXT)]
+    s += [KeepTogether([P("8. Padrão técnico fixo (não muda de vídeo para vídeo)", "h2"),
           table([["Item", "Padrão aprovado"],
                  ["Saída", "MP4 1080 × 1920, 30 fps, H.264 + AAC, volume −14 LUFS"],
                  ["Fala", "SadTalker 256, corpo parado, sem realce facial (≈1 min por cena falada)"],
@@ -277,12 +363,26 @@ def f01():
                  ["Voz", "Kokoro, voz masculina Alex, tratamento de locutor"],
                  ["Legenda", "Karaokê branco → dourado, Poppins Bold, até 3 palavras, maiúsculas"],
                  ["Transição", "Dissolve de 0,5 s entre cenas"],
-                 ["Música", "Opcional, escolhida no app (abaixa sozinha quando a voz entra)"]], [40, 134])])]
+                 ["Música", "Opcional, escolhida no app (abaixa sozinha quando a voz entra)"],
+                 ["Animações", "Smart Motion: marcações do item 5, abaixo da legenda, sincronizadas com a fala"]],
+                [40, 134])])]
     return s
 
 
 # --------------------------------------------------------------------------------------------- T02
 T02_SCENES = json.loads((LAB / "inputs" / "entrevista_bob_proctor" / "roteiro.json").read_text(encoding="utf-8"))["cenas"]
+T02_MARCAS = [("CENA_02", "O paradigma é", "[DESTAQUE: PARADIGMA | hábitos + crenças repetidos]"),
+              ("CENA_02", "Primeiro, tome", "[FLUXO: Consciência do padrão | Novo padrão | Ações consistentes]"),
+              ("CENA_03", "Se eu quiser", "[CONTADOR: US$ 100.000 | por mês]"),
+              ("CENA_04", "Um milhão de dólares", "[BARRAS: 10% de margem | Vendas = US$ 1.000.000 | "
+                                                  "Lucro = US$ 100.000]"),
+              ("CENA_04", "Não tente substituir", "[CARDS: Só pensamento positivo: não substitui estratégia | "
+                                                  "Visão clara: orienta o trabalho concreto]")]
+for _cid, _antes, _marca in T02_MARCAS:  # the example script shows the animation markers in place
+    _c = next(c for c in T02_SCENES if c["id"] == _cid)
+    _c["text"] = _c["text"].replace(_antes, f"{_marca} {_antes}", 1)
+T02_ANIM_EX = "CENA 03 | PERSONAGEM: PAULO\n" + next(c["text"] for c in T02_SCENES if c["id"] == "CENA_03")
+T02_ANIM_QTD = "3 a 5 por vídeo"
 
 T02_EXAMPLE_TXT = ("TÍTULO: DESCUBRA O QUE ESTÁ LIMITANDO SUA RENDA\n"
                    "SUBTÍTULO: Minha conversa com Bob Proctor sobre paradigmas financeiros e negócios\n"
@@ -337,13 +437,15 @@ REGRAS DE ENTREGA (obrigatórias):
 - Dentro do bloco: sem negrito, sem títulos, sem aviso, sem comentários, sem JSON, sem fontes
   e sem nenhum <...> sobrando.
 - A DESCRIÇÃO do bloco METADADOS diz que é uma dramatização.
+- Animações: inclua de 3 a 5 marcações do item 5 ([CONTADOR: ...], [BARRAS: ...], [FLUXO: ...], [CARDS: ...] ou
+  [DESTAQUE: ...]) dentro das falas, logo antes da frase certa. Números da marcação precisam ser ditos na fala.
 """
 
 
 def t02():
     s = [header("T02 — ENTREVISTA COM MENTOR",
                 "Framework de roteiro para conversas alternadas: você pergunta, o mentor responde.",
-                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.2 · ATUALIZADO EM 03/11/2026"), Spacer(1, 8)]
+                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.3 · ATUALIZADO EM 07/11/2026"), Spacer(1, 8)]
     s += [P("<b>Para que serve este PDF:</b> anexe este arquivo ao ChatGPT junto com o prompt do item 2. Ele "
             "devolve o roteiro em texto simples, já no formato que o Video Creator lê. Você cola esse texto no app "
             "(ou salva como .txt). <b>Não envie este PDF ao app</b>: ele é só o modelo.")]
@@ -389,7 +491,8 @@ def t02():
                  ["Fundo", "vídeo curto em loop (ex.: nuvens)", "outro vídeo em loop (ex.: partículas douradas)"],
                  ["Voz", "Chatterbox, clone da voz do Paulo", "Kokoro, voz genérica (pm_santa ou pm_alex)"]],
                 [26, 74, 74])]
-    s += [PageBreak(), P("5. Como enviar para o app", "h2")] + bullets([
+    s += [PageBreak()] + anim_section(5, T02_ANIM_QTD, T02_ANIM_EX)
+    s += [P("6. Como enviar para o app", "h2")] + bullets([
         "Copie o bloco de código que o ChatGPT devolveu e cole em <b>Colar roteiro</b>, na página Criar vídeos "
         "(ou salve como <b>.txt</b> e arraste o arquivo).",
         "O app liga cada nome ao personagem cadastrado (imagem, lado, fundo e voz ficam no cadastro, não no roteiro). "
@@ -397,8 +500,8 @@ def t02():
         "O app mostra o template, o idioma, o título, as cenas e o que estiver faltando antes de gerar.",
         "Roteiro em inglês: mantenha as mesmas palavras-chave do item 3; o app identifica o idioma sozinho e as "
         "vozes leem em inglês."])
-    s += [KeepTogether([P("6. Exemplo completo — Paulo × Bob Proctor", "h2"), code(T02_EXAMPLE_TXT)])]
-    s += [KeepTogether([P("7. Padrão técnico fixo (não muda de vídeo para vídeo)", "h2"),
+    s += [P("7. Exemplo completo — Paulo × Bob Proctor", "h2"), code(T02_EXAMPLE_TXT)]
+    s += [KeepTogether([P("8. Padrão técnico fixo (não muda de vídeo para vídeo)", "h2"),
           table([["Item", "Padrão aprovado"],
                  ["Saída", "MP4 1080 × 1920, 30 fps, H.264 + AAC, volume −14 LUFS"],
                  ["Retrato", "PNG recortado, largura 1000 px, respiração 100 → 106 → 100%"],
@@ -408,7 +511,9 @@ def t02():
                  ["Legenda", "Karaokê branco → dourado, Poppins Bold, até 3 palavras, maiúsculas"],
                  ["Topo", "Só o nome de quem fala; logo do canal opcional"],
                  ["Transição", "Dissolve de 0,4 s na troca de locutor"],
-                 ["Música", "Opcional, escolhida no app"]], [40, 134])])]
+                 ["Música", "Opcional, escolhida no app"],
+                 ["Animações", "Smart Motion: marcações do item 5, entre o nome e a legenda, sincronizadas com a fala"]],
+                [40, 134])])]
     return s
 
 
@@ -428,6 +533,8 @@ RULES = """## Regras de entrega
    EPISÓDIO: com a posição do vídeo e o total, no formato "1 de 9". Com as duas linhas preenchidas, a capa
    mostra o nome da série e "EPISÓDIO 1 DE 9" acima do título. Vídeo avulso: deixe SÉRIE: e EPISÓDIO: vazias
    (sem <...>) ou apague as duas linhas; a capa sai no modelo normal.
+9. Animações (opcional, recomendado): marque contadores, barras, fluxos, cards e destaques dentro da fala,
+   com a sintaxe da seção "Animações na tela". A marcação não é falada.
 
 ## Metadados da publicação
 
@@ -458,6 +565,8 @@ Para começar, peça: MENTOR, TEMA DA CONVERSA, NÚMERO DE CENAS (4 a 8) e pergu
 - Nome dos personagens sempre igual e em MAIÚSCULAS: PAULO e o nome do mentor (ex.: BOB PROCTOR).
 - A fala vem na linha de baixo do cabeçalho da cena, sem repetir o nome.
 - A DESCRIÇÃO do bloco METADADOS diz que é uma dramatização criada com IA.
+
+{anim_md(T02_ANIM_QTD, T02_ANIM_EX)}
 
 ## Modelo
 
@@ -492,6 +601,8 @@ Uma voz narra o vídeo todo. Para começar, peça: TEMA, PERSONAGEM QUE FALA e N
 - IMAGEM: uma frase descrevendo o que aparece na cena.
 - Depois do bloco: um prompt de imagem por cena (vertical 9:16, sem texto dentro da imagem, mesmo personagem,
   roupa e cenário nas cenas de FALA). O usuário salva as imagens como cena1.png, cena2.png...
+
+{anim_md(F01_ANIM_QTD, F01_ANIM_EX)}
 
 ## Modelo
 
