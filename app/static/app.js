@@ -87,7 +87,7 @@ function renderCharacters() {
       ${imgs.length > 1 ? `<div class="img-rod">${imgs.map((p) => `<div class="checker"><img src="${media(p)}" alt="" loading="lazy">
         <button type="button" class="x-mini" data-rmimg="${esc(p)}" data-cid="${c.id}" title="Tirar do rodízio">×</button></div>`).join("")}</div>` : ""}
       <label class="btn ghost small">+ Adicionar imagem<input type="file" accept="image/*" data-addimg="${c.id}" hidden></label>
-      <div class="small muted img-msg">${imgs.length > 1 ? `${imgs.length} imagens: cada vídeo usa a próxima.` : "Só uma imagem: ela aparece em todos os vídeos."}</div>`}
+      <div class="small muted img-msg">${imgs.length > 1 ? `${imgs.length} imagens em rodízio: na entrevista, uma por vídeo; no Personagem falando, uma por cena.` : "Só uma imagem: ela aparece em todos os vídeos."}</div>`}
       <div class="sub-h">Voz</div>
       ${c.voz.motor === "chatterbox" ? '<div class="meta">Clonada de gravação</div>'
         : `<select data-cid="${c.id}" data-field="voz">${Object.entries(LIB.vozes).map(([k, v]) =>
