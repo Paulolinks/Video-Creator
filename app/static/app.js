@@ -38,6 +38,8 @@ async function loadLib() {
   LIB = await api("/api/biblioteca");
   const bgOptions = LIB.fundos.map((f) => `<option value="${f.id}">${esc(f.nome)}</option>`).join("");
   $$(".sel-fundos").forEach((s) => (s.innerHTML = bgOptions));
+  $("#form-fundos-extra").innerHTML = LIB.fundos.map((f) =>
+    `<label class="inline small"><input type="checkbox" name="fundos_extra" value="${f.id}"> ${esc(f.nome)}</label>`).join("");
   $("#sel-vozes").innerHTML = Object.entries(LIB.vozes).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
   $("#sel-temas").innerHTML = Object.entries(LIB.temas || {}).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
   $("#dl-nichos").innerHTML = [...new Set(LIB.personagens.map((c) => c.nicho).filter(Boolean))].sort().map((n) => `<option value="${esc(n)}">`).join("");
@@ -291,7 +293,9 @@ form.onsubmit = async (e) => {
   msg.textContent = "Salvando... (se a imagem tiver fundo, a remoção leva ~30 s)";
   try {
     const c = await api("/api/personagens", { method: "POST", body: new FormData(form) });
-    msg.innerHTML = `<span style="color:var(--ok)">${esc(c.nome)} cadastrado.${c.fundo_removido ? " Fundo da imagem removido automaticamente." : ""}</span>`;
+    const poses = (c.imagens || [c.imagem]).length;
+    msg.innerHTML = `<span style="color:var(--ok)">${esc(c.nome)} cadastrado com ${poses} ${poses > 1 ? "poses" : "pose"}.${c.fundo_removido ? " Fundo da imagem removido automaticamente." : ""}</span>`
+      + (c.falhas_imagens?.length ? `<div class="avisos">${c.falhas_imagens.map(esc).join("<br>")}</div>` : "");
     form.reset();
     $("#prev-wrap").classList.add("hide");
     $("#rc-audio").classList.add("hide");
@@ -436,7 +440,9 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
       ? v.personagens.map((p) => v.personagens_status?.[p]
           ? `<span class="chip ok">${esc(p)}</span>`
           : `<span class="chip bad">${esc(p)}</span> <button class="link" data-cadastrar="${esc(p)}">cadastrar</button>`).join(" ")
-      : `${esc(v.personagens.join(", "))}<div class="muted small">Imagens: ${esc(v.imagens_resumo || `${v.imagens.filter(Boolean).length}/${v.cenas.length} ${v.origem_imagens}`)}</div>`;
+      : `${v.personagens.map((p) => v.personagens_status?.[p]
+          ? `<span class="chip ok">${esc(p)}</span>`
+          : `<span class="chip bad">${esc(p)}</span> <button class="link" data-cadastrar="${esc(p)}">cadastrar</button>`).join(" ")}<div class="muted small">Imagens: ${esc(v.imagens_resumo || `${v.imagens.filter(Boolean).length}/${v.cenas.length} ${v.origem_imagens}`)}</div>`;
     const tag = v.template === "F01" ? '<span class="chip t01">Personagem falando</span>'
       : v.template === "T02" ? '<span class="chip t02">Entrevista</span>' : '<span class="chip bad">Desconhecido</span>';
     const lang = v.idioma ? `<span class="chip">${v.idioma === "en" ? "Inglês" : "Português"}</span>` : "";

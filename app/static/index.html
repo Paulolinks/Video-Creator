@@ -80,7 +80,7 @@
             <button type="button" class="tpl-card" data-tpl="F01" aria-pressed="false">
               <img src="/static/modelos/capa_F01.jpg" alt="">
               <span class="tpl-txt"><b>Personagem falando</b>
-                <span class="small muted">Um personagem fala para a câmera, com legenda karaokê. Envie a pasta com o roteiro e as imagens das cenas.</span></span>
+                <span class="small muted">Um personagem fala para a câmera, com legenda karaokê. Cole o roteiro: as cenas usam as imagens do personagem cadastrado e fotos do Pixabay (imagens próprias são opcionais).</span></span>
               <span class="tpl-check">✓</span>
             </button>
             <button type="button" class="tpl-card" data-tpl="T02" aria-pressed="false">
@@ -300,10 +300,15 @@
         <label>Categoria<input name="categoria" placeholder="Ex.: Estoicismo"></label>
         <label>Imagem sem fundo (PNG transparente)<input name="imagem" type="file" accept="image/png,image/webp" required></label>
         <div id="prev-wrap" class="prev hide"><img id="prev-img" alt=""><div id="prev-msg" class="small"></div></div>
+        <label>Mais poses do personagem <span class="muted small">(opcional, pode escolher várias: rosto, de um
+          lado, do outro... no Personagem falando, cada cena usa uma, em rodízio)</span>
+          <input name="imagens_extra" type="file" accept="image/png,image/webp,image/jpeg" multiple></label>
         <label>Lado na tela
           <select name="lado"><option value="esquerda">Esquerda (olhando para a direita)</option>
             <option value="direita">Direita (olhando para a esquerda)</option></select></label>
         <label>Fundo padrão<select name="fundo" class="sel-fundos"></select></label>
+        <details class="mais-fundos"><summary>Mais fundos para o rodízio <span class="muted small">(opcional)</span></summary>
+          <div id="form-fundos-extra" class="bg-checks"></div></details>
         <fieldset><legend>Voz</legend>
           <label class="inline"><input type="radio" name="voz_tipo" value="pronta" checked> Voz pronta</label>
           <label class="inline"><input type="radio" name="voz_tipo" value="clonar"> Clonar de uma gravação</label>

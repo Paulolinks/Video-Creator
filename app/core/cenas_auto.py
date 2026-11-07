@@ -155,6 +155,14 @@ def pixabay_image(busca, descricao, idioma, out, key):
     return None
 
 
+def _shuffled(items, last=None, key=lambda x: x):
+    items = list(items)
+    random.shuffle(items)
+    if len(items) > 1 and key(items[0]) == last:
+        items.append(items.pop(0))
+    return items
+
+
 def complete(video, folder, W, H):
     """Preenche as imagens que faltam (lista com uma posição por cena). Retorna (imagens, origens)."""
     folder = Path(folder) / "imagens_auto"
@@ -164,10 +172,9 @@ def complete(video, folder, W, H):
     ch = character_ready(video["personagens"][0] if video.get("personagens") else None)
     key = pixabay_key()
     origens = []
-    poses = library.images(ch) if ch else []
-    bgs = _bg_pool(ch) if ch else []
-    pi = int(ch.get("imagem_indice", 0)) if ch else 0  # continue the rotation from the last video
-    bi = int(ch.get("fundo_indice", 0)) if ch else 0
+    # rotation: a new random order every video (no repeats in a row), not starting where the last video ended
+    poses = _shuffled(library.images(ch), ch.get("ultima_pose")) if ch else []
+    bgs = _shuffled(_bg_pool(ch), ch.get("ultimo_fundo"), key=lambda b: b["id"]) if ch else []
     used_pose = used_bg = 0
     for i, c in enumerate(video["cenas"]):
         if imgs[i] and Path(imgs[i]).exists():
@@ -177,7 +184,7 @@ def complete(video, folder, W, H):
             if not ch:
                 raise RuntimeError(f"Cena {i + 1} (FALA) sem imagem e o personagem não está cadastrado com recorte "
                                    "e fundo. Envie cena%d.png ou cadastre o personagem." % (i + 1))
-            pose, bg = poses[(pi + used_pose) % len(poses)], bgs[(bi + used_bg) % len(bgs)]
+            pose, bg = poses[used_pose % len(poses)], bgs[used_bg % len(bgs)]
             talking_image(pose, bg["arquivo"], out, W, H, at=2.0 + 1.5 * used_bg)
             origens.append(f"Cena {i + 1}: {Path(pose).name} sobre o fundo {bg['nome']}")
             used_pose += 1
@@ -195,7 +202,7 @@ def complete(video, folder, W, H):
             imgs[i] = str(got[0])
             origens.append(f"Cena {i + 1}: {got[1]}")
         elif bgs:  # sem Pixabay: um quadro de outro fundo do personagem, sem pessoa
-            bg = bgs[(bi + used_bg) % len(bgs)]
+            bg = bgs[used_bg % len(bgs)]
             _cover(_frame(bg["arquivo"], 4.0 + 1.5 * used_bg), W, H).save(out, quality=95)
             used_bg += 1
             imgs[i] = str(out)
@@ -203,6 +210,7 @@ def complete(video, folder, W, H):
         else:
             raise RuntimeError(f"Cena {i + 1} sem imagem: envie cena{i + 1}.png, configure a chave do Pixabay ou "
                                "cadastre fundos para o personagem.")
-    if ch and (used_pose or used_bg):  # next video starts on the next pose/background
-        library.update_character(ch["id"], imagem_indice=pi + max(used_pose, 1), fundo_indice=bi + max(used_bg, 1))
+    if ch and (used_pose or used_bg):  # remembered so the next video does not start with the same ones
+        library.update_character(ch["id"], ultima_pose=poses[(used_pose - 1) % len(poses)] if used_pose else None,
+                                 ultimo_fundo=bgs[(used_bg - 1) % len(bgs)]["id"] if used_bg else None)
     return imgs, origens

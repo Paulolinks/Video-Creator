@@ -94,6 +94,12 @@ def check(video):
         if len(video["personagens"]) < 2:
             problems.append("A entrevista precisa de pelo menos dois personagens.")
     if video["template"] == "F01":
+        video["personagens_status"] = {}
+        for name in video["personagens"]:  # the speaker: registered (green) or the "cadastrar" button
+            ch = library.find_character(name)
+            video["personagens_status"][name] = ch["id"] if ch else None
+            if ch and ch.get("imagem_provisoria"):
+                video["fotos_faltando"].append({"id": ch["id"], "nome": ch["nome"]})
         imgs = list(video["imagens"]) + [""] * (len(video["cenas"]) - len(video["imagens"]))
         missing = [(i + 1, c["mode"]) for i, (c, p) in enumerate(zip(video["cenas"], imgs)) if not p]
         ch = cenas_auto.character_ready(video["personagens"][0] if video["personagens"] else None)

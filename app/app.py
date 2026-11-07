@@ -109,9 +109,23 @@ def novo_personagem():
             return err(str(exc))
         if clip:  # the clip was copied into the character folder
             clip.unlink(missing_ok=True)
+    extra_bgs = [b for b in f.getlist("fundos_extra") if library.get("fundos", b)]
+    fundos = list(dict.fromkeys([f.get("fundo", ""), *extra_bgs]))
     item = library.update_character(item["id"], nicho=f.get("nicho", "").strip() or None,
-                                    categoria=f.get("categoria", "").strip() or None)
-    return jsonify(item)
+                                    categoria=f.get("categoria", "").strip() or None,
+                                    fundos=[b for b in fundos if b] if extra_bgs else None)
+    falhas = []
+    with tempfile.TemporaryDirectory() as tmp:  # more poses for the image rotation (background removed too)
+        for k, extra in enumerate(request.files.getlist("imagens_extra")):
+            if not extra or not extra.filename:
+                continue
+            path = Path(tmp) / f"{k}_{secure_filename(extra.filename) or 'pose.png'}"
+            extra.save(path)
+            try:
+                item = library.add_image(item["id"], path)
+            except ValueError as exc:
+                falhas.append(f"{extra.filename}: {exc}")
+    return jsonify({**item, "falhas_imagens": falhas})
 
 
 @app.post("/api/recortar-voz")

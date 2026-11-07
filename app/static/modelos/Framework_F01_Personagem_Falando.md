@@ -48,6 +48,10 @@ O que vier preenchido aparece pronto no app; o que faltar, o app completa com a 
   palavras para buscar a foto da cena no Pixabay.
 - Imagens são opcionais: com o personagem cadastrado no app (recorte + fundos), o app monta as cenas de FALA
   sozinho (pose do personagem sobre um dos fundos dele) e busca no Pixabay as fotos das cenas DOLLY/ZOOM.
+- Cada personagem cadastrado no app tem o seu banco de imagens (poses recortadas, sem fundo) e os seus fundos. Nas cenas de FALA, o app usa essas imagens em rodízio embaralhado: cada cena de FALA mostra uma pose diferente sobre um fundo diferente. Nas cenas DOLLY e ZOOM o personagem não aparece: o app busca no Pixabay uma foto pela linha BUSCA:.
+- Abra e feche com FALA (o personagem aparece). Use DOLLY ou ZOOM no meio para ilustrar exemplos, lugares, objetos e situações; alterne, por exemplo FALA, DOLLY, FALA, ZOOM, FALA.
+- A BUSCA: das cenas DOLLY/ZOOM descreve algo que existe em foto de banco de imagens: objeto, lugar, natureza, ação ou situação (ex.: coins stack, empty office night, man running sunrise). Nunca nomes de pessoas famosas, marcas, épocas muito específicas nem texto escrito.
+- Nas cenas de FALA, a linha IMAGEM: pode ser curta (ex.: "o personagem falando para a câmera"): a imagem vem do cadastro.
 - Depois do bloco: um prompt de imagem por cena (vertical 9:16, sem texto dentro da imagem, mesmo personagem,
   roupa e cenário nas cenas de FALA), para quando o usuário preferir criar as imagens. Ele salva como
   cena1.png, cena2.png...
