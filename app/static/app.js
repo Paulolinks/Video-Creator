@@ -109,6 +109,8 @@ function renderCharacters() {
       <div class="chips-mini">${fundos.map((f) => `<span class="chip">${esc(bgName(f))}</span>`).join("")}</div>
       <details><summary>Escolher fundos</summary><div class="bg-checks" data-cid="${c.id}">${LIB.fundos.map((f) =>
         `<label class="inline small"><input type="checkbox" value="${f.id}" ${fundos.includes(f.id) ? "checked" : ""}> ${esc(f.nome)}</label>`).join("")}</div></details>
+      <label class="btn ghost small">+ Enviar vídeos de fundo<input type="file" accept="video/*" multiple data-addbg="${c.id}" hidden></label>
+      <div class="small muted bg-msg">${fundos.length} ${fundos.length > 1 ? "fundos" : "fundo"} no rodízio. Os vídeos enviados também ficam na biblioteca para os outros personagens.</div>
       <div class="sub-h">Músicas (rodízio a cada vídeo)</div>
       <div class="chips-mini mus-chips">${musChips(c.musicas || [])}</div>
       <details><summary>Escolher músicas</summary><div class="mus-checks bg-checks" data-cid="${c.id}">${LIB.musicas.map((m) =>
@@ -184,6 +186,18 @@ function renderCharacters() {
     $(".img-msg", inp.closest(".char")).textContent = "Verificando fundo… (se tiver, a remoção leva ~30 s)";
     try { await api(`/api/personagens/${inp.dataset.addimg}/imagens`, { method: "POST", body: fd }); }
     catch (err) { alert(err.message); }
+    after();
+  }));
+  $$("#lista-personagens [data-addbg]").forEach((inp) => (inp.onchange = async () => {
+    if (!inp.files.length) return;
+    const fd = new FormData();
+    [...inp.files].forEach((f) => fd.append("arquivos", f));
+    const msg = $(".bg-msg", inp.closest(".char"));
+    msg.textContent = `Enviando ${inp.files.length} ${inp.files.length > 1 ? "vídeos" : "vídeo"}…`;
+    try {
+      const r = await api(`/api/personagens/${inp.dataset.addbg}/fundos`, { method: "POST", body: fd });
+      if (r.falhas_fundos?.length) alert("Alguns arquivos não entraram:\n" + r.falhas_fundos.join("\n"));
+    } catch (err) { alert(err.message); }
     after();
   }));
   $$("#lista-personagens [data-rmimg]").forEach((b) => (b.onclick = async () => {

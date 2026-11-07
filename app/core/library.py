@@ -259,10 +259,19 @@ def music():
     return _items(MUSIC)
 
 
+def unique_name(kind, nome):
+    """A media name whose id is free (the id comes from the name: equal names used to overwrite each other)."""
+    base, n, cand = nome.strip(), 2, nome.strip()
+    while get(kind, slug(cand)):
+        cand, n = f"{base} {n}", n + 1
+    return cand
+
+
 def add_media(kind, nome, source_file, origem, temas=()):
     if not origem.strip():
         raise ValueError("Informe a origem ou a licença do arquivo.")
     base = {"fundos": BGS, "musicas": MUSIC}[kind]
+    nome = unique_name(kind, nome)
     sid = slug(nome)
     folder = base / sid
     folder.mkdir(parents=True, exist_ok=True)
@@ -292,3 +301,31 @@ def seed():
                       voice_file=r"C:\dev\Video Cutter\voice_refs\paulo_links_fixed_optimized.wav")
         add_character("Bob Proctor", src / "Bob Proctor - Left side.png", "esquerda", "particulas_douradas",
                       {"motor": "kokoro", "voz": "pm_santa"})
+
+
+VIDEO_EXT = (".mp4", ".mov", ".webm", ".mkv", ".m4v")
+
+
+def add_character_backgrounds(cid, files, origem="Enviado pelo usuário"):
+    """files: [(path, original filename)]. Each video goes into the background library (so other characters can
+    pick it too) and into this character's rotation. Returns (character, added items, failures)."""
+    ch = get("personagens", cid)
+    pool = list(ch.get("fundos") or ([ch["fundo"]] if ch.get("fundo") else []))
+    added, failures = [], []
+    for path, filename in files:
+        if Path(filename).suffix.lower() not in VIDEO_EXT:
+            failures.append(f"{filename}: envie um vídeo (mp4, mov, webm)")
+            continue
+        ok = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-t", "1", "-f", "null", "-"],
+                            capture_output=True, timeout=120).returncode == 0
+        if not ok:
+            failures.append(f"{filename}: o arquivo de vídeo não abriu")
+            continue
+        label = re.sub(r"[_\-]+", " ", Path(filename).stem).strip() or "Fundo"
+        item = add_media("fundos", f"{ch['nome']} - {label}"[:60], path, origem)
+        added.append(item)
+        pool.append(item["id"])
+    if added:
+        ch = update_character(cid, fundos=list(dict.fromkeys(pool)), fundo=ch.get("fundo") or added[0]["id"],
+                              fundos_manual=True)
+    return ch, added, failures

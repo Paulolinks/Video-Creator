@@ -115,6 +115,16 @@ def novo_personagem():
                                     categoria=f.get("categoria", "").strip() or None,
                                     fundos=[b for b in fundos if b] if extra_bgs else None)
     falhas = []
+    novos = [u for u in request.files.getlist("fundos_novos") if u and u.filename]
+    if novos:  # background videos uploaded in the form: library + this character's rotation
+        with tempfile.TemporaryDirectory() as tmp:
+            files = []
+            for k, up in enumerate(novos):
+                path = Path(tmp) / f"{k}_{secure_filename(up.filename) or 'fundo.mp4'}"
+                up.save(path)
+                files.append((path, up.filename))
+            item, _, fail = library.add_character_backgrounds(item["id"], files)
+            falhas += fail
     with tempfile.TemporaryDirectory() as tmp:  # more poses for the image rotation (background removed too)
         for k, extra in enumerate(request.files.getlist("imagens_extra")):
             if not extra or not extra.filename:
@@ -217,6 +227,26 @@ def adicionar_imagem(cid):
             return jsonify(library.add_image(cid, path))
         except ValueError as exc:
             return err(str(exc))
+
+
+@app.post("/api/personagens/<cid>/fundos")
+def adicionar_fundos(cid):
+    """Several background videos at once: they go to the library and into this character's rotation."""
+    cid = library.slug(cid)
+    if not library.get("personagens", cid):
+        abort(404)
+    ups = [u for u in request.files.getlist("arquivos") if u and u.filename]
+    if not ups:
+        return err("Escolha um ou mais vídeos de fundo.")
+    with tempfile.TemporaryDirectory() as tmp:
+        files = []
+        for k, up in enumerate(ups):
+            path = Path(tmp) / f"{k}_{secure_filename(up.filename) or 'fundo.mp4'}"
+            up.save(path)
+            files.append((path, up.filename))
+        ch, added, failures = library.add_character_backgrounds(
+            cid, files, request.form.get("origem", "").strip() or "Enviado pelo usuário")
+    return jsonify({**ch, "fundos_adicionados": [a["nome"] for a in added], "falhas_fundos": failures})
 
 
 @app.delete("/api/personagens/<cid>/imagens")
