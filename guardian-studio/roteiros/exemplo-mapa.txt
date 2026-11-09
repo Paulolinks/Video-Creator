@@ -1,0 +1,13 @@
+# Exemplo das cenas "mapa" e "frase". Pode apagar.
+FALA: Every install you do becomes a point on your map.
+CENA: mapa
+DESTAQUE: map
+numero: 300
+titulo: your service area
+canto: illustration
+rotulo: homes connected
+
+FALA: Three hundred homes. One screen.
+CENA: frase
+DESTAQUE: One screen
+grande: 300

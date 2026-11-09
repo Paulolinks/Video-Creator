@@ -22,7 +22,13 @@ from pypdf import PdfReader
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "VIDEO_CREATOR_LAB" / "smart_motion"))
 import marcacoes  # noqa: E402  (stdlib only: markers + spoken numbers)
 
-TEMPLATES = {"T02": "Entrevista com mentor", "F01": "Personagem falando"}
+TEMPLATES = {"T02": "Entrevista com mentor", "F01": "Personagem falando", "A01": "Só animação"}
+# "Só animação" (A01): each block starts with "FALA: ..." and names its animation in "CENA: <tipo>"
+CENAS_ANIMACAO = {"contador", "tabela", "console", "contato", "termostato", "busca", "barras", "produto", "comentario",
+                  "mapa", "imagem", "frase"}
+_FALA = re.compile(r"^\s*FALA\s*:", re.M | re.I)
+_FORMATO_ANIMACAO = re.compile(r"^\s*(?:FORMATO|FORMAT)\s*:\s*(?:A01\b|S[ÓO][\s_]*ANIMA|ANIMA)", re.M | re.I)
+_BLOCO_NUMERADO = re.compile(r"^\s*(?:CENA|SCENE)[\s_\-]*\d+", re.M | re.I)
 IDIOMAS = {"pt": "Português", "en": "Inglês"}
 SCRIPT_EXT = (".txt", ".md", ".pdf")
 _CENA = r"^(?:CENA|SCENE)[\s_\-]*(\d+)\s*[|:\-–—]\s*"
@@ -171,6 +177,59 @@ def _header(head):
     return info
 
 
+def animation_source(path):
+    """An A01 script as the animation engine reads it. Not read_text(): that strips the '#' of comment lines."""
+    path = Path(path)
+    if path.suffix.lower() == ".pdf":
+        text = pdf_text(path)
+    else:
+        raw = path.read_bytes()
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            text = raw.decode("cp1252")
+    text = "\n".join(x.replace("**", "").replace("`", "") for x in text.splitlines())
+    meta = _META_START.search(text)
+    return text[:meta.start()] if meta else text
+
+
+def _parse_animation(source, result):
+    head, cenas, cur = {}, [], None
+    for raw in source.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or ":" not in line:
+            continue
+        key, value = (x.strip() for x in line.split(":", 1))
+        key = key.lower()
+        if key == "fala":
+            cur = {"id": f"CENA_{len(cenas) + 1:02}", "text": _clean(value), "cena": "frase", "imagens": []}
+            cenas.append(cur)
+        elif cur is None:
+            head[key] = value
+        elif key == "cena":
+            cur["cena"] = value.lower()
+        elif (cur["cena"], key) in (("produto", "imagem"), ("imagem", "arquivo")):
+            cur["imagens"].append(value)
+    result.update(template="A01", titulo=head.get("titulo") or head.get("título") or "", cenas=cenas,
+                  personagens=[head["voz"].upper()] if head.get("voz") else [], avisos_animacao=[])
+    if not cenas:
+        result["problemas"].append("Nenhuma fala encontrada. Cada bloco começa numa linha FALA: ...")
+    holes = sorted(set(_PLACEHOLDER.findall(" ".join(c["text"] for c in cenas))))
+    if holes:
+        result["problemas"].append(f"Campos do modelo não preenchidos: {', '.join(holes[:4])}. Troque pelo texto real.")
+    for c in cenas:
+        if not c["text"]:
+            result["problemas"].append(f"{c['id']} sem texto de fala.")
+        if c["cena"] not in CENAS_ANIMACAO:
+            result["problemas"].append(f"{c['id']}: animação '{c['cena']}' não existe. Use uma destas: "
+                                       f"{', '.join(sorted(CENAS_ANIMACAO))}.")
+    return result
+
+
+def _is_animation(source):
+    return bool((_FALA.search(source) or _FORMATO_ANIMACAO.search(source)) and not _BLOCO_NUMERADO.search(source))
+
+
 def parse_script(path):
     text = read_text(path)
     result = {"arquivo": Path(path).name, "template": None, "titulo": "", "subtitulo": "", "cenas": [],
@@ -180,6 +239,9 @@ def parse_script(path):
         result["problemas"].append("Este arquivo é o próprio framework (o modelo). Envie o roteiro que o ChatGPT "
                                    "criou a partir dele.")
         return result
+    source = animation_source(path)
+    if _is_animation(source):
+        return _parse_animation(source, result)
     scenes = list(_SCENE_T02.finditer(text)) + list(_SCENE_F01.finditer(text))
     first = min([m.start() for m in scenes], default=len(text))
     stop = _STOP.search(text, first)

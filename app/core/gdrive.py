@@ -141,7 +141,7 @@ def disconnect():
     return status()
 
 
-TYPE = {"T02": "Entrevista", "F01": "Personagem falando"}
+TYPE = {"T02": "Entrevista", "F01": "Personagem falando", "A01": "Só animação"}
 
 
 def _upload_one(drive, sheets, cfg, batch_id, v):

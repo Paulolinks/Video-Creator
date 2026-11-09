@@ -1,0 +1,16 @@
+# ===== Cool Season Videos · configuração =====
+# Escolha UMA forma de voz. Se nada for preenchido, o vídeo sai sem voz (só para conferir o visual).
+
+# --- Opção 1: voz clonada do Video Creator (recomendada) ---
+# Comando que gera a voz. {entrada} e {saida} são preenchidos pelo app.
+COMANDO_VOZ="D:\Video-Creator\VIDEO_CREATOR_LAB\.venvs\lab\Scripts\python.exe" voz\voz_videocreator.py {entrada} {saida}
+# Personagem/voz do Video Creator a usar
+VOZ_PERSONAGEM=paulo_maquiavel
+
+# --- Opção 2: ElevenLabs ---
+ELEVENLABS_API_KEY=
+VOZ_ID=
+MODELO=eleven_multilingual_v2
+
+# --- Música de fundo (arquivo na pasta "musica"; o roteiro pode trocar com MUSICA:) ---
+VOLUME_MUSICA=0.12

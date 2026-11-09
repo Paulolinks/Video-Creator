@@ -45,6 +45,8 @@ async function loadLib() {
   $("#dl-nichos").innerHTML = [...new Set(LIB.personagens.map((c) => c.nicho).filter(Boolean))].sort().map((n) => `<option value="${esc(n)}">`).join("");
   renderCharacters();
   renderMedia();
+  preencherLogos();
+  preencherMusicas();
   if (BATCH) renderBatch(BATCH);
 }
 
@@ -461,9 +463,13 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
   $("#resumo").innerHTML = `<span class="chip">${b.videos.length} roteiro(s)</span>
     ${count("F01") ? `<span class="chip t01">${count("F01")} Personagem falando</span>` : ""}
     ${count("T02") ? `<span class="chip t02">${count("T02")} Entrevista</span>` : ""}
+    ${count("A01") ? `<span class="chip t01">${count("A01")} Só animação</span>` : ""}
     <span class="chip ok">${ok} prontos</span>${ok < b.videos.length ? `<span class="chip bad">${b.videos.length - ok} com pendência</span>` : ""}`;
+  mostrarOpcoesAnimacao(TEMPLATE === "A01" || count("A01"));
   $("#lote-rows").innerHTML = b.videos.map((v) => {
-    const people = v.template === "T02"
+    const people = v.template === "A01"
+      ? v.personagens.map((p) => `<span class="chip ok">Voz: ${esc(p)}</span>`).join(" ")
+      : v.template === "T02"
       ? v.personagens.map((p) => v.personagens_status?.[p]
           ? `<span class="chip ok">${esc(p)}</span>`
           : `<span class="chip bad">${esc(p)}</span> <button class="link" data-cadastrar="${esc(p)}">cadastrar</button>`).join(" ")
@@ -471,7 +477,8 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
           ? `<span class="chip ok">${esc(p)}</span>`
           : `<span class="chip bad">${esc(p)}</span> <button class="link" data-cadastrar="${esc(p)}">cadastrar</button>`).join(" ")}<div class="muted small">Imagens: ${esc(v.imagens_resumo || `${v.imagens.filter(Boolean).length}/${v.cenas.length} ${v.origem_imagens}`)}</div>`;
     const tag = v.template === "F01" ? '<span class="chip t01">Personagem falando</span>'
-      : v.template === "T02" ? '<span class="chip t02">Entrevista</span>' : '<span class="chip bad">Desconhecido</span>';
+      : v.template === "T02" ? '<span class="chip t02">Entrevista</span>'
+      : v.template === "A01" ? '<span class="chip t01">Só animação</span>' : '<span class="chip bad">Desconhecido</span>';
     const lang = v.idioma ? `<span class="chip">${v.idioma === "en" ? "Inglês" : "Português"}</span>` : "";
     const status = v.pronto_para_gerar ? '<span class="chip ok">Pronto</span>'
       : `<ul class="problems">${v.problemas.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>`
@@ -491,7 +498,7 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
         ? "duplicado: já está na fila" : "duplicado: repetido nesta lista"}</span></div>` : ""}</td>
       <td><b>${esc(v.titulo)}</b><div class="muted small">${esc(v.subtitulo)}</div>
         ${v.serie ? `<div><span class="chip t02 serie" title="Capa de série: o nome da série e o episódio aparecem na capa">📺 ${esc(v.serie)} · ${esc(v.episodio_txt || "")}</span></div>`
-          : '<div class="muted small">Vídeo avulso (capa normal)</div>'}</td><td>${v.cenas.length}</td>
+          : v.template === "A01" ? "" : '<div class="muted small">Vídeo avulso (capa normal)</div>'}</td><td>${v.cenas.length}</td>
       <td>${people}</td><td>${status}${anim}</td></tr>`;
   }).join("");
   // registered character without a photo: send it right here, then the list re-checks itself
@@ -519,15 +526,13 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
   }));
   // options
   const musicSel = $("#opt-musica");
-  musicSel.innerHTML = `<option value="nenhuma">Sem música</option>
-    <option value="personagem" ${LIB.musicas.length ? "" : "disabled"}>Música do personagem (rodízio, combina com ele)</option>
-    <option value="aleatoria" ${LIB.musicas.length ? "" : "disabled"}>Aleatória da biblioteca (uma por vídeo)</option>
-    ${LIB.musicas.map((m) => `<option value="${m.id}">${esc(m.nome)}</option>`).join("")}`;
+  preencherMusicas();
   // a character whose tracks were chosen by hand wants them: starts selected, so a batch doesn't go out silent by accident
-  const musicaEscolhida = b.videos.some((v) => (v.personagens || []).some((p) =>
+  const musicaEscolhida = b.videos.some((v) => v.template !== "A01" && (v.personagens || []).some((p) =>
     LIB.personagens.find((c) => c.id === v.personagens_status?.[p])?.musicas_manual));
-  musicSel.value = musicaEscolhida ? "personagem" : "nenhuma";
-  $("#vol-wrap").classList.toggle("hide", musicSel.value === "nenhuma");
+  const soAnimacao = b.videos.some((v) => v.template === "A01") && musicasAnimacao().length;
+  musicSel.value = musicaEscolhida ? "personagem" : soAnimacao ? "animacao" : "nenhuma";
+  syncVolume();
   const chars = [...new Set(b.videos.filter((v) => v.template === "T02").flatMap((v) => v.personagens))]
     .map((p) => [p, LIB.personagens.find((c) => c.id === b.videos.find((v) => v.personagens_status?.[p])?.personagens_status[p])])
     .filter(([, c]) => c);
@@ -538,7 +543,7 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
   $$(".chk").forEach((c) => (c.onchange = syncStart));
 }
 $("#chk-all").onchange = (e) => { $$(".chk:not(:disabled)").forEach((c) => (c.checked = e.target.checked)); syncStart(); };
-$("#opt-musica").onchange = () => $("#vol-wrap").classList.toggle("hide", $("#opt-musica").value === "nenhuma");
+$("#opt-musica").onchange = syncVolume;
 $("#opt-volume").oninput = (e) => ($("#vol-val").textContent = `${e.target.value}%`);
 $("#vol-wrap").classList.add("hide");
 
@@ -605,7 +610,7 @@ $("#btn-iniciar").onclick = async () => {
   if (!ids.length) return abrirLote();
   const fundos = Object.fromEntries($$("#opt-fundos select").map((s) => [s.dataset.personagem, s.value]));
   const opcoes = { musica: $("#opt-musica").value, volume: $("#opt-volume").value / 100, fundos, canal: CANAL,
-    modelo_entrevista: MODELO_ENT };
+    modelo_entrevista: MODELO_ENT, logo: $("#opt-logo").value };
   if (MODO === "placa") opcoes.estilo = estilo();  // traditional mode = the approved look (vertical, Poppins, gold)
   try {
     await api(`/api/lotes/${BATCH.id}/iniciar`, json("POST", { videos: ids, opcoes }));
@@ -783,6 +788,8 @@ document.addEventListener("click", (ev) => {
 const DROP = {
   trad: { titulo: "Envie o roteiro", texto: "<b>Arraste aqui os roteiros</b> (.txt, .md ou .pdf), ou uma pasta com roteiros e imagens",
     arquivos: true, pasta: true, colar: true },
+  A01: { titulo: "Envie os roteiros da animação", texto: "<b>Arraste aqui os roteiros</b> (.txt, .md ou .pdf), com as " +
+    "imagens que eles citarem, se houver. Cada roteiro vira um vídeo.", arquivos: true, pasta: false, colar: true },
   T02: { titulo: "Envie os roteiros da entrevista", texto: "<b>Arraste aqui os roteiros</b> (.txt, .md ou .pdf). " +
     "Pode escolher mais de uma vez: cada roteiro entra na lista e vira um vídeo.", arquivos: true, pasta: false, colar: true },
   F01_cadastrado: { titulo: "Envie os roteiros do Personagem falando", texto: "<b>Cole o roteiro</b> abaixo ou " +
@@ -810,8 +817,76 @@ function escolherTemplate(t) {
   syncDrop();
   syncModeloEnt();
   syncModeloF();
+  syncAnimacao();
   if (BATCH) renderBatch(BATCH);
 }
+// animations only: no format, captions or cover to choose; the logo and the music are the whole panel
+function syncAnimacao() {
+  const so = MODO === "placa" && TEMPLATE === "A01";
+  $$(".passo-video").forEach((p) => p.classList.toggle("hide", so));
+  $("#btn-avancadas").classList.toggle("hide", so);
+  $("#avancadas").classList.toggle("hide", !so);
+  mostrarOpcoesAnimacao(so || BATCH?.videos.some((v) => v.template === "A01"));
+  if (so && !BATCH && musicasAnimacao().length) { $("#opt-musica").value = "animacao"; syncVolume(); }
+}
+function mostrarOpcoesAnimacao(sim) {
+  $("#card-logo").classList.toggle("hide", !sim);
+  $("#mus-upload").classList.toggle("hide", !sim);
+}
+function musicasAnimacao() { return (LIB.musicas || []).filter((m) => (m.temas || []).includes("animacao")); }
+function syncVolume() { $("#vol-wrap").classList.toggle("hide", $("#opt-musica").value === "nenhuma"); }
+function preencherMusicas() {  // filled as soon as the library loads: the list doesn't wait for a script
+  const sel = $("#opt-musica"), atual = sel.value, anim = musicasAnimacao(), vazia = LIB.musicas.length ? "" : "disabled";
+  sel.innerHTML = `<option value="nenhuma">Sem música</option>
+    ${anim.length ? `<option value="animacao">Músicas enviadas para a animação (${anim.length}, sorteia uma por vídeo)</option>` : ""}
+    <option value="personagem" ${vazia}>Música do personagem (rodízio, combina com ele)</option>
+    <option value="aleatoria" ${vazia}>Aleatória da biblioteca (uma por vídeo)</option>
+    ${LIB.musicas.map((m) => `<option value="${m.id}">${esc(m.nome)}</option>`).join("")}`;
+  if ([...sel.options].some((o) => o.value === atual)) sel.value = atual;
+  syncVolume();
+}
+$("#in-musica").onchange = async (e) => {
+  const msg = $("#mus-msg"), erros = [];
+  let ok = 0;
+  for (const f of e.target.files) {
+    msg.textContent = `Enviando ${f.name}…`;
+    const fd = new FormData();
+    fd.append("arquivo", f);
+    fd.append("nome", f.name.replace(/\.[^.]+$/, ""));
+    fd.append("origem", "Enviado pelo usuário");
+    fd.append("temas", "animacao");
+    try { await api("/api/musicas", { method: "POST", body: fd }); ok++; } catch (err) { erros.push(err.message); }
+  }
+  e.target.value = "";
+  await loadLib();
+  if (ok) { $("#opt-musica").value = "animacao"; syncVolume(); }
+  msg.textContent = [ok ? `${ok} música(s) adicionada(s).` : "", ...erros].filter(Boolean).join(" ");
+};
+function preencherLogos(valor) {
+  $("#opt-logo").innerHTML = `<option value="">Sem logo</option>${(LIB.logos || []).map((l) => `<option value="${l.id}">${esc(l.nome)}</option>`).join("")}`;
+  $("#opt-logo").value = valor ?? store.get("logo", "");
+  if ($("#opt-logo").selectedIndex < 0) $("#opt-logo").value = "";
+}
+$("#opt-logo").onchange = (e) => store.set("logo", e.target.value);
+$("#in-logo").onchange = async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const fd = new FormData();
+  fd.append("arquivo", f);
+  fd.append("nome", f.name.replace(/\.[^.]+$/, ""));
+  fd.append("origem", "Enviado pelo usuário");
+  $("#logo-msg").textContent = "Enviando…";
+  try {
+    const item = await api("/api/logos", { method: "POST", body: fd });
+    await loadLib();
+    preencherLogos(item.id);
+    store.set("logo", item.id);
+    $("#logo-msg").textContent = item.fundo_removido ? "Logo adicionado, com o fundo removido." : "Logo adicionado.";
+  } catch (err) {
+    $("#logo-msg").textContent = err.message;
+  }
+  e.target.value = "";
+};
 $$(".tpl-card").forEach((b) => (b.onclick = () => escolherTemplate(b.dataset.tpl)));
 // the interview has two models: 1 = still portrait + sound bars (T02), 2 = mouth moving with SadTalker (T03)
 var MODELO_ENT = store.get("modelo_entrevista", "T03") === "T02" ? "T02" : "T03";
@@ -854,6 +929,7 @@ function setModo(m) {  // board on/off: the shared pieces (upload, list, music) 
   $("#modelo-entrevista").before($("#modelo-falando"));
   syncModeloEnt();
   syncModeloF();
+  syncAnimacao();
   $("#lote-box").classList.toggle("inline", trad);
   $("#lote-titulo").textContent = trad ? "Identificado" : "Roteiros identificados";
   $("#lote").classList.add("hide");
@@ -864,7 +940,7 @@ function setModo(m) {  // board on/off: the shared pieces (upload, list, music) 
 }
 $("#btn-desligar").onclick = () => setModo("trad");
 $("#btn-ligar").onclick = () => setModo("placa");
-escolherTemplate(store.get("template", "T02") === "F01" ? "F01" : "T02");
+escolherTemplate(["F01", "A01"].includes(store.get("template", "T02")) ? store.get("template", "T02") : "T02");
 setModo(store.get("modo", "placa") === "trad" ? "trad" : "placa");
 $("#btn-avancadas").onclick = () => $("#avancadas").classList.toggle("hide");
 

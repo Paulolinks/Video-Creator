@@ -447,3 +447,5 @@ main { padding-bottom: 110px; }
 .sub-modelos-h { margin-bottom: 6px; }
 .sub-modelos.hide { display: none; }
 .mod-card { padding: 10px 12px; }
+
+.modelo-info a:not(.btn) { color: #7fd4ff; }

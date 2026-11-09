@@ -15,6 +15,7 @@ import psutil
 
 from . import canais, capa, cenas_auto, estilos, library, metadados
 from .parser import IDIOMAS, SCRIPT_EXT, TEMPLATES, embedded_images, episode_label, parse_script
+from .parser import animation_source as parser_animation_source
 
 APP = Path(__file__).resolve().parent.parent
 BATCHES = library.DATA / "lotes"
@@ -22,9 +23,12 @@ LAB = Path(r"D:\Video-Creator\VIDEO_CREATOR_LAB")
 ENGINE = {"F01": (LAB / "scripts" / "gerar_video.py", LAB / "templates" / "formato_01_personagem_falando.json"),
           "T02": (LAB / "scripts" / "gerar_entrevista.py", LAB / "templates" / "T02_entrevista.json"),
           # T03 = the T02 interview with the speaker's mouth moving (SadTalker) and no sound bars; same scripts
-          "T03": (LAB / "scripts" / "gerar_entrevista.py", LAB / "templates" / "T03_entrevista_falando.json")}
+          "T03": (LAB / "scripts" / "gerar_entrevista.py", LAB / "templates" / "T03_entrevista_falando.json"),
+          # A01 = animations only (no character, no captions, no cover): the engine lives in its own folder
+          "A01": (LAB / "scripts" / "gerar_animacao.py", LAB / "templates" / "A01_animacao.json")}
+ANIMACAO = Path(r"D:\Video-Creator\guardian-studio")
 IMAGE_EXT = (".png", ".jpg", ".jpeg", ".webp")
-STEP_NAMES = [(r"^voz", "Gerando voz"), (r"^alinhamento", "Sincronizando legenda"),
+STEP_NAMES = [(r"^voz", "Gerando voz"), (r"^animacao", "Montando a animação"), (r"^alinhamento", "Sincronizando legenda"),
               (r"^fala_CENA_(\d+)", "Animando rosto (cena {0})"), (r"^fala$", "Animando os rostos"), (r"^composicao", "Montando o vídeo"),
               (r"^checagem", "Conferindo a voz"), (r"^correcao", "Corrigindo trechos da voz"),
               (r"^idioma", "Identificando o idioma das vozes")]
@@ -80,10 +84,36 @@ def _scene_images(pdf, uploads, n):
     return [str(found[i]) if i in found else "" for i in range(1, n + 1)], "faltando"
 
 
+def _animation_voice():
+    """The character whose cloned voice narrates when the script has no VOZ: line (VOZ_PERSONAGEM in the engine's config)."""
+    try:
+        m = re.search(r"^\s*VOZ_PERSONAGEM\s*=\s*(\S+)", (ANIMACAO / "config.txt").read_text(encoding="utf-8"), re.M)
+    except OSError:
+        return None
+    return library.get("personagens", m[1]) if m else None
+
+
+def _check_animation(video):
+    if not (ANIMACAO / "node_modules").exists():
+        return ["O motor de animação não está instalado (rode instalar.bat na pasta guardian-studio)."]
+    name = video["personagens"][0] if video["personagens"] else None
+    ch = library.find_character(name) if name else _animation_voice()
+    if name and not ch:
+        return [f"Voz '{name.title()}' não encontrada: confira a linha VOZ: do roteiro."]
+    if not ch or not ch["voz"].get("referencia"):
+        return ["Esse personagem não tem voz clonada para narrar a animação."]
+    video["personagens"], video["personagens_status"] = [ch["nome"]], {ch["nome"]: ch["id"]}
+    missing = sorted({f for c in video["cenas"] for f in c.get("imagens", [])
+                      if not (ANIMACAO / "public" / "imagens" / Path(f).name).exists()})
+    return [f"Imagem '{f}' não encontrada: envie o arquivo junto com o roteiro." for f in missing]
+
+
 def check(video):
     """Recompute problems against the current library (e.g. after registering a new character)."""
     problems = list(video["problemas_pdf"])
     video["fotos_faltando"] = []  # registered characters still on the grey placeholder: the list shows a button
+    if video["template"] == "A01":
+        problems += _check_animation(video)
     if video["template"] == "T02":
         video["personagens_status"] = {}
         for name in video["personagens"]:
@@ -154,6 +184,10 @@ def analyse(batch_id, files, channel=None):
                                   "atualizado": time.strftime("%d/%m/%Y %H:%M")}
         if parsed["template"] == "F01":
             video["imagens"], video["origem_imagens"] = _scene_images(pdf, files, len(parsed["cenas"]))
+        if parsed["template"] == "A01":  # images sent with the script: the scenes read them by name from the engine's folder
+            for f in files:
+                if f.suffix.lower() in IMAGE_EXT and f.parent == pdf.parent:
+                    shutil.copy2(f, ANIMACAO / "public" / "imagens" / f.name)
         videos.append(check(video))
     batch = {"id": batch_id, "criado_em": time.strftime("%d/%m/%Y %H:%M"), "canal": channel, "videos": videos,
              "opcoes": {},
@@ -174,7 +208,8 @@ def recheck(batch_id):
 
 def _template_copy(template_path, folder, music_item, volume, voice=None, idioma="pt", template_id="F01", options=None):
     tpl = json.loads(Path(template_path).read_text(encoding="utf-8"))
-    estilos.apply(tpl, template_id, (options or {}).get("estilo"))  # format + caption look chosen on the home page
+    if template_id != "A01":  # the animation has its own look: always vertical, the words are part of it
+        estilos.apply(tpl, template_id, (options or {}).get("estilo"))  # format + caption look chosen on the home page
     if voice:  # F01: narrate with the registered character's voice (designed pack or cloned recording)
         tpl["voz"]["referencia" if voice["motor"] == "chatterbox" else "voz"] = voice.get("referencia") or voice["voz"]
     tpl["idioma"] = idioma  # the voices and the caption timing read the script in this language
@@ -201,11 +236,14 @@ def _build_project(batch, video, options):
     folder.mkdir(parents=True, exist_ok=True)
     musics = library.music()
     choice = options.get("musica", "nenhuma")
+    animacao = [m for m in musics if "animacao" in (m.get("temas") or [])]  # tracks sent on the animation template
     if choice == "personagem":
         music_item = _character_music(video)
+    elif choice == "animacao":
+        music_item = random.choice(animacao) if animacao else None
     else:
         music_item = (random.choice(musics) if choice == "aleatoria" and musics
-                      else library.get("musicas", choice) if choice not in ("nenhuma", "aleatoria") else None)
+                      else library.get("musicas", choice) if choice not in ("nenhuma", "aleatoria", "animacao") else None)
     video["musica"] = music_item["nome"] if music_item else None
     video["musica_credito"] = music_item.get("origem") if music_item else None
     voice = None
@@ -217,8 +255,15 @@ def _build_project(batch, video, options):
     video["modelo"] = "T03" if video["template"] == "T02" and options.get("modelo_entrevista") == "T03" else video["template"]
     tpl = _template_copy(ENGINE[video["modelo"]][1], folder, music_item, float(options.get("volume", 0.10)), voice,
                          video.get("idioma", "pt"), video["template"], options)
-    video["formato"] = estilos.resolve(options.get("estilo"))["formato"]
-    if video["template"] == "F01":
+    video["formato"] = "vertical" if video["template"] == "A01" else estilos.resolve(options.get("estilo"))["formato"]
+    if video["template"] == "A01":
+        (folder / "roteiro.txt").write_text(parser_animation_source(video["pdf"]), encoding="utf-8")
+        logo = library.get("logos", options["logo"]) if options.get("logo") else None
+        data = json.loads(tpl.read_text(encoding="utf-8"))
+        data.update(logo=logo["arquivo"] if logo else None, voz_personagem=video["personagens_status"][video["personagens"][0]])
+        tpl.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+        video["passos_total"] = 2
+    elif video["template"] == "F01":
         imgs = list(video["imagens"]) + [""] * (len(video["cenas"]) - len(video["imagens"]))
         scenes = [{"id": c["id"], "text": c["text"], "mode": c["mode"], "image": img,
                    "animacoes": c.get("animacoes") or []}

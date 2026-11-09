@@ -1,0 +1,89 @@
+# Dia 1 · Tipo G1 (Mas / Por isso) · gancho N · chamada MONITOR
+TITULO: You Installed 300 Systems. Who Calls You First?
+# MUSICA: fundo.mp3
+# VOLUME_MUSICA: 0.12
+
+FALA: You installed three hundred systems last year.
+CENA: contador
+DESTAQUE: three hundred
+numero: 300
+rotulo: systems installed
+titulo: installs · last 12 months
+canto: example
+
+FALA: But how many of those homeowners would call you first today?
+CENA: tabela
+DESTAQUE: you, first
+titulo: customers.csv
+canto: 300 rows
+colunas: Customer | Last contact | Calls you first?
+linha: Johnson residence | 14 mo ago | unknown
+linha: M. Alvarez | 11 mo ago | unknown
+linha: Park family | 19 mo ago | unknown
+linha: D. Carter | never | unknown
+linha: S. Nguyen | 9 mo ago | maybe
+linha: R. Brooks | 16 mo ago | unknown
+
+FALA: Because after install day, most companies go quiet.
+CENA: console
+DESTAQUE: quiet
+titulo: outbound · after install day
+canto: 12 months
+item: calls = 0
+item: texts = 0
+item: check-ins = 0
+item: reports sent = 0
+meses: sim
+
+FALA: So the customer slowly forgets your name.
+CENA: contato
+DESTAQUE: forgets
+titulo: homeowner's phone · contacts
+canto: search: "ac guy"
+nome: Your Company
+detalhe: HVAC · saved 2 years ago
+aviso: no results for "ac guy"
+
+FALA: Then, one hot afternoon, the system starts acting up.
+CENA: termostato
+DESTAQUE: hot, afternoon
+titulo: thermostat · living room
+canto: 3:42 PM
+de: 72
+para: 88
+alvo: set to 72° · cooling
+aviso: running nonstop · not keeping up
+
+FALA: But they don't call you. They search online, get three quotes, and pick the cheapest.
+CENA: busca
+DESTAQUE: cheapest
+termo: ac repair near me
+resultado: Company A | 4.6 ★ · Free estimate
+resultado: Company B | 4.4 ★ · $0 diagnostic*
+resultado: Company C | 4.2 ★ · Lowest price
+escolhido: 3
+aviso: your company: not in the results
+
+FALA: You paid to win that customer once. Now you're paying to win them again.
+CENA: barras
+DESTAQUE: again
+titulo: cost to acquire · same customer
+canto: ads + leads
+barra: Win them once | 1 | azul
+barra: Win them again | 1 | laranja
+
+FALA: So what if install day was the start of the relationship, not the end?
+CENA: produto
+DESTAQUE: start
+imagem: guardian.png
+info: status | online | verde
+info: last check-in | 2 min ago | azul
+info: system history | recording | azul
+rotulo: ILLUSTRATION
+
+FALA: Want to see how we keep every customer connected to you? Comment MONITOR, and I'll send you the link.
+CENA: comentario
+DESTAQUE: MONITOR
+usuario: hvac_owner
+palavra: MONITOR
+resposta: Sent you the link

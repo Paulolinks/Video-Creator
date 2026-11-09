@@ -15,5 +15,12 @@
   "criado_em": "2026-11-01 16:23",
   "nicho": "Economia, pensamento crítico e decisões",
   "imagem_provisoria": false,
-  "fundo_indice": 11
+  "fundo_indice": 11,
+  "imagens": [
+    "D:\\Video-Creator\\app\\data\\personagens\\josh\\recorte.png",
+    "D:\\Video-Creator\\app\\data\\personagens\\josh\\recorte_2.png",
+    "D:\\Video-Creator\\app\\data\\personagens\\josh\\recorte_3.png",
+    "D:\\Video-Creator\\app\\data\\personagens\\josh\\recorte_4.png",
+    "D:\\Video-Creator\\app\\data\\personagens\\josh\\recorte_5.png"
+  ]
 }

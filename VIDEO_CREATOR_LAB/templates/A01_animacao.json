@@ -1,0 +1,8 @@
+{
+  "id": "A01",
+  "nome": "Só animação",
+  "video": {"largura": 1080, "altura": 1920},
+  "voz": {},
+  "musica": {"arquivo": null},
+  "logo": null
+}

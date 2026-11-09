@@ -47,12 +47,13 @@ def blocos(text):
 
 
 def referencia(ref):
-    """(clip, its text), cutting and transcribing the recording the first time it is used."""
+    """(clip, its text, its language), cutting and transcribing the recording the first time it is used."""
     wav, info = preparar_ref_qwen.arquivos(ref)
     if not (wav.exists() and info.exists()):
         print("preparando a referência da voz...", flush=True)
         subprocess.run([str(WHISPER_PY), str(Path(__file__).with_name("preparar_ref_qwen.py")), str(ref)], check=True, timeout=300)
-    return str(wav), json.loads(info.read_text(encoding="utf-8"))["texto"]
+    dados = json.loads(info.read_text(encoding="utf-8"))
+    return str(wav), dados["texto"], dados.get("idioma", "pt")  # clips saved before the language was recorded are all pt
 
 
 if __name__ == "__main__":
@@ -100,8 +101,11 @@ if __name__ == "__main__":
         takes.mkdir(exist_ok=True)
         t0 = time.perf_counter()
         extras = 0
-        clip, texto = referencia(ref)
-        prompt = model.create_voice_clone_prompt(ref_audio=clip, ref_text=texto, x_vector_only_mode=False)
+        clip, texto, idioma_ref = referencia(ref)
+        # another language: the timbre only. Copying the way the recording speaks gave English a strong accent (2026-11-09)
+        so_timbre = idioma_ref != lang
+        prompt = model.create_voice_clone_prompt(ref_audio=clip, ref_text=None if so_timbre else texto,
+                                                 x_vector_only_mode=so_timbre)
         idioma = IDIOMAS.get(lang, "Auto")
         print(f"voz: {Path(ref).parent.name} ({len(scenes)} cena(s){', correção' if redo else ''})", flush=True)
         result = {"engine": "qwen3-tts 0.6B", "language": lang, "voice_ref": ref, "device": "cuda", "load_s": load_s,

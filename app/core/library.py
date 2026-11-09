@@ -4,15 +4,17 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 import time
 import unicodedata
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageDraw
 
 APP = Path(__file__).resolve().parent.parent
 DATA = APP / "data"
-CHARS, BGS, MUSIC = DATA / "personagens", DATA / "fundos", DATA / "musicas"
+CHARS, BGS, MUSIC, LOGOS = DATA / "personagens", DATA / "fundos", DATA / "musicas", DATA / "logos"
 VOICES = DATA / "vozes"  # character voice packs (<id>.pt + <id>.json + <id>_amostra.wav), see make_vozes.py
 CLONES = VOICES / "clones"  # styled versions of the owner's voice (<id>.wav + <id>.json with tom/efeito, _amostra.wav)
 KOKORO_VOICES = {"pm_alex": "Alex (masculina)", "pm_santa": "Santa (masculina, madura)", "pf_dora": "Dora (feminina)"}
@@ -131,6 +133,43 @@ def save_cutout(src, dst):
         Image.open(src).convert("RGBA").save(dst)  # keep the image; the card warns it still has a background
         return False
     return True
+
+
+def logo_cutout(src, dst):
+    """Save a logo as a transparent PNG trimmed to what is drawn on it. A plain background is removed by its colour, which
+    keeps thin letters that an AI cut-out loses; any other background goes through rembg. Returns True if one was removed."""
+    im = Image.open(src).convert("RGBA")
+    a = np.asarray(im, dtype=float)
+    edge = np.concatenate([a[0], a[-1], a[:, 0], a[:, -1]])
+    removed = False
+    if (edge[:, 3] < 20).mean() < 0.5:  # opaque border: there is a background
+        bg = np.median(edge[:, :3], axis=0)
+        if (np.linalg.norm(edge[:, :3] - bg, axis=1) < 18).mean() >= 0.9:
+            alpha = np.clip((np.linalg.norm(a[..., :3] - bg, axis=2) - 25) / 45, 0, 1)
+            keep = alpha[..., None]
+            colour = np.clip((a[..., :3] - (1 - keep) * bg) / np.maximum(keep, 1e-3), 0, 255)  # no halo of the old background
+            im = Image.fromarray(np.dstack([colour, alpha * 255]).astype("uint8"), "RGBA")
+            removed = True
+        else:
+            with tempfile.TemporaryDirectory() as tmp:
+                cut = Path(tmp) / "corte.png"
+                r = subprocess.run([str(REMBG[0]), "-I", str(REMBG[1]), str(src), str(cut), "isnet-general-use"],
+                                   capture_output=True, env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"})
+                if r.returncode == 0 and cut.exists():
+                    im, removed = Image.open(cut).convert("RGBA"), True
+    box = im.getchannel("A").point(lambda v: 255 if v > 16 else 0).getbbox()
+    if box:
+        m = round(0.02 * max(im.size))
+        im = im.crop((max(0, box[0] - m), max(0, box[1] - m), min(im.width, box[2] + m), min(im.height, box[3] + m)))
+    im.save(dst)
+    return removed
+
+
+def add_logo(nome, source_file, origem):
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "logo.png"
+        removed = logo_cutout(source_file, out)
+        return {**add_media("logos", nome, out, origem), "fundo_removido": removed}
 
 
 def add_character(nome, image_path, lado, fundo, voz, aliases=(), autorizacao_voz=False, voice_file=None):
@@ -270,7 +309,7 @@ def update_character(cid, **fields):
 
 
 def delete_item(kind, iid):
-    folder = {"personagens": CHARS, "fundos": BGS, "musicas": MUSIC}[kind] / slug(iid)
+    folder = {"personagens": CHARS, "fundos": BGS, "musicas": MUSIC, "logos": LOGOS}[kind] / slug(iid)
     if folder.exists():
         shutil.rmtree(folder)
 
@@ -284,6 +323,10 @@ def music():
     return _items(MUSIC)
 
 
+def logos():
+    return _items(LOGOS)
+
+
 def unique_name(kind, nome):
     """A media name whose id is free (the id comes from the name: equal names used to overwrite each other)."""
     base, n, cand = nome.strip(), 2, nome.strip()
@@ -295,7 +338,7 @@ def unique_name(kind, nome):
 def add_media(kind, nome, source_file, origem, temas=()):
     if not origem.strip():
         raise ValueError("Informe a origem ou a licença do arquivo.")
-    base = {"fundos": BGS, "musicas": MUSIC}[kind]
+    base = {"fundos": BGS, "musicas": MUSIC, "logos": LOGOS}[kind]
     nome = unique_name(kind, nome)
     sid = slug(nome)
     folder = base / sid
@@ -308,15 +351,18 @@ def add_media(kind, nome, source_file, origem, temas=()):
     return item
 
 
+def audio_ok(path):
+    return subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-t", "1", "-f", "null", "-"],
+                          capture_output=True, timeout=120).returncode == 0
+
+
 def add_character_music(cid, files, origem="Enviado pelo usuário"):
     """Tracks sent on the character's card, as (path, original filename): into the library and this character's
     rotation. A file that does not decode is refused here, it would stop the video at composition. Returns
     (character, failures)."""
     added, failures = [], []
     for path, filename in files:
-        ok = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-t", "1", "-f", "null", "-"],
-                            capture_output=True, timeout=120).returncode == 0
-        if ok:
+        if audio_ok(path):
             added.append(add_media("musicas", Path(filename).stem, path, origem)["id"])
         else:
             failures.append(f"{filename}: o arquivo de áudio não abriu")
@@ -327,7 +373,7 @@ def add_character_music(cid, files, origem="Enviado pelo usuário"):
 
 
 def get(kind, iid):
-    path = {"personagens": CHARS, "fundos": BGS, "musicas": MUSIC}[kind] / iid / "item.json"
+    path = {"personagens": CHARS, "fundos": BGS, "musicas": MUSIC, "logos": LOGOS}[kind] / iid / "item.json"
     return _read(path) if path.exists() else None
 
 

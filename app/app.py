@@ -72,7 +72,8 @@ def fonte(fid):
 @app.get("/api/biblioteca")
 def biblioteca():
     return jsonify({"personagens": library.characters(), "fundos": library.backgrounds(),
-                    "musicas": library.music(), "vozes": library.voices(), "temas": library.themes()})
+                    "musicas": library.music(), "logos": library.logos(), "vozes": library.voices(),
+                    "temas": library.themes()})
 
 
 @app.post("/api/personagens")
@@ -282,7 +283,7 @@ def remover_imagem(cid):
 
 @app.post("/api/<kind>")
 def nova_midia(kind):
-    if kind not in ("fundos", "musicas"):
+    if kind not in ("fundos", "musicas", "logos"):
         abort(404)
     f, up = request.form, request.files.get("arquivo")
     if not up or not f.get("nome", "").strip():
@@ -290,6 +291,12 @@ def nova_midia(kind):
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / secure_filename(up.filename or "arquivo")
         up.save(path)
+        if kind == "logos":
+            if path.suffix.lower() not in jobs.IMAGE_EXT:
+                return err("O logo precisa ser uma imagem PNG, JPG ou WEBP.")
+            return jsonify(library.add_logo(f["nome"], path, f.get("origem") or "Enviado pelo usuário"))
+        if kind == "musicas" and not library.audio_ok(path):
+            return err(f"{up.filename}: o arquivo de áudio não abriu.")
         try:
             return jsonify(library.add_media(kind, f["nome"], path, f.get("origem", ""), f.getlist("temas")))
         except ValueError as exc:
@@ -298,7 +305,7 @@ def nova_midia(kind):
 
 @app.delete("/api/<kind>/<iid>")
 def apagar(kind, iid):
-    if kind not in ("personagens", "fundos", "musicas"):
+    if kind not in ("personagens", "fundos", "musicas", "logos"):
         abort(404)
     library.delete_item(kind, iid)
     return jsonify({"ok": True})

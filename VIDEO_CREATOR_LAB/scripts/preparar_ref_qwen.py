@@ -27,7 +27,7 @@ if __name__ == "__main__":
     ref = sys.argv[1]
     wav, info = arquivos(ref)
     model = WhisperModel("small", device="cpu", compute_type="int8")
-    segs, _ = model.transcribe(ref, beam_size=5, word_timestamps=True, clip_timestamps=f"0,{MAX_S + 8}")
+    segs, detected = model.transcribe(ref, beam_size=5, word_timestamps=True, clip_timestamps=f"0,{MAX_S + 8}")
     words = [w for s in segs for w in s.words]
     if not words:
         sys.exit("Não encontrei fala na gravação da voz.")
@@ -47,5 +47,6 @@ if __name__ == "__main__":
     subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-ss", f"{start:.2f}", "-t", f"{end - start:.2f}",
                     "-i", ref, "-ac", "1", "-ar", "24000", str(wav)], check=True)
     texto = " ".join(w.word.strip() for w in words[: last + 1])
-    info.write_text(json.dumps({"texto": texto, "segundos": round(end - start, 2)}, ensure_ascii=False), encoding="utf-8")
+    info.write_text(json.dumps({"texto": texto, "segundos": round(end - start, 2), "idioma": detected.language},
+                               ensure_ascii=False), encoding="utf-8")
     print("referência pronta:", round(end - start, 1), "s", flush=True)

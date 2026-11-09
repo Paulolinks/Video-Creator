@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guardian Studio</title>
+<style>
+:root{--bg:#EEF1F6;--card:#fff;--ink:#0B0F19;--mute:#6B7487;--line:#E1E6EF;--blue:#2F5BEA;--green:#18A957;--orange:#F26B1D;--red:#E5484D}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);background-image:linear-gradient(#DCE2EC 1px,transparent 1px),linear-gradient(90deg,#DCE2EC 1px,transparent 1px);background-size:40px 40px;font:15px/1.45 Inter,Segoe UI,system-ui,sans-serif;color:var(--ink)}
+header{display:flex;align-items:center;gap:12px;padding:16px 24px;background:#0F1626;color:#fff}
+header b{font-size:18px}header span{color:#9AA6C0;font-size:13px}
+.logo{width:28px;height:28px;border-radius:7px;background:var(--blue)}
+main{display:grid;grid-template-columns:250px 1fr 380px;gap:16px;padding:16px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px -18px #0B0F1940;overflow:hidden}
+.card h2{margin:0;padding:12px 16px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.pad{padding:14px 16px}
+.lista button{display:flex;justify-content:space-between;width:100%;padding:10px 16px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;font:inherit;cursor:pointer}
+.lista button:hover{background:#F4F6FA}.lista button.on{background:#E9EEFD;color:var(--blue);font-weight:600}
+.pill{font-size:11px;padding:2px 8px;border-radius:99px;background:#EEF1F6;color:var(--mute)}.pill.ok{background:#E3F6EC;color:var(--green)}
+textarea{width:100%;height:62vh;border:0;padding:14px 16px;font:13px/1.5 Consolas,DejaVu Sans Mono,monospace;resize:vertical;outline:none}
+input,select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+label{display:block;font-size:12px;color:var(--mute);margin:10px 0 4px}
+.btn{border:0;border-radius:10px;padding:10px 14px;font:600 14px Inter,Segoe UI,sans-serif;cursor:pointer;background:#EEF1F6;color:var(--ink)}
+.btn.main{background:var(--blue);color:#fff;width:100%;padding:13px;font-size:15px;margin-top:14px}.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:8px;align-items:center}
+.bar{height:8px;background:#EEF1F6;border-radius:9px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;background:var(--blue);width:0;transition:width .4s}
+pre{margin:10px 0 0;max-height:140px;overflow:auto;background:#0F1626;color:#C9D2E6;border-radius:8px;padding:10px;font:12px/1.4 Consolas,monospace;white-space:pre-wrap}
+video{width:100%;max-height:60vh;background:#000;border-radius:10px;display:block}
+.aviso{font-size:13px;margin-top:8px}.aviso.err{color:var(--red)}.aviso.ok{color:var(--green)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.chips span{font:12px Consolas,monospace;background:#EEF1F6;border-radius:6px;padding:3px 7px;cursor:pointer}
+@media(max-width:1100px){main{grid-template-columns:1fr}}
+</style></head><body>
+<header><div class="logo"></div><b>Guardian Studio</b><span>roteiro → voz → vídeo · modelo Guardian</span><a class="btn" href="/framework" download style="margin-left:auto;padding:6px 12px;text-decoration:none">Baixar framework</a></header>
+<main>
+  <section class="card"><h2>Roteiros <button class="btn" id="novo" style="padding:4px 10px">+ Novo</button></h2><div class="lista" id="lista"></div>
+    <div class="pad"><label>Subir arquivo .txt</label><input type="file" id="arquivo" accept=".txt"></div></section>
+
+  <section class="card"><h2><span id="titulo">—</span><span id="resumo" style="text-transform:none;letter-spacing:0"></span></h2>
+    <textarea id="texto" spellcheck="false" placeholder="Cole aqui o roteiro (FALA:, CENA:, DESTAQUE: ...)"></textarea>
+    <div class="pad" style="border-top:1px solid var(--line)"><div style="font-size:12px;color:var(--mute)">Cenas (clique para inserir um bloco):</div><div class="chips" id="cenas"></div><div class="aviso" id="validacao"></div></div></section>
+
+  <section>
+    <div class="card"><h2>Configurações</h2><div class="pad">
+      <label>Voz (personagem do Video Creator)</label><select id="voz"></select>
+      <label>Música de fundo (pasta musica)</label><select id="musica"></select>
+      <label>Volume da música: <b id="volv"></b></label><input type="range" id="vol" min="0" max="0.4" step="0.01">
+      <button class="btn main" id="gerar">Salvar e gerar vídeo</button>
+      <div class="bar"><i id="prog"></i></div><div class="aviso" id="status"></div><pre id="log" hidden></pre>
+    </div></div>
+    <div class="card" style="margin-top:16px"><h2>Vídeo <a id="baixar" class="btn" style="padding:4px 10px;text-decoration:none" hidden>Abrir</a></h2><div class="pad" id="vbox"><div style="color:var(--mute)">Gere o vídeo para ver aqui.</div></div></div>
+  </section>
+</main>
+<script>
+const $=id=>document.getElementById(id);let atual=null,estado=null,sujo=false;
+const MODELOS={contador:'numero: 300\nrotulo: systems installed\ntitulo: installs · last 12 months\ncanto: example',tabela:'titulo: customers.csv\ncolunas: Customer | Last contact | Status\nlinha: Johnson | 14 mo ago | unknown\nlinha: Alvarez | 2 days ago | online',console:'titulo: outbound\nitem: calls = 0\nitem: texts = 0\nmeses: sim',contato:'titulo: contacts\nnome: Your Company\ndetalhe: HVAC · saved 2 years ago\naviso: no results',termostato:'titulo: thermostat\nde: 72\npara: 88\nalvo: set to 72° · cooling\naviso: not keeping up',busca:'termo: ac repair near me\nresultado: Company A | 4.6 ★ · Free estimate\nresultado: Company B | 4.2 ★ · Lowest price\nescolhido: 2\naviso: your company: not in the results',barras:'titulo: chart\nbarra: Before | 3 | laranja\nbarra: After | 7 | azul',produto:'imagem: guardian.png\ninfo: status | online | verde\nrotulo: ILLUSTRATION',comentario:'usuario: hvac_owner\npalavra: MONITOR\nresposta: Sent you the link',mapa:'numero: 300\ntitulo: your service area\ncanto: illustration\nrotulo: homes connected',imagem:'arquivo: guardian.png\nlegenda: ILLUSTRATION',frase:'grande: 300'};
+async function api(u,b){const r=await fetch(u,b?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}:{});const j=await r.json();if(!r.ok)throw new Error(j.erro||'erro');return j}
+function lerCab(t){const m=t.match(/^\s*MUSICA:\s*(.+)$/mi);return m?m[1].trim():''}
+function setCab(t,k,v){const re=new RegExp('^\\s*#?\\s*'+k+':.*$','mi');const linha=v?k+': '+v:'# '+k+':';if(re.test(t))return t.replace(re,linha);return v?linha+'\n'+t:t}
+function validar(){const t=$('texto').value;const falas=(t.match(/^\s*FALA:/gmi)||[]).length;const cenas=[...t.matchAll(/^\s*CENA:\s*(\S+)/gmi)].map(m=>m[1].toLowerCase());const ruins=cenas.filter(c=>!estado.cenas.includes(c));const pal=t.split(/\n/).filter(l=>/^\s*FALA:/i.test(l)).join(' ').split(/\s+/).length;
+ $('resumo').textContent=falas?`${falas} falas · ~${Math.round(pal/2.6)} s`:'';
+ const v=$('validacao');if(!falas){v.className='aviso err';v.textContent='O roteiro precisa de pelo menos uma linha FALA:';return false}
+ if(ruins.length){v.className='aviso err';v.textContent='Cena desconhecida: '+[...new Set(ruins)].join(', ');return false}v.className='aviso ok';v.textContent='Roteiro ok.';return true}
+async function carregar(){estado=await api('/api/estado');
+ $('lista').innerHTML=estado.roteiros.map(r=>`<button data-n="${r.nome}" class="${r.nome===atual?'on':''}">${r.nome}<span class="pill ${r.video?'ok':''}">${r.video?'vídeo pronto':'sem vídeo'}</span></button>`).join('')||'<div class="pad" style="color:var(--mute)">Nenhum roteiro ainda.</div>';
+ document.querySelectorAll('#lista button').forEach(b=>b.onclick=()=>abrir(b.dataset.n));
+ const vz=$('voz');if(!vz.options.length){const ps=estado.personagens.length?estado.personagens:[estado.config.VOZ_PERSONAGEM||''];vz.innerHTML=ps.map(p=>`<option ${p===estado.config.VOZ_PERSONAGEM?'selected':''}>${p}</option>`).join('');if(estado.config.voz!=='videocreator')vz.insertAdjacentHTML('afterbegin','<option value="" disabled>(voz não ligada ao Video Creator)</option>')}
+ if(!$('vol').dataset.ok){$('vol').value=estado.config.VOLUME_MUSICA;$('volv').textContent=estado.config.VOLUME_MUSICA;$('vol').dataset.ok=1}
+ const ms=$('musica');const sel=lerCab($('texto').value);ms.innerHTML='<option value="">Sem música</option>'+estado.musicas.map(m=>`<option ${m===sel?'selected':''}>${m}</option>`).join('');
+ $('cenas').innerHTML=estado.cenas.map(c=>`<span data-c="${c}">${c}</span>`).join('');document.querySelectorAll('#cenas span').forEach(s=>s.onclick=()=>inserir(s.dataset.c));
+ mostrarJob(estado.job)}
+async function abrir(n){if(sujo&&!confirm('Descartar as mudanças não salvas?'))return;atual=n;const j=await api('/api/roteiro?nome='+n);$('texto').value=j.texto;$('titulo').textContent=n;sujo=false;validar();await carregar();mostrarVideo()}
+function mostrarVideo(){const r=estado.roteiros.find(x=>x.nome===atual);if(r&&r.video){const src='/videos/'+atual+'.mp4?t='+r.quando;$('vbox').innerHTML=`<video controls src="${src}"></video>`;$('baixar').href=src;$('baixar').hidden=false}else{$('vbox').innerHTML='<div style="color:var(--mute)">Gere o vídeo para ver aqui.</div>';$('baixar').hidden=true}}
+function inserir(c){const ta=$('texto');const bloco=`\n\nFALA: \nCENA: ${c}\nDESTAQUE: \n${MODELOS[c]||''}\n`;const p=ta.selectionStart;ta.value=ta.value.slice(0,p)+bloco+ta.value.slice(p);ta.focus();ta.selectionStart=ta.selectionEnd=p+8;sujo=true;validar()}
+function mostrarJob(j){$('gerar').disabled=j.rodando;$('prog').style.width=(j.progresso||0)+'%';const s=$('status');
+ if(j.rodando){s.className='aviso';s.textContent=`Gerando ${j.nome}… ${j.progresso?('renderizando '+j.progresso+'%'):'preparando voz e cenas'}`}
+ else if(j.nome){s.className='aviso '+(j.ok?'ok':'err');s.textContent=j.ok?`${j.nome} pronto.`:`Deu erro ao gerar ${j.nome}. Veja o registro abaixo.`}
+ const lg=$('log');lg.hidden=!j.log.length;lg.textContent=j.log.slice(-40).join('\n');lg.scrollTop=1e9}
+let ultimo=false;setInterval(async()=>{if(!estado)return;const e=await api('/api/estado');mostrarJob(e.job);if(ultimo&&!e.job.rodando){estado=e;await carregar();mostrarVideo()}ultimo=e.job.rodando},1500);
+$('texto').oninput=()=>{sujo=true;validar()};
+$('vol').oninput=()=>$('volv').textContent=$('vol').value;
+$('musica').onchange=()=>{$('texto').value=setCab($('texto').value,'MUSICA',$('musica').value);sujo=true};
+$('novo').onclick=()=>{const n=prompt('Nome do roteiro (ex.: dia02)');if(!n)return;atual=n.trim();$('titulo').textContent=atual;$('texto').value='TITULO: \n# MUSICA: \n\nFALA: \nCENA: frase\nDESTAQUE: \n';sujo=true;validar();mostrarVideo()};
+$('arquivo').onchange=async e=>{const f=e.target.files[0];if(!f)return;atual=f.name.replace(/\.txt$/i,'').replace(/[^A-Za-z0-9_-]/g,'_');$('titulo').textContent=atual;$('texto').value=await f.text();sujo=true;validar();e.target.value=''};
+$('gerar').onclick=async()=>{if(!atual)return alert('Abra ou crie um roteiro primeiro.');if(!validar())return;try{await api('/api/roteiro',{nome:atual,texto:$('texto').value});await api('/api/config',{VOZ_PERSONAGEM:$('voz').value,VOLUME_MUSICA:$('vol').value});sujo=false;await api('/api/gerar',{nome:atual});ultimo=true;await carregar()}catch(err){alert(err.message)}};
+carregar().then(()=>{if(estado.roteiros.length)abrir(estado.roteiros[0].nome)});
+</script></body></html>

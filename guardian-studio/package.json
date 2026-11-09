@@ -1,0 +1,15 @@
+{
+  "name": "cool-season-videos",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {"gerar": "node scripts/gerar.mjs", "estudio": "remotion studio src/index.ts"},
+  "dependencies": {
+    "@remotion/bundler": "4.0.541",
+    "@remotion/cli": "4.0.541",
+    "@remotion/renderer": "4.0.541",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.541"
+  }
+}

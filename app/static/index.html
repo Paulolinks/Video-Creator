@@ -89,6 +89,12 @@
                 <span class="small muted">Você pergunta, o mentor responde. Trocam retrato, lado, fundo e voz.</span></span>
               <span class="tpl-check">✓</span>
             </button>
+            <button type="button" class="tpl-card" data-tpl="A01" aria-pressed="false">
+              <img src="/static/modelos/capa_A01.jpg" alt="">
+              <span class="tpl-txt"><b>Só animação</b>
+                <span class="small muted">Sem personagem: texto que acompanha a voz e animações, tudo vindo do roteiro. Você só escolhe o logo e a música.</span></span>
+              <span class="tpl-check">✓</span>
+            </button>
           </div>
           <div id="modelo-falando" class="sub-modelos hide">
             <div class="small sub-modelos-h"><b>Modelo do Personagem falando</b></div>
@@ -145,14 +151,14 @@
           </div>
         </div>
 
-        <div class="passo">
+        <div class="passo passo-video">
           <div class="passo-h"><span class="n">3</span> Formato do vídeo</div>
           <div class="fmt-grid" id="fmt-grid"></div>
           <p id="fmt-aviso" class="small muted hide">No horizontal, as imagens das cenas do Personagem falando devem ser
             16:9 (deitadas); imagens em pé são cortadas no meio.</p>
         </div>
 
-        <div class="passo">
+        <div class="passo passo-video">
           <div class="passo-h"><span class="n">4</span> Legenda</div>
           <div class="leg-grid">
             <label>Tipo de letra<select id="opt-fonte"></select></label>
@@ -167,7 +173,7 @@
           </div>
         </div>
 
-        <div class="passo" id="passo-capa">
+        <div class="passo passo-video" id="passo-capa">
           <div class="passo-h"><span class="n">5</span> Título da capa</div>
           <p id="capa-aviso" class="small muted hide">Para mudar daqui, reinicie o app quando a fila acabar. Até lá as
             capas já saem mudando de cor a cada vídeo: amarelo, verde, branco, vermelho, azul neon.</p>
@@ -190,9 +196,18 @@
         <button type="button" class="avancadas-btn" id="btn-avancadas">⚙️ Opções avançadas</button>
         <div id="avancadas" class="avancadas hide">
           <div class="opcoes" id="opcoes-box">
+            <div class="card hide" id="card-logo">
+              <h3>Logo da empresa (Só animação)</h3>
+              <select id="opt-logo"></select>
+              <div class="row"><label class="btn ghost small">+ Enviar logo<input id="in-logo" type="file" accept=".png,.jpg,.jpeg,.webp" hidden></label>
+                <span id="logo-msg" class="muted small"></span></div>
+              <p class="muted small">Ao enviar, o fundo é removido e sobra só o desenho do meio. Fica no topo durante o vídeo todo.</p>
+            </div>
             <div class="card" id="card-musica">
               <h3>Música de fundo</h3>
               <select id="opt-musica"></select>
+              <div id="mus-upload" class="row hide"><label class="btn ghost small">+ Enviar músicas<input id="in-musica" type="file" accept="audio/*" multiple hidden></label>
+                <span id="mus-msg" class="muted small"></span></div>
               <div id="vol-wrap" class="row"><label>Volume</label><input id="opt-volume" type="range" min="5" max="50" value="10">
                 <span id="vol-val">10%</span></div>
               <p class="muted small">A música fica baixa e constante, sem parar quando alguém fala.</p>
@@ -278,6 +293,22 @@
           <span class="small">Também: <a href="/static/modelos/Framework_T02_Entrevista_com_Mentor.pdf" download>versão PDF</a> ·
             <a href="/static/modelos/modelo_T02_roteiro.txt" download>modelo .txt</a> ·
             <a href="/static/modelos/exemplo_T02_roteiro.txt" download>exemplo .txt</a></span>
+        </div>
+      </div>
+      <div class="modelo card">
+        <video src="/static/modelos/exemplo_A01_animacao.mp4" poster="/static/modelos/capa_A01.jpg" controls
+          playsinline preload="none"></video>
+        <div class="modelo-info">
+          <span class="chip t01">Template 3</span>
+          <h3>Só animação</h3>
+          <p class="muted small">Sem personagem: uma manchete que acompanha a voz palavra por palavra e um painel animado
+            por fala. As animações vêm do roteiro; você escolhe só o logo e a música.</p>
+          <p class="small"><b>Vídeo de exemplo:</b> animação com logo · 9 falas</p>
+          <a class="btn dl-pdf" href="/static/modelos/Framework_A01_So_Animacao.md" download>Baixar framework para o ChatGPT
+            (.md)</a>
+          <span class="small">Também: <a href="/static/modelos/Framework_A01_So_Animacao.pdf" download>versão PDF</a> ·
+            <a href="/static/modelos/modelo_A01_roteiro.txt" download>modelo .txt</a> ·
+            <a href="/static/modelos/exemplo_A01_roteiro.txt" download>exemplo .txt</a></span>
         </div>
       </div>
     </div>

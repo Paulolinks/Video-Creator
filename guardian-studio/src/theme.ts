@@ -1,0 +1,11 @@
+export const C = {bg: '#EEF1F6', grid: '#DCE2EC', ink: '#0B0F19', blue: '#2F5BEA', blue2: '#8FA8F5', card: '#FFFFFF', line: '#E3E8F0', mute: '#7B8496', dark: '#0F1626', dark2: '#18213A', orange: '#F26B1D', green: '#18A957', red: '#E5484D', amber: '#F5A524'};
+export const font = 'Inter, sans-serif';
+export const mono = 'DejaVuMono, monospace';
+export const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
+export type Params = Record<string, string | string[]>;
+export const one = (p: Params, k: string, d = ''): string => { const v = p[k]; return v === undefined ? d : Array.isArray(v) ? v[0] : v; };
+export const many = (p: Params, k: string): string[] => { const v = p[k]; return v === undefined ? [] : Array.isArray(v) ? v : [v]; };
+export const cells = (s: string) => s.split('|').map(x => x.trim());
+export const colorOf = (name: string, d: string) => ({azul: C.blue, blue: C.blue, laranja: C.orange, orange: C.orange, verde: C.green, green: C.green, vermelho: C.red, red: C.red, cinza: C.mute, gray: C.mute, amarelo: C.amber, yellow: C.amber} as Record<string, string>)[(name || '').toLowerCase()] ?? d;
+const GOOD = ['yes', 'sim', 'ok', 'online', 'active', 'maybe', 'connected', 'renewed', 'normal', 'recording'];
+export const tagColor = (v: string) => GOOD.includes(v.toLowerCase()) ? C.green : C.orange;

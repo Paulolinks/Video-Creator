@@ -1,0 +1,28 @@
+TITULO: <título curto do vídeo>
+FORMATO: SO_ANIMACAO
+IDIOMA: <Português ou Inglês>
+
+FALA: <o que a voz diz>
+CENA: contador
+DESTAQUE: <1 a 3 palavras da fala>
+numero: <número>
+rotulo: <o que o número conta>
+titulo: <título do painel>
+
+FALA: <o que a voz diz>
+CENA: tabela
+DESTAQUE: <1 a 3 palavras da fala>
+titulo: <título do painel>
+colunas: <A> | <B> | <C>
+linha: <a> | <b> | <c>
+linha: <a> | <b> | <c>
+
+FALA: <o que a voz diz na chamada final>
+CENA: frase
+DESTAQUE: <1 a 3 palavras da fala>
+grande: <palavra ou número enorme, opcional>
+
+METADADOS
+TÍTULO DO POST: <título da publicação>
+DESCRIÇÃO: <contexto curto + uma pergunta que convide a comentar>
+HASHTAGS: <5 a 8 hashtags>
