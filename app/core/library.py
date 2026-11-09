@@ -14,6 +14,7 @@ APP = Path(__file__).resolve().parent.parent
 DATA = APP / "data"
 CHARS, BGS, MUSIC = DATA / "personagens", DATA / "fundos", DATA / "musicas"
 VOICES = DATA / "vozes"  # character voice packs (<id>.pt + <id>.json + <id>_amostra.wav), see make_vozes.py
+CLONES = VOICES / "clones"  # styled versions of the owner's voice (<id>.wav + <id>.json with tom/efeito, _amostra.wav)
 KOKORO_VOICES = {"pm_alex": "Alex (masculina)", "pm_santa": "Santa (masculina, madura)", "pf_dora": "Dora (feminina)"}
 
 
@@ -44,15 +45,37 @@ def _items(folder):
 def voices():
     """Voice id -> label. Built-in Kokoro voices by name; character packs by the path of their .pt."""
     out = dict(KOKORO_VOICES)
+    own = own_voice()
+    if own:  # after the built-in ones: the first entry is the new-character form's default
+        out[str(own)] = "Paulo Links"
+    for meta in sorted(CLONES.glob("*.json")):  # beside them: each recording's detected language, without a name
+        info = _read(meta)
+        if "nome" in info:
+            out[str(meta.with_suffix(".wav"))] = f"{info['nome']} ({info['descricao']})"
     for meta in sorted(VOICES.glob("*.json")):
         info = _read(meta)
         out[str(meta.with_suffix(".pt"))] = f"{info['nome']} ({info['descricao']})"
     return out
 
 
+def own_voice():
+    """The channel owner's own recording (the only cloned voice offered in the lists), by its path."""
+    return next((p for p in sorted((CHARS / "paulo").glob("voz_referencia.*"))
+                 if p.suffix.lower() not in (".pt", ".json")), None)  # beside it: saved analysis and language
+
+
+def voice_config(key):
+    """What to save on a character for an entry of voices()."""
+    if key == str(own_voice()) or Path(key).parent == CLONES:
+        return {"motor": "chatterbox", "referencia": key}
+    return {"motor": "kokoro", "voz": key}
+
+
 def voice_sample(voz):
     if voz.get("motor") != "kokoro":  # cloned voice: play the saved reference recording
         ref = Path(voz.get("referencia") or "")
+        sample = ref.with_name(ref.stem + "_amostra.wav")  # a styled version: hear the effect, not the recording
+        ref = sample if sample.exists() else ref
         return str(ref) if ref.is_absolute() and ref.exists() else None
     sample = Path(voz.get("voz", "")).with_name(Path(voz.get("voz", "")).stem + "_amostra.wav")
     return str(sample) if sample.is_absolute() and sample.exists() else None
@@ -117,7 +140,9 @@ def add_character(nome, image_path, lado, fundo, voz, aliases=(), autorizacao_vo
     img = folder / "recorte.png"
     removed = save_cutout(image_path, img)
     voz = dict(voz)
-    if voz["motor"] == "chatterbox":
+    if voz.get("referencia"):  # the owner's own voice, picked from the list: nothing to copy
+        autorizacao_voz = True
+    elif voz["motor"] == "chatterbox":
         if not autorizacao_voz:
             raise ValueError("Para clonar uma voz é preciso confirmar a autorização do dono da voz.")
         ref = folder / ("voz_referencia" + Path(voice_file).suffix.lower())
@@ -281,6 +306,24 @@ def add_media(kind, nome, source_file, origem, temas=()):
             "temas": [t for t in temas if t], "criado_em": time.strftime("%Y-%m-%d %H:%M")}
     _write(folder / "item.json", item)
     return item
+
+
+def add_character_music(cid, files, origem="Enviado pelo usuário"):
+    """Tracks sent on the character's card, as (path, original filename): into the library and this character's
+    rotation. A file that does not decode is refused here, it would stop the video at composition. Returns
+    (character, failures)."""
+    added, failures = [], []
+    for path, filename in files:
+        ok = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-t", "1", "-f", "null", "-"],
+                            capture_output=True, timeout=120).returncode == 0
+        if ok:
+            added.append(add_media("musicas", Path(filename).stem, path, origem)["id"])
+        else:
+            failures.append(f"{filename}: o arquivo de áudio não abriu")
+    ch = get("personagens", cid)
+    if added:
+        ch = update_character(cid, musicas=[*(ch.get("musicas") or []), *added], musicas_manual=True)
+    return ch, failures
 
 
 def get(kind, iid):

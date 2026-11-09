@@ -219,24 +219,25 @@ def compose(tpl, scenes, work, out):
                    f"loudnorm=I={lufs}:TP=-1.5:LRA=11,aresample=48000")  # loudnorm upsamples internally
     mus = tpl["musica"]
     inputs = ["-i", str(audio / "narracao.wav"), "-i", str(base)]
-    if mus.get("arquivo"):
-        dk = mus["ducking"]
+    if mus.get("arquivo"):  # a low, constant bed: the music does not dip when the voice comes in
         inputs += ["-stream_loop", "-1", "-i", mus["arquivo"]]
-        mix = (f"{voice_chain},asplit[v][sc];[2:a]aresample=48000,aformat=channel_layouts=stereo,"
+        mix = (f"{voice_chain}[v];[2:a]aresample=48000,aformat=channel_layouts=stereo,"
                f"volume={mus['volume']},afade=t=in:d=1,afade=t=out:st={total - 1.5:.2f}:d=1.5,atrim=0:{total:.3f}[m];"
-               f"[m][sc]sidechaincompress=threshold={dk['limiar']}:ratio={dk['razao']}:attack={dk['ataque_ms']}:"
-               f"release={dk['liberacao_ms']}:makeup=1[md];[v][md]amix=inputs=2:duration=first:normalize=0,"
-               "alimiter=limit=0.9[a]")
+               "[v][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.9[a]")
     else:
         mix = f"{voice_chain},alimiter=limit=0.9[a]"
     # Smart Motion: animações marcadas no roteiro, na mesma passada (antes da legenda, que fica por cima)
     sm_inputs, sm_graph, vlast, sm_info = smart_motion.aplicar_no_filtro(
-        tpl, "F01", scenes, timeline, total, work, inputs.count("-i"), "1:v")
+        tpl, "F01", scenes, timeline, total, work, inputs.count("-i"), "1:v", inicio_min=float(tpl.get("capa_segundos", 0)))
     stages["smart_motion"] = sm_info
     inputs += sm_inputs
     sm_chain = (";".join(sm_graph) + ";") if sm_graph else ""
+    strip = ""
+    if tpl.get("faixa_serie"):  # a series' name and episode, over the whole video (one image repeats to the end)
+        strip = f"[sub];[sub][{inputs.count('-i')}:v]overlay=0:0"
+        inputs += ["-i", tpl["faixa_serie"]]
     run(["ffmpeg", "-hide_banner", "-y", *inputs, "-filter_complex",
-         f"{mix};{sm_chain}[{vlast}]subtitles='{ass}':fontsdir='{fonts}'[vout]", "-map", "[vout]", "-map", "[a]",
+         f"{mix};{sm_chain}[{vlast}]subtitles='{ass}':fontsdir='{fonts}'{strip}[vout]", "-map", "[vout]", "-map", "[a]",
          *c.enc_args, "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out)])
     base.unlink()
     stages["transicoes_legenda_audio_s"] = round(time.perf_counter() - t, 2)

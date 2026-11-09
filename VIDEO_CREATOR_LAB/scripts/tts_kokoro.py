@@ -8,7 +8,6 @@ sidecar .json with "velocidade" (Kokoro speed), "tom" (pitch factor, applied wit
 (optional voice character effect, see EFEITOS: catedral, divino, eterno).
 """
 import json
-import subprocess
 import sys
 import time
 import wave
@@ -18,30 +17,13 @@ import numpy as np
 from kokoro import KModel, KPipeline
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import efeitos_voz
 import measure
 
 WEIGHTS = Path(r"C:\Users\paulo\.cache\huggingface\hub\models--hexgrad--Kokoro-82M\snapshots"
                r"\f3ff3571791e39611d31c381e3a41a3af07b4987")
 RATE = 24000
 LANG_CODES = {"pt": "p", "en": "a"}  # Kokoro: p = Brazilian Portuguese, a = American English
-# Optional "efeito" of a voice pack (ffmpeg filter graph, input [0:a], output [out]). apad leaves room for the tail.
-# A short room ambience, not an echo: two quiet reflections under 50 ms blend with the voice instead of being
-# heard as repeats (2026-11-07: the 60/130/250 ms taps sounded like delay). rubberband adds ~10 ms of latency, so
-# the pitched layers are trimmed by 10 ms to stay glued to the main voice.
-_SALA = "aecho=0.92:0.95:23|41:0.09|0.05"
-EFEITOS = {
-    # deep, a little more low end, short room
-    "catedral": f"[0:a]apad=pad_dur=0.2,{_SALA},bass=g=2.5:f=110,alimiter=limit=0.95[out]",
-    # calm and warm: a soft lower shadow under the voice (2026-11-07: lighter, it was too deep), short room,
-    # gentle highs - a peaceful voice
-    "divino": ("[0:a]apad=pad_dur=0.2,asplit=2[a][b];[b]rubberband=pitch=0.8:formant=preserved,atrim=start=0.010,"
-               "asetpts=PTS-STARTPTS,lowpass=f=1400,volume=0.12[low];[a][low]amix=inputs=2:normalize=0:duration=first,"
-               f"{_SALA},bass=g=1:f=120,treble=g=-1.5,alimiter=limit=0.95[out]"),
-    # ethereal: a very slightly detuned double (soft chorus, no audible delay), short room, softened highs
-    "eterno": ("[0:a]apad=pad_dur=0.2,asplit=2[a][b];[b]rubberband=pitch=1.008,atrim=start=0.007,asetpts=PTS-STARTPTS,"
-               "volume=0.22[d];[a][d]amix=inputs=2:normalize=0:duration=first,"
-               f"{_SALA},highpass=f=70,treble=g=-2,alimiter=limit=0.95[out]"),
-}
 
 if __name__ == "__main__":
     scenes = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
@@ -68,17 +50,7 @@ if __name__ == "__main__":
             w.setsampwidth(2)
             w.setframerate(RATE)
             w.writeframes((np.clip(audio, -1, 1) * 32767).astype(np.int16).tobytes())
-        if abs(pitch - 1.0) > 0.005:
-            tmp = path.with_suffix(".tom.wav")
-            subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(path), "-af",
-                            f"rubberband=pitch={pitch}:formant=preserved", str(tmp)], check=True)
-            tmp.replace(path)
-        if style.get("efeito") in EFEITOS:  # voice character effect (e.g. cathedral echo), kept inside the voice
-            tmp = path.with_suffix(".efeito.wav")
-            subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(path), "-filter_complex",
-                            EFEITOS[style["efeito"]], "-map", "[out]", "-ar", str(RATE), "-ac", "1", str(tmp)],
-                           check=True)
-            tmp.replace(path)
+        efeitos_voz.aplicar(path, style, RATE)
         with wave.open(str(path)) as w:  # the real length: an echo tail makes the file longer than the speech
             dur = w.getnframes() / w.getframerate()
         result["scenes"].append({"id": scene["id"], "wav": str(path), "duration_s": round(dur, 3),

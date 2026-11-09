@@ -17,6 +17,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 FONT = r"D:\Video-Creator\VIDEO_CREATOR_LAB\inputs\fonts\Poppins-ExtraBold.ttf"
 VERTICAL = (1080, 1920)
 YELLOW, BLACK = (255, 212, 0), (0, 0, 0)
+SEGUNDOS = 3.0  # how long the cover stays over the start of the video: enough to read the title
 
 # Title colour and font, set on the home page. modo "unica": always the first colour; "sequencia": each new cover
 # takes the next colour of the list (yellow, green, white... and around again). "proxima" is where the turn is.
@@ -130,6 +131,17 @@ def _serie_band(img, draw, cx, top, width, serie, episodio, accent=YELLOW):
     draw.text((cx, ty + 34), episodio, font=tag, fill=accent, anchor="mm")
 
 
+def series_strip(out, size, serie, episodio, cor=None):
+    """The series name and episode tag alone on a transparent frame, in the cover's place: goes over the whole video."""
+    W, H = size
+    lay = _layout(W, H, None, True)
+    bx, _, bw, _ = lay["box"]
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    _serie_band(img, ImageDraw.Draw(img), bx + bw / 2, lay["serie_y"], bw, serie, episodio, _rgb(cor) if cor else YELLOW)
+    img.save(out)
+    return str(out)
+
+
 def _cover_crop(img, W, H):
     s = max(W / img.width, H / img.height)
     img = img.resize((round(img.width * s), round(img.height * s)), Image.LANCZOS)
@@ -234,8 +246,8 @@ def make(title, out, background, portrait=None, name=None, size=VERTICAL, serie=
     return str(out)
 
 
-def stamp(video, cover, encoder=("libx264", "medium", 18), seconds=1.0, size=VERTICAL):
-    """Show the cover over the video's first second (same length; the audio is copied untouched)."""
+def stamp(video, cover, encoder=("libx264", "medium", 18), seconds=SEGUNDOS, size=VERTICAL):
+    """Show the cover over the video's first seconds (same length; the audio is copied untouched)."""
     video = Path(video)
     codec, preset, crf = encoder
     W, H = size

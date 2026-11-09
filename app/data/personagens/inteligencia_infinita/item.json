@@ -33,7 +33,33 @@
     "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_4.png",
     "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_5.png"
   ],
-  "ultima_pose": "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_4.png",
-  "ultimo_fundo": "inteligencia_infinita_148593_794221531_medium",
-  "imagem_provisoria": false
+  "ultima_pose": "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_3.png",
+  "ultimo_fundo": "inteligencia_infinita_6044_188286505_medium",
+  "imagem_provisoria": false,
+  "fila_poses": {
+    "fila": [],
+    "usados": [
+      "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_2.png",
+      "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_4.png",
+      "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_3.png",
+      "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_5.png"
+    ],
+    "ultimo": "D:\\Video-Creator\\app\\data\\personagens\\inteligencia_infinita\\recorte_5.png"
+  },
+  "fila_fundos": {
+    "fila": [
+      "inteligencia_infinita_368458_medium"
+    ],
+    "usados": [
+      "biblioteca_a_luz_de_velas_1",
+      "inteligencia_infinita_222270_medium",
+      "inteligencia_infinita_27337_363287680_medium",
+      "inteligencia_infinita_148593_794221531_medium",
+      "inteligencia_infinita_217932_medium",
+      "inteligencia_infinita_145739_787427545_medium",
+      "inteligencia_infinita_6044_188286505_medium",
+      "inteligencia_infinita_8947_215890483_medium"
+    ],
+    "ultimo": "inteligencia_infinita_8947_215890483_medium"
+  }
 }

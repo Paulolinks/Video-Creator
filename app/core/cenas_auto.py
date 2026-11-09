@@ -64,14 +64,26 @@ def _cover(img, W, H):
     return img.crop((x, y, x + W, y + H))
 
 
+def _duration(path):
+    """Seconds of a video, read from ffmpeg's banner (None if it can't be read)."""
+    err = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(path)], capture_output=True, text=True, encoding="utf-8",
+                         errors="replace", timeout=60).stderr
+    m = re.search(r"Duration: (\d+):(\d+):([\d.]+)", err)
+    return int(m[1]) * 3600 + int(m[2]) * 60 + float(m[3]) if m else None
+
+
 def _frame(path, at=None):
     """Imagem do fundo: o arquivo, ou um quadro do vídeo (variando o instante para não repetir)."""
     path = Path(path)
     if path.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"):
         return Image.open(path).convert("RGB")
-    out = path.parent / f"_quadro_{int((at or 0) * 10)}.jpg"
+    at = at or 2
+    seconds = _duration(path)
+    if seconds:  # a short video wraps around: asking for a moment past its end makes ffmpeg fail and stops the whole video
+        at = round(at % max(seconds - 0.5, 0.5), 1)
+    out = path.parent / f"_quadro_{int(at * 10)}.jpg"
     if not out.exists():
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{at or 2:.1f}", "-i", str(path), "-frames:v", "1",
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{at:.1f}", "-i", str(path), "-frames:v", "1",
                         "-q:v", "2", str(out)], check=True, timeout=60)
     return Image.open(out).convert("RGB")
 

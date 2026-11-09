@@ -24,9 +24,11 @@
     "cosmos"
   ],
   "fundos": [
-    "nuvens",
     "cidade_a_noite_1",
-    "cosmos_1"
+    "cosmos_1",
+    "cosmos_2",
+    "egito_antigo_3",
+    "nuvens"
   ],
   "fundo_indice": 72,
   "musicas": [
@@ -46,5 +48,6 @@
   ],
   "imagem_indice": 62,
   "ultima_pose": "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte.png",
-  "ultimo_fundo": "cosmos_1"
+  "ultimo_fundo": "cosmos_1",
+  "fundos_manual": true
 }

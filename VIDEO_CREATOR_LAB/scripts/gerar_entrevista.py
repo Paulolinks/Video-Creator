@@ -13,11 +13,12 @@ import time
 import wave
 from pathlib import Path
 
+import motor_clone
+
 LAB = Path(__file__).resolve().parent.parent
 SCRIPTS = LAB / "scripts"
 CUTTER = Path(r"C:\dev\Video Cutter")
 PY = {"kokoro": CUTTER / ".runtime" / "voices" / "kokoro" / "Scripts" / "python.exe",
-      "chatterbox": CUTTER / ".runtime" / "voices" / "chatterbox" / "Scripts" / "python.exe",
       "whisper": CUTTER / ".venv" / "Scripts" / "python.exe", "lab": LAB / ".venvs" / "lab" / "Scripts" / "python.exe"}
 DEFAULT_TEMPLATE = LAB / "templates" / "T02_entrevista.json"
 TORCH_LIB = CUTTER / ".runtime" / "voices" / "chatterbox" / "Lib" / "site-packages" / "torch" / "lib"
@@ -153,6 +154,12 @@ def talking_faces(tpl, roteiro, merged, work, report, logs):
     report["rostos_animados"] = sum(1 for sc in roteiro["cenas"] if sc.get("fala_video"))
 
 
+def voice_tag(engine, voice):
+    """Folder name of a voice's takes. Clones all share the name voz_referencia, so the character's folder goes in; and
+    the active clone engine too, so redoing a video after switching engines doesn't reuse the other engine's takes."""
+    return f"{motor_clone.ATIVO if engine == 'chatterbox' else engine}_{Path(voice).parent.name}_{Path(voice).stem}"
+
+
 def step(name, cmd, report, log, lab_cache=False, cudnn=False):
     print(f"-> {name}...", flush=True)
     env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1", "HF_HUB_OFFLINE": "1", "HF_HUB_DISABLE_SYMLINKS_WARNING": "1"}
@@ -192,7 +199,7 @@ if __name__ == "__main__":
     raw = {}
     chatterbox_jobs = []  # every Chatterbox voice goes in one run: the model loads once for all speakers
     for (engine, voice), scenes in groups.items():
-        tag = f"{engine}_{Path(voice).parent.name}_{Path(voice).stem}"  # clones all share the name voz_referencia
+        tag = voice_tag(engine, voice)
         sj, out = audio / f"_cenas_{tag}.json", audio / f"raw_{tag}"
         try:
             same_text = json.loads(sj.read_text(encoding="utf-8")) == scenes
@@ -226,8 +233,7 @@ if __name__ == "__main__":
     if chatterbox_jobs:
         jj = audio / "_vozes_chatterbox.json"
         jj.write_text(json.dumps(chatterbox_jobs, ensure_ascii=False), encoding="utf-8")
-        step("voz_chatterbox", [str(PY["chatterbox"]), str(SCRIPTS / "tts_chatterbox.py"), "--lote", str(jj)], report,
-             logs / "voz_chatterbox.log")
+        step("voz_clones", [*motor_clone.comando(), "--lote", str(jj)], report, logs / "voz_clones.log")
 
     # 2. Treatment per engine (Kokoro voices get denoise + gate: their pauses carry hiss), same loudness, 48 kHz.
     t = time.perf_counter()
@@ -271,7 +277,7 @@ if __name__ == "__main__":
     def sentence_map():
         frases = {}
         for key, scenes in groups.items():
-            tag = f"{key[0]}_{Path(key[1]).parent.name}_{Path(key[1]).stem}"
+            tag = voice_tag(*key)
             try:
                 info = json.loads((audio / f"raw_{tag}" / "tts.json").read_text(encoding="utf-8"))
             except (OSError, ValueError):
@@ -302,7 +308,7 @@ if __name__ == "__main__":
             break
         fix_jobs = []  # all speakers' fixes in one Chatterbox run (one model load)
         for (engine, voice), items in fixable.items():
-            tag = f"{engine}_{Path(voice).parent.name}_{Path(voice).stem}"
+            tag = voice_tag(engine, voice)
             rj = audio / f"_refazer_{tag}.json"
             rj.write_text(json.dumps(items, ensure_ascii=False), encoding="utf-8")
             for it in items:
@@ -311,8 +317,7 @@ if __name__ == "__main__":
                              "refazer": True, "idioma_ref": ref_langs.get(voice)})
         jj = audio / f"_correcao_{rodada}.json"
         jj.write_text(json.dumps(fix_jobs, ensure_ascii=False), encoding="utf-8")
-        step(f"correcao_{rodada}", [str(PY["chatterbox"]), str(SCRIPTS / "tts_chatterbox.py"), "--lote", str(jj)],
-             report, logs / f"correcao_{rodada}.log")
+        step(f"correcao_{rodada}", [*motor_clone.comando(), "--lote", str(jj)], report, logs / f"correcao_{rodada}.log")
         redone = [it["id"] for items in fixable.values() for it in items]
         fresh = {sid: treat(by_id[sid]) for sid in redone}
         merged = [fresh.get(m["id"], m) for m in merged]

@@ -304,17 +304,18 @@ def compose(tpl, roteiro, work, out):
         inputs += ["-i", rt["logo"]]
         video = (f"[1:v]subtitles='{ass}':fontsdir='{fonts}'[s];[2:v]scale={rt['logo_largura']}:-1[lg];"
                  f"[s][lg]overlay=(W-w)/2:{rt['logo_y']}[vout]")
+    if tpl.get("faixa_serie"):  # a series' name and episode, over the whole video (one image repeats to the end)
+        video = f"{video.removesuffix('[vout]')}[fs];[fs][{len(inputs) // 2}:v]overlay=0:0[vout]"
+        inputs += ["-i", tpl["faixa_serie"]]
     voice = f"[0:a]aresample=48000,aformat=channel_layouts=stereo,loudnorm=I={lufs}:TP=-1.5:LRA=11,aresample=48000"
     mus = tpl.get("musica") or {}
-    if mus.get("arquivo"):  # background music, ducked under the voices
-        dk = mus.get("ducking") or {"limiar": 0.02, "razao": 6, "ataque_ms": 20, "liberacao_ms": 500}
+    if mus.get("arquivo"):  # a low, constant bed: the music does not dip when someone speaks
         idx = len(inputs) // 2
         inputs += ["-stream_loop", "-1", "-i", mus["arquivo"]]
-        audio_graph = (f"{voice},asplit[v][sc];[{idx}:a]aresample=48000,aformat=channel_layouts=stereo,"
+        audio_graph = (f"{voice}[v];[{idx}:a]aresample=48000,aformat=channel_layouts=stereo,"
                        f"volume={mus.get('volume', 0.25)},afade=t=in:d=1,afade=t=out:st={max(total - 2, 0):.2f}:d=2,"
-                       f"atrim=0:{total:.3f}[m];[m][sc]sidechaincompress=threshold={dk['limiar']}:ratio={dk['razao']}:"
-                       f"attack={dk['ataque_ms']}:release={dk['liberacao_ms']}:makeup=1[md];"
-                       "[v][md]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.9[a]")
+                       f"atrim=0:{total:.3f}[m];"
+                       "[v][m]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.9[a]")
     else:
         audio_graph = f"{voice},alimiter=limit=0.9[a]"
     run(["ffmpeg", "-hide_banner", "-y", *inputs, "-filter_complex", f"{audio_graph};{video}",

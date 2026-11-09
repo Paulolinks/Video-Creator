@@ -20,12 +20,12 @@ import torch
 from chatterbox.mtl_tts import ChatterboxMultilingualTTS, Conditionals
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import efeitos_voz
 import measure
 
 MODEL = Path(r"C:\Users\paulo\.cache\huggingface\hub\models--ResembleAI--chatterbox\snapshots"
              r"\5bb1f6ee58e50c3b8d408bc82a6d3740c2db6e18")
-GAP_S = 0.18
-EXAGGERATION = 0.4
+EXAGGERATION = 0.55  # 0.4 sounded like someone reading (package default: 0.5)
 MIN_WORDS = 3  # shorter sentences are read together with the next one
 WORDS_PER_S = 2.7  # normal speech; a take shorter than 60% of this was cut off by the model and is redone
 TRIES = 3
@@ -46,6 +46,17 @@ def sentences(text):
         last = out.pop()
         out[-1] += " " + last
     return out
+
+
+def pause_after(sentence):
+    """Silence after a sentence, in seconds. One fixed gap is what makes a narration sound read: short lines follow
+    each other quickly, long ones and questions get a breath. The small variation comes from the text itself, so a
+    sentence redone later keeps the same timing."""
+    words = len(sentence.split())
+    base = 0.45 if sentence.endswith("...") else 0.12 if words <= 4 else 0.32 if words >= 14 else 0.22
+    if sentence.endswith("?"):
+        base += 0.08
+    return base * (1 + (int(hashlib.sha1(sentence.encode()).hexdigest(), 16) % 41 - 20) / 100)
 
 
 def conds_path(ref):
@@ -135,6 +146,8 @@ if __name__ == "__main__":
     for job in jobs:
         scenes = json.loads(Path(job["cenas"]).read_text(encoding="utf-8"))
         out, ref, lang, redo = Path(job["saida"]), job["voz"], job.get("idioma", "pt"), bool(job.get("refazer"))
+        side = Path(ref).with_suffix(".json")  # a styled version of a cloned voice: pitch and effect (efeitos_voz.py)
+        style = json.loads(side.read_text(encoding="utf-8")) if side.exists() else {}
         # a reference recorded in another language pushes its accent (and drift) into the speech: a lower
         # guidance weight follows the target language more (measured: 8.7% -> 6.7% wrong words, same timbre)
         ref_lang = job.get("idioma_ref")
@@ -167,10 +180,11 @@ if __name__ == "__main__":
             chunks, frases, pos = [], [], 0
             for i, s in enumerate(parts):
                 wav = np.load(files[i])
+                gap = int(pause_after(s) * model.sr)
                 frases.append({"texto": s, "inicio": round(pos / model.sr, 3),
                                "fim": round((pos + len(wav)) / model.sr, 3)})
-                chunks += [wav, np.zeros(int(GAP_S * model.sr), np.float32)]
-                pos += len(wav) + int(GAP_S * model.sr)
+                chunks += [wav, np.zeros(gap, np.float32)]
+                pos += len(wav) + gap
             audio = np.concatenate(chunks[:-1])
             path = out / f"{scene['id']}.wav"
             with wave.open(str(path), "wb") as w:
@@ -178,7 +192,10 @@ if __name__ == "__main__":
                 w.setsampwidth(2)
                 w.setframerate(model.sr)
                 w.writeframes((np.clip(audio, -1, 1) * 32767).astype(np.int16).tobytes())
-            result["scenes"].append({"id": scene["id"], "wav": str(path), "duration_s": round(len(audio) / model.sr, 3),
+            efeitos_voz.aplicar(path, style, model.sr)  # applied on the raw takes, so a redo never stacks it
+            with wave.open(str(path)) as w:  # the real length: an effect's tail makes the file longer than the speech
+                dur = w.getnframes() / w.getframerate()
+            result["scenes"].append({"id": scene["id"], "wav": str(path), "duration_s": round(dur, 3),
                                      "synth_s": round(time.perf_counter() - t, 2), "sample_rate": model.sr,
                                      "frases": frases})
             print(scene["id"], result["scenes"][-1]["duration_s"], "s em", result["scenes"][-1]["synth_s"], "s",

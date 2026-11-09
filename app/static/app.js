@@ -89,9 +89,9 @@ function renderCharacters() {
       <label class="btn ghost small">+ Adicionar imagem<input type="file" accept="image/*" data-addimg="${c.id}" hidden></label>
       <div class="small muted img-msg">${imgs.length > 1 ? `${imgs.length} imagens em rodízio: na entrevista, uma por vídeo; no Personagem falando, uma por cena.` : "Só uma imagem: ela aparece em todos os vídeos."}</div>`}
       <div class="sub-h">Voz</div>
-      ${c.voz.motor === "chatterbox" ? '<div class="meta">Clonada de gravação</div>'
+      ${c.voz.motor === "chatterbox" && !(c.voz.referencia in LIB.vozes) ? '<div class="meta">Clonada de gravação</div>'
         : `<select data-cid="${c.id}" data-field="voz">${Object.entries(LIB.vozes).map(([k, v]) =>
-          `<option value="${esc(k)}" ${k === c.voz.voz ? "selected" : ""}>${esc(v)}</option>`).join("")}</select>`}
+          `<option value="${esc(k)}" ${k === (c.voz.voz || c.voz.referencia) ? "selected" : ""}>${esc(v)}</option>`).join("")}</select>`}
       ${c.amostra_voz ? `<audio src="${media(c.amostra_voz)}" controls preload="none"></audio>` : ""}
       <details class="nova-voz"><summary>Usar outra gravação (arquivo ou vídeo)</summary>
         <input class="nv-url" placeholder="Link do vídeo (YouTube etc.)">
@@ -115,6 +115,8 @@ function renderCharacters() {
       <div class="chips-mini mus-chips">${musChips(c.musicas || [])}</div>
       <details><summary>Escolher músicas</summary><div class="mus-checks bg-checks" data-cid="${c.id}">${LIB.musicas.map((m) =>
         `<label class="inline small"><input type="checkbox" value="${m.id}" ${(c.musicas || []).includes(m.id) ? "checked" : ""}> ${esc(m.nome)}</label>`).join("")}</div></details>
+      <label class="btn ghost small">+ Enviar músicas<input type="file" accept="audio/*" multiple data-addmus="${c.id}" hidden></label>
+      <div class="small muted mus-msg">As músicas enviadas também ficam na biblioteca para os outros personagens.</div>
       <label class="small">Lado<select data-cid="${c.id}" data-field="lado">
         <option value="esquerda" ${c.lado === "esquerda" ? "selected" : ""}>Esquerda</option>
         <option value="direita" ${c.lado === "direita" ? "selected" : ""}>Direita</option></select></label>
@@ -197,6 +199,17 @@ function renderCharacters() {
     try {
       const r = await api(`/api/personagens/${inp.dataset.addbg}/fundos`, { method: "POST", body: fd });
       if (r.falhas_fundos?.length) alert("Alguns arquivos não entraram:\n" + r.falhas_fundos.join("\n"));
+    } catch (err) { alert(err.message); }
+    after();
+  }));
+  $$("#lista-personagens [data-addmus]").forEach((inp) => (inp.onchange = async () => {
+    if (!inp.files.length) return;
+    const fd = new FormData();
+    [...inp.files].forEach((f) => fd.append("arquivos", f));
+    $(".mus-msg", inp.closest(".char")).textContent = `Enviando ${inp.files.length} ${inp.files.length > 1 ? "músicas" : "música"}…`;
+    try {
+      const r = await api(`/api/personagens/${inp.dataset.addmus}/musicas`, { method: "POST", body: fd });
+      if (r.falhas_musicas?.length) alert("Alguns arquivos não entraram:\n" + r.falhas_musicas.join("\n"));
     } catch (err) { alert(err.message); }
     after();
   }));
@@ -510,6 +523,11 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
     <option value="personagem" ${LIB.musicas.length ? "" : "disabled"}>Música do personagem (rodízio, combina com ele)</option>
     <option value="aleatoria" ${LIB.musicas.length ? "" : "disabled"}>Aleatória da biblioteca (uma por vídeo)</option>
     ${LIB.musicas.map((m) => `<option value="${m.id}">${esc(m.nome)}</option>`).join("")}`;
+  // a character whose tracks were chosen by hand wants them: starts selected, so a batch doesn't go out silent by accident
+  const musicaEscolhida = b.videos.some((v) => (v.personagens || []).some((p) =>
+    LIB.personagens.find((c) => c.id === v.personagens_status?.[p])?.musicas_manual));
+  musicSel.value = musicaEscolhida ? "personagem" : "nenhuma";
+  $("#vol-wrap").classList.toggle("hide", musicSel.value === "nenhuma");
   const chars = [...new Set(b.videos.filter((v) => v.template === "T02").flatMap((v) => v.personagens))]
     .map((p) => [p, LIB.personagens.find((c) => c.id === b.videos.find((v) => v.personagens_status?.[p])?.personagens_status[p])])
     .filter(([, c]) => c);
@@ -975,6 +993,7 @@ function cardHTML(b, v) {
       <div class="sub">${esc(v.template_nome)} · ${v.cenas.length} cenas${v.etapa && v.status === "gerando" ? " · " + esc(v.etapa) : ""}${time ? " · " + time : ""}</div>
       ${v.erro ? `<div class="small" style="color:#ff9a92">${esc(v.erro)}</div>` : ""}
       ${v.status === "erro" ? '<div class="vacts"><button class="btn small" data-act="refazer">🔄 Gerar de novo</button></div><div class="small msg"></div>' : ""}
+      ${v.status === "gerando" ? '<div class="vacts"><button class="btn danger small" data-act="parar" title="Cancela este vídeo e passa para o próximo">⏹ Parar este vídeo</button></div>' : ""}
       <div class="bar"><div style="width:${pct}%"></div></div></div></div>`;
   }
   const m = v.metadados || {};
@@ -1045,6 +1064,10 @@ async function loadQueue() {
   $("#fila-canal").textContent = `· ${canalNome(CANAL)}`;
   $("#fila-badge").textContent = active;
   $("#fila-badge").classList.toggle("hide", !active);
+  const pausa = $("#btn-pausa");
+  pausa.classList.toggle("hide", !active && !sys.fila_pausada);
+  pausa.textContent = sys.fila_pausada ? "▶ Continuar" : "⏸ Pausar tudo";
+  pausa.dataset.pausada = sys.fila_pausada ? "1" : "";
   const gpuBusy = sys.gpu_usada_mb && sys.gpu_usada_mb > 4500;
   $("#gpu-alerta").classList.toggle("hide", !(gpuBusy && active));
   $("#gpu-alerta").textContent = `A placa de vídeo está com ${(sys.gpu_usada_mb / 1024).toFixed(1)} GB em uso. ` +
@@ -1127,6 +1150,9 @@ $("#fila").addEventListener("click", async (e) => {
         await api(`${url}/arquivo`, { method: "DELETE" });
       } else if (act === "reenviar") {
         await api(`${url}/drive`, { method: "POST" });
+      } else if (act === "parar") {
+        if (!confirm("Cancelar este vídeo? O que já foi feito dele se perde; ele volta para \"não iniciado\" e a fila passa para o próximo.")) return;
+        await api(`${url}/parar`, { method: "POST" });
       } else if (act === "refazer") {
         if (!card.classList.contains("pending") && !confirm("Gerar este vídeo de novo? O vídeo atual é substituído; " +
           "a descrição e as hashtags ficam. Ele volta a aparecer como não enviado.")) return;
@@ -1331,6 +1357,10 @@ async function abrirIA() {
   $("#ia-prompt").dataset.padrao = cfg.padrao;
   $("#modal-ia").classList.remove("hide");
 }
+$("#btn-pausa").onclick = async (e) => {
+  await api(`/api/fila/${e.target.dataset.pausada ? "continuar" : "pausar"}`, { method: "POST" });
+  loadQueue();
+};
 $("#btn-ia").onclick = abrirIA;
 $("#ia-padrao").onclick = () => ($("#ia-prompt").value = $("#ia-prompt").dataset.padrao);
 $("#ia-fechar").onclick = () => $("#modal-ia").classList.add("hide");

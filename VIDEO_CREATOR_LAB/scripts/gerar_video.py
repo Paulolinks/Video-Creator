@@ -13,6 +13,8 @@ import sys
 import time
 from pathlib import Path
 
+import motor_clone
+
 LAB = Path(__file__).resolve().parent.parent
 SCRIPTS = LAB / "scripts"
 CUTTER = Path(r"C:\dev\Video Cutter")
@@ -56,8 +58,9 @@ if __name__ == "__main__":
 
     lang = tpl.get("idioma", "pt")  # the script's language, detected by the app ("pt" or "en")
     report["idioma"] = lang
-    step("voz", [str(KOKORO_PY), str(SCRIPTS / "tts_kokoro.py"), str(scenes_file), str(work / "audio"),
-                 tpl["voz"]["voz"], lang], report, log=logs / "voz.log")
+    clone = tpl["voz"].get("referencia")  # the character's voice is a cloned recording: the active clone engine, not Kokoro
+    tts = motor_clone.comando() if clone else [str(KOKORO_PY), str(SCRIPTS / "tts_kokoro.py")]
+    step("voz", [*tts, str(scenes_file), str(work / "audio"), clone or tpl["voz"]["voz"], lang], report, log=logs / "voz.log")
     step("alinhamento", [str(WHISPER_PY), str(SCRIPTS / "align_whisper.py"), str(scenes_file),
                          str(work / "audio" / "tts.json"), str(work / "audio" / "alinhamento.json"), lang],
          report, log=logs / "alinhamento.log", cudnn=True)

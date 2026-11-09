@@ -100,7 +100,7 @@ def novo_personagem():
                 return err("Envie a gravação de referência ou recorte um trecho de vídeo (10 a 30 s de fala limpa).")
             voz = {"motor": "chatterbox"}
         else:
-            voz = {"motor": "kokoro", "voz": f.get("voz_kokoro", "pm_alex")}
+            voz = library.voice_config(f.get("voz_kokoro", "pm_alex"))
         try:
             item = library.add_character(f["nome"], img_path, f.get("lado", "esquerda"), f.get("fundo", ""), voz,
                                          aliases=f.get("aliases", "").split(","),
@@ -152,7 +152,7 @@ def recortar_voz():
 @app.patch("/api/personagens/<cid>")
 def editar_personagem(cid):
     data = request.get_json(force=True)
-    voz = {"motor": "kokoro", "voz": data["voz"]} if data.get("voz") in library.voices() else None
+    voz = library.voice_config(data["voz"]) if data.get("voz") in library.voices() else None
     fundos = data.get("fundos")
     if fundos is not None:
         fundos = [f for f in fundos if library.get("fundos", f)]
@@ -175,6 +175,7 @@ def editar_personagem(cid):
         if meta.get("nome") == old["nome"]:  # the designed voice is labelled with the character's name
             pack.write_text(json.dumps({**meta, "nome": nome}, indent=2, ensure_ascii=False), encoding="utf-8")
     return jsonify(library.update_character(cid, lado=data.get("lado"), fundo=data.get("fundo"), voz=voz,
+                                            autorizacao_voz=True if voz and voz["motor"] == "chatterbox" else None,
                                             fundos=fundos, fundos_manual=True if fundos else None,
                                             musicas=musicas, musicas_manual=True if musicas is not None else None,
                                             nicho=data.get("nicho"), categoria=data.get("categoria")))
@@ -247,6 +248,25 @@ def adicionar_fundos(cid):
         ch, added, failures = library.add_character_backgrounds(
             cid, files, request.form.get("origem", "").strip() or "Enviado pelo usuário")
     return jsonify({**ch, "fundos_adicionados": [a["nome"] for a in added], "falhas_fundos": failures})
+
+
+@app.post("/api/personagens/<cid>/musicas")
+def adicionar_musicas(cid):
+    """Several tracks at once: they go to the library and into this character's rotation."""
+    cid = library.slug(cid)
+    if not library.get("personagens", cid):
+        abort(404)
+    ups = [u for u in request.files.getlist("arquivos") if u and u.filename]
+    if not ups:
+        return err("Escolha uma ou mais músicas.")
+    with tempfile.TemporaryDirectory() as tmp:
+        files = []
+        for k, up in enumerate(ups):
+            path = Path(tmp) / f"{k}_{secure_filename(up.filename) or 'musica.mp3'}"
+            up.save(path)
+            files.append((path, up.filename))
+        ch, failures = library.add_character_music(cid, files)
+    return jsonify({**ch, "falhas_musicas": failures})
 
 
 @app.delete("/api/personagens/<cid>/imagens")
@@ -374,6 +394,27 @@ def refazer_video(bid, vid):
         return err(str(exc))
 
 
+@app.post("/api/lotes/<bid>/videos/<vid>/parar")
+def parar_video(bid, vid):
+    try:
+        jobs.stop(bid, vid)
+    except ValueError as exc:
+        return err(str(exc))
+    return jsonify({"ok": True})
+
+
+@app.post("/api/fila/pausar")
+def pausar_fila():
+    jobs.pause()
+    return jsonify({"ok": True})
+
+
+@app.post("/api/fila/continuar")
+def continuar_fila():
+    jobs.resume()
+    return jsonify({"ok": True})
+
+
 @app.delete("/api/lotes/<bid>")
 def apagar_lote(bid):
     if not (jobs.BATCHES / secure_filename(bid) / "lote.json").exists():
@@ -496,7 +537,7 @@ def sistema():
         used, total = int(out[0]), int(out[1])
     except Exception:
         used = total = None
-    return jsonify({"gpu_usada_mb": used, "gpu_total_mb": total})
+    return jsonify({"gpu_usada_mb": used, "gpu_total_mb": total, "fila_pausada": jobs.paused()})
 
 
 if __name__ == "__main__":

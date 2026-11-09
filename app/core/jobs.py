@@ -11,6 +11,8 @@ import threading
 import time
 from pathlib import Path
 
+import psutil
+
 from . import canais, capa, cenas_auto, estilos, library, metadados
 from .parser import IDIOMAS, SCRIPT_EXT, TEMPLATES, embedded_images, episode_label, parse_script
 
@@ -29,6 +31,8 @@ STEP_NAMES = [(r"^voz", "Gerando voz"), (r"^alinhamento", "Sincronizando legenda
 
 _lock = threading.RLock()
 _queue = queue.Queue()
+_current = {}  # the video in the worker now: batch, video, proc (its engine), parar (cancel requested)
+_paused = threading.Event()
 
 
 def _path(batch_id):
@@ -171,12 +175,12 @@ def recheck(batch_id):
 def _template_copy(template_path, folder, music_item, volume, voice=None, idioma="pt", template_id="F01", options=None):
     tpl = json.loads(Path(template_path).read_text(encoding="utf-8"))
     estilos.apply(tpl, template_id, (options or {}).get("estilo"))  # format + caption look chosen on the home page
-    if voice:  # F01: narrate with the registered character's voice
-        tpl["voz"]["voz"] = voice
+    if voice:  # F01: narrate with the registered character's voice (designed pack or cloned recording)
+        tpl["voz"]["referencia" if voice["motor"] == "chatterbox" else "voz"] = voice.get("referencia") or voice["voz"]
     tpl["idioma"] = idioma  # the voices and the caption timing read the script in this language
+    tpl["capa_segundos"] = capa.SEGUNDOS  # F01 stamps the cover afterwards: the animations must wait for it to leave
     tpl.setdefault("musica", {})
     tpl["musica"].update({"arquivo": music_item["arquivo"] if music_item else None, "volume": volume})
-    tpl["musica"].setdefault("ducking", {"limiar": 0.02, "razao": 6, "ataque_ms": 20, "liberacao_ms": 500})
     path = folder / "template.json"
     path.write_text(json.dumps(tpl, indent=2, ensure_ascii=False), encoding="utf-8")
     return path
@@ -207,8 +211,8 @@ def _build_project(batch, video, options):
     voice = None
     if video["template"] == "F01" and video["personagens"]:
         ch = library.find_character(video["personagens"][0])
-        voice = ch["voz"]["voz"] if ch and ch["voz"]["motor"] == "kokoro" else None
-    video["voz"] = voice
+        voice = ch["voz"] if ch else None
+    video["voz"] = (voice.get("voz") or voice.get("referencia")) if voice else None
     # an interview script (T02) can be made with either interview model: the batch option picks it
     video["modelo"] = "T03" if video["template"] == "T02" and options.get("modelo_entrevista") == "T03" else video["template"]
     tpl = _template_copy(ENGINE[video["modelo"]][1], folder, music_item, float(options.get("volume", 0.10)), voice,
@@ -284,6 +288,31 @@ def _update(batch_id, video_id, **fields):
         save(batch)
 
 
+def _cover_look(v, batch_id=None):
+    """The cover's colour and font, kept in the video once picked."""
+    look = v.get("capa_estilo") or capa.next_style()
+    if batch_id and not v.get("capa_estilo"):
+        v["capa_estilo"] = look
+        _update(batch_id, v["id"], capa_estilo=look)
+    return look
+
+
+def add_series_strip(v, batch_id=None):
+    """A series episode keeps its name and number on screen the whole video; a failure here never fails the video."""
+    if not (v.get("serie") and v.get("episodio_txt")):
+        return
+    try:
+        tpl = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))
+        enc = tpl["video"]
+        tpl["faixa_serie"] = capa.series_strip(Path(v["projeto"]) / "faixa_serie.png", (enc["largura"], enc["altura"]),
+                                               v["serie"], v["episodio_txt"], _cover_look(v, batch_id)["cor"])
+        if "rotulos" in tpl:  # interview: the speaker's name goes right under the strip, not against the episode tag
+            tpl["rotulos"]["nome_y"] = max(tpl["rotulos"].get("nome_y", 0), 275)
+        Path(v["template_json"]).write_text(json.dumps(tpl, indent=2, ensure_ascii=False), encoding="utf-8")
+    except Exception as e:  # noqa: BLE001
+        print("faixa da série:", e, file=sys.stderr)
+
+
 def make_cover(v, out_dir, batch_id=None):
     """capa.png beside the video; a failed cover never fails the video.
     The title colour/font is picked once (the colour sequence moves on) and kept in the video, so a redo keeps it."""
@@ -293,10 +322,7 @@ def make_cover(v, out_dir, batch_id=None):
     try:
         Path(out_dir).mkdir(parents=True, exist_ok=True)
         enc = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))["video"]
-        look = v.get("capa_estilo") or capa.next_style()
-        if batch_id and not v.get("capa_estilo"):
-            v["capa_estilo"] = look
-            _update(batch_id, v["id"], capa_estilo=look)
+        look = _cover_look(v, batch_id)
         return capa.make(v["titulo"] or Path(v["arquivo"]).stem, Path(out_dir) / "capa.png", src["fundo"],
                          src.get("retrato"), src.get("nome"), size=(enc["largura"], enc["altura"]),
                          serie=v.get("serie"), episodio=v.get("episodio_txt"), cor=look["cor"], fonte=look["fonte"])
@@ -306,7 +332,7 @@ def make_cover(v, out_dir, batch_id=None):
 
 
 def stamp_cover(v, video_path, cover):
-    """Cover over the first second, encoded like the template; a failure keeps the video as it was."""
+    """Cover over the first seconds, encoded like the template; a failure keeps the video as it was."""
     try:
         enc = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))["video"]
         capa.stamp(video_path, cover, (enc["codec"], enc["preset"], enc["crf"]), size=(enc["largura"], enc["altura"]))
@@ -351,17 +377,26 @@ def _run(batch_id, video_id):
     if v["template"] == "F01":
         _auto_images(batch_id, v)
         v = next(x for x in load(batch_id)["videos"] if x["id"] == video_id)  # images + cover source updated
+    add_series_strip(v, batch_id)
     cover = make_cover(v, out_dir, batch_id) if v["template"] == "T02" else None
-    if cover:  # T02: the composer puts the cover over the first second in its final pass (no extra encode)
+    if cover:  # T02: the composer puts the cover over the first seconds in its final pass (no extra encode)
         tpl = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))
-        tpl["capa"] = {"arquivo": cover, "segundos": 1.0}
+        tpl["capa"] = {"arquivo": cover, "segundos": capa.SEGUNDOS}
         Path(v["template_json"]).write_text(json.dumps(tpl, indent=2, ensure_ascii=False), encoding="utf-8")
     env = {**os.environ, "PYTHONUNBUFFERED": "1"}
     done = 0
+    _wait_if_paused()
+    if _current.get("parar"):
+        return
     with open(log, "w", encoding="utf-8") as lf:
         proc = subprocess.Popen([sys.executable, str(script), v["projeto"], v["template_json"], str(out_dir)],
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding="utf-8",
                                 errors="replace", env=env, cwd=str(LAB))
+        _current["proc"] = proc
+        if _paused.is_set():  # asked in the instant before the engine existed
+            _on_tree("suspend")
+        if _current.get("parar"):
+            _on_tree("kill")
         for line in proc.stdout:
             lf.write(line)
             lf.flush()
@@ -386,7 +421,7 @@ def _run(batch_id, video_id):
                 voz_corrigidos=max(0, (rep.get("voz_problemas_encontrados") or 0) - len(rep.get("voz_alertas") or [])))
         cover = cover or make_cover(v, out_dir, batch_id)
         if cover and not stamped:  # F01, or the original composer was used: stamp it afterwards
-            _update(batch_id, video_id, etapa="Colocando a capa no 1º segundo", passos_feitos=done)
+            _update(batch_id, video_id, etapa="Colocando a capa no início do vídeo", passos_feitos=done)
             stamped = stamp_cover(v, outputs[-1], cover)
         _update(batch_id, video_id, status="pronto", etapa="Pronto", passos_feitos=done, saida=str(outputs[-1]),
                 capa=cover, capa_no_video=stamped, fim=time.time())
@@ -475,13 +510,63 @@ def delete_file(batch_id, video_id):
     _update(batch_id, video_id, apagado=True)
 
 
+def _tree():
+    """The running video's engine and everything it started, parents first."""
+    try:
+        root = psutil.Process(_current["proc"].pid)
+        return [root, *root.children(recursive=True)]
+    except (KeyError, AttributeError, psutil.Error):
+        return []
+
+
+def _on_tree(action):
+    for p in _tree():
+        try:
+            getattr(p, action)()
+        except psutil.Error:
+            pass
+
+
+def paused():
+    return _paused.is_set()
+
+
+def pause():
+    """Freeze everything: the video being made stops where it is and the next one doesn't start."""
+    _paused.set()
+    _on_tree("suspend")
+
+
+def resume():
+    _paused.clear()
+    _on_tree("resume")
+
+
+def stop(batch_id, video_id):
+    """Cancel the video being made (it goes back to 'not started'); the queue moves on to the next one."""
+    if (_current.get("batch"), _current.get("video")) != (batch_id, video_id):
+        raise ValueError("Esse vídeo não está sendo criado agora.")
+    _current["parar"] = True
+    _on_tree("kill")
+
+
+def _wait_if_paused():
+    while _paused.is_set():
+        time.sleep(0.5)
+
+
 def _worker():
     while True:
         batch_id, video_id = _queue.get()
+        _wait_if_paused()
+        _current.update(batch=batch_id, video=video_id, proc=None, parar=False)
         try:
             _run(batch_id, video_id)
         except Exception as exc:  # keep the queue alive; the error shows on the video card
             _update(batch_id, video_id, status="erro", etapa="Erro", erro=str(exc), fim=time.time())
+        if _current["parar"]:
+            _update(batch_id, video_id, status="analisado", etapa="", erro=None, passos_feitos=0, fim=None)
+        _current.clear()
 
 
 def resume_pending():
