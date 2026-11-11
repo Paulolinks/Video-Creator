@@ -120,6 +120,8 @@ def talking_faces(tpl, roteiro, merged, work, report, logs):
             "cenas": []}
     keys = {}
     for sc in roteiro["cenas"]:
+        if sc.get("animacao"):  # that scene shows an animation, not the speaker
+            continue
         rgb_p, _ = flat[sc["personagem"]]
         wav = Path(by_id[sc["id"]]["wav"])
         keys[sc["id"]] = hashlib.sha1(wav.read_bytes() + rgb_p.read_bytes()[:4096] + json.dumps(jobs["preprocess"]).encode()
@@ -149,7 +151,7 @@ def talking_faces(tpl, roteiro, merged, work, report, logs):
     # tell the composer which clip and outline go with each scene
     for sc in roteiro["cenas"]:
         clip = fdir / f"{sc['id']}.mp4"
-        sc["fala_video"] = str(clip) if clip.exists() else None
+        sc["fala_video"] = str(clip) if clip.exists() and not sc.get("animacao") else None
         sc["fala_alpha"] = str(flat[sc["personagem"]][1])
     report["rostos_animados"] = sum(1 for sc in roteiro["cenas"] if sc.get("fala_video"))
 

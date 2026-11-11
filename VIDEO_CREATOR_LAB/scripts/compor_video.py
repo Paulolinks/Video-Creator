@@ -20,6 +20,7 @@ from montagem import VOICE_FX, write_ass
 from run_test_b import estimate_depth, soften
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "smart_motion"))
 import smart_motion  # noqa: E402
+import cenas_animadas  # noqa: E402
 
 LAB = Path(__file__).resolve().parent.parent
 FONTS = LAB / "inputs" / "fonts"
@@ -176,12 +177,22 @@ def compose(tpl, scenes, work, out):
         w.writeframes(voice.tobytes())
 
     modes = tpl["modos_de_cena"]
+    t = time.perf_counter()
+    pendentes = [(sc, durations[i] + (xf if i < len(scenes) - 1 else 0), lead if i == 0 else 0)
+                 for i, sc in enumerate(scenes) if sc["mode"] == "animacao"]
+    avisos = cenas_animadas.renderizar(tpl, pendentes, work / "cenas", "legenda-baixo", lambda sc: align[sc["id"]]["words"])
+    cenas_animadas.guardar_avisos(work, avisos)
+    if pendentes:
+        stages["cenas_animadas_s"] = round(time.perf_counter() - t, 2)
     clips = []
     for i, sc in enumerate(scenes):
         t = time.perf_counter()
         seconds = durations[i] + (xf if i < len(scenes) - 1 else 0)
         clip = work / "cenas" / f"{sc['id']}.mp4"
         clip.parent.mkdir(exist_ok=True)
+        if sc["mode"] == "animacao":  # already drawn above by the animation engine
+            clips.append(clip)
+            continue
         image = Path(sc["image"]) if Path(sc["image"]).is_absolute() else LAB / sc["image"]
         if sc["mode"] == "fala":
             c.talk(work / "fala" / f"{sc['id']}.mp4", seconds, lead if i == 0 else 0, clip,

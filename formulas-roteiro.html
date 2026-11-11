@@ -1,0 +1,659 @@
+<title>Fórmulas de Roteiro</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: biblioteca de partituras. Lista de fórmulas à esquerda; à direita, a fórmula aberta como uma linha do tempo de batidas (cada bloco proporcional à duração), com roteiro de exemplo e ganchos. Mesma família visual do Mapa do Canal Faceless. */
+:root{
+  --bg:#F2F4F6; --surface:#FFFFFF; --ink:#14202B; --muted:#4C5966; --line:#D6DCE3;
+  --route:#2647C9; --route-soft:#E3E8FA; --app:#9C4A0B; --app-soft:#FBEADB; --good:#1D7448; --good-soft:#E1F2E8; --warn:#8A5A00; --warn-soft:#FBF0D6;
+  --b-g:#1E3A8A; --b-p:#3A5BD6; --b-v:#5B6B7C; --b-l:#B1530F; --b-t:#8A3FA0; --b-y:#17694A; --b-c:#22303D;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F161D; --surface:#17212B; --ink:#E8EDF2; --muted:#9DAAB6; --line:#2A3743;
+  --route:#86A0FF; --route-soft:#1C2747; --app:#F2A964; --app-soft:#3A2716; --good:#62C893; --good-soft:#15301F; --warn:#E8C064; --warn-soft:#352A10;
+  --b-g:#3554B8; --b-p:#4A68D8; --b-v:#5A6B7D; --b-l:#B8601C; --b-t:#9150A8; --b-y:#1F7C57; --b-c:#3A4A5A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F161D; --surface:#17212B; --ink:#E8EDF2; --muted:#9DAAB6; --line:#2A3743;
+  --route:#86A0FF; --route-soft:#1C2747; --app:#F2A964; --app-soft:#3A2716; --good:#62C893; --good-soft:#15301F; --warn:#E8C064; --warn-soft:#352A10;
+  --b-g:#3554B8; --b-p:#4A68D8; --b-v:#5A6B7D; --b-l:#B8601C; --b-t:#9150A8; --b-y:#1F7C57; --b-c:#3A4A5A; color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+a{color:var(--route)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.12;margin:0}
+p{margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 72px;display:flex;flex-direction:column;gap:56px}
+.label{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hero{display:flex;flex-direction:column;gap:14px}
+.hero h1{font-size:clamp(34px,5vw,56px);font-weight:800;letter-spacing:-.02em}
+.hero p{font-size:18px;color:var(--muted);max-width:64ch}
+.toc{display:flex;flex-wrap:wrap;gap:8px}
+.toc a{min-height:40px;display:inline-flex;align-items:center;padding:6px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);text-decoration:none;color:var(--ink);font-size:14px;font-weight:500}
+section{display:flex;flex-direction:column;gap:20px;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 16px)}
+.sh{display:flex;flex-direction:column;gap:8px}
+.sh .stn{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--route);text-transform:uppercase}
+.sh h2{font-size:clamp(26px,3.2vw,36px);font-weight:700;letter-spacing:-.01em}
+.sh p{color:var(--muted);max-width:68ch}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;counter-reset:s}
+.steps div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:14px;color:var(--muted)}
+.steps b{display:block;font-family:var(--mono);font-size:12px;color:var(--route);margin-bottom:4px}
+.vocab{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.vocab div{border-left:4px solid var(--c);padding:6px 12px;font-size:14px;color:var(--muted)}
+.vocab b{display:block;color:var(--ink);font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:500 14px var(--body);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--route);outline-offset:2px}
+/* Biblioteca */
+.lib{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:24px;align-items:start}
+.list{display:flex;flex-direction:column;gap:6px;max-height:calc(100vh - 140px);overflow-y:auto;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);padding-right:4px}
+.it{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;align-items:start;text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;color:var(--ink);font:inherit}
+.it[aria-current="true"]{border-color:var(--route);box-shadow:inset 0 0 0 1px var(--route)}
+.it .id{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--route);padding-top:2px}
+.it .nm{font-weight:600;font-size:15px;line-height:1.3}
+.it .mini{display:flex;gap:2px;margin-top:6px;height:6px;border-radius:3px;overflow:hidden}
+.it .mini i{display:block;height:100%}
+.new{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--app);background:var(--app-soft);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:2px}
+.detail{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:20px;min-width:0;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 16px)}
+.dh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start}
+.dh h3{font-size:clamp(24px,3vw,32px);font-weight:800}
+.chain{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:6px;background:var(--route-soft);color:var(--route)}
+.tag.app{background:var(--app-soft);color:var(--app)}
+.tag.good{background:var(--good-soft);color:var(--good)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.tl{display:flex;gap:3px;border-radius:10px;overflow:hidden;min-height:46px}
+.tl div{color:#FFFFFF;font-size:12px;font-weight:600;padding:6px 8px;display:flex;align-items:flex-end;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.beats{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.beat{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.beat:last-child{border-bottom:0}
+.beat .bl{display:flex;flex-direction:column;gap:4px}
+.beat .bl span:first-child{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+.beat .bl i{width:10px;height:10px;border-radius:3px;flex:none}
+.beat .bl small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.beat q{quotes:"“" "”";font-size:15px}
+.hooks{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.hooks div{background:var(--bg);border-radius:10px;padding:12px 14px;font-size:15px}
+.care{background:var(--warn-soft);border-radius:10px;padding:12px 14px;font-size:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.btn{min-height:44px;padding:10px 16px;border-radius:10px;border:0;background:var(--route);color:var(--surface);font:600 15px var(--body);cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.toast{font-size:13px;color:var(--good);align-self:center}
+/* Ganchos */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card h3{font-size:18px;font-weight:700;display:flex;gap:8px;align-items:baseline}
+.card h3 .id{font-family:var(--mono);font-size:12px;color:var(--route)}
+.card .mold{font-family:var(--mono);font-size:13px;background:var(--bg);border-radius:8px;padding:8px 10px;color:var(--ink)}
+.card ul{margin:0;padding-left:18px;font-size:14px;color:var(--muted)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--line)}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+td:first-child{font-family:var(--mono);font-weight:600;color:var(--route);white-space:nowrap}
+/* Montador */
+.builder{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px}
+.bf{display:flex;flex-direction:column;gap:12px}
+.bf label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600}
+.bf select,.bf input{min-height:44px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:15px var(--body);background:var(--bg);color:var(--ink);width:100%}
+pre{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px;overflow-x:auto;white-space:pre-wrap;font:13px/1.6 var(--mono);color:var(--ink);min-height:220px}
+.check{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 18px}
+.check label{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer;font-size:15px}
+.check label:last-child{border-bottom:0}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--route);flex:none}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start}
+.note{border-radius:12px;padding:16px 18px;background:var(--route-soft);font-size:15px;max-width:80ch}
+footer{border-top:1px solid var(--line);padding-top:20px;font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+footer ol{margin:0;padding-left:20px}
+@media (max-width: 900px){
+  .lib{grid-template-columns:minmax(0,1fr)}
+  .list{position:static;max-height:340px}
+  .builder{grid-template-columns:minmax(0,1fr)}
+  .beat{grid-template-columns:minmax(0,1fr);gap:6px}
+}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="label">Biblioteca de roteiros · v2</span>
+    <h1>Fórmulas de Roteiro</h1>
+    <p>42 estruturas narrativas para Reels, Shorts, TikTok e YouTube. Cada fórmula mostra as batidas na ordem, quanto tempo cada uma ocupa, um roteiro de exemplo preenchido e três ganchos prontos para adaptar.</p>
+    <nav class="toc" aria-label="Seções">
+      <a href="#como-usar">Como usar</a><a href="#biblioteca">Fórmulas</a><a href="#ganchos">Ganchos</a><a href="#reganchos">Re-ganchos</a><a href="#ctas">Chamadas</a><a href="#montador">Montador</a><a href="#qualidade">Qualidade e teste</a>
+    </nav>
+  </header>
+
+  <section id="como-usar">
+    <div class="sh"><span class="stn">Antes de escrever</span><h2>Como usar esta biblioteca</h2>
+    <p>A fórmula é o esqueleto. O assunto, o gancho e a chamada mudam a cada vídeo. Uma fórmula documentada é uma hipótese de produção: só vira regra do seu canal depois de testada.</p></div>
+    <div class="steps">
+      <div><b>1 · Objetivo</b>Parar o scroll, ensinar, gerar identificação, comentários ou levar a uma oferta.</div>
+      <div><b>2 · Fórmula</b>Filtre pelo objetivo e escolha uma estrutura.</div>
+      <div><b>3 · Assunto</b>Um tema do seu nicho que caiba na promessa.</div>
+      <div><b>4 · Ganchos</b>Escreva de 2 a 3 aberturas e escolha a mais forte.</div>
+      <div><b>5 · Produção</b>Leve para o formato do app (PROD-F01, PROD-T02, faceless).</div>
+      <div><b>6 · Teste</b>Publique, registre os IDs usados e compare resultados.</div>
+    </div>
+    <span class="label">Vocabulário das batidas (as cores se repetem em toda a página)</span>
+    <div class="vocab" id="vocab"></div>
+    <div class="note">Os IDs desta biblioteca usam o prefixo <b>STR</b> (STR-01 a STR-42) para não confundir com os formatos de produção do Video Creator, que usam <b>PROD</b> (PROD-F01, PROD-T02). As fórmulas STR-01 a STR-24 vêm da sua biblioteca v1, revisadas e com exemplos completos; STR-25 a STR-42 são novas.</div>
+  </section>
+
+  <section id="biblioteca">
+    <div class="sh"><span class="stn">Biblioteca</span><h2>As 42 fórmulas</h2><p>Filtre por objetivo e clique numa fórmula para abrir o roteiro de exemplo.</p></div>
+    <div class="chips" id="fchips" role="group" aria-label="Filtrar por objetivo"></div>
+    <div class="lib">
+      <div class="list" id="flist" role="list"></div>
+      <article class="detail" id="fdetail" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <section id="ganchos">
+    <div class="sh"><span class="stn">Abertura</span><h2>Biblioteca de ganchos</h2>
+    <p>Os primeiros 1 a 3 segundos decidem se a pessoa fica. Um bom gancho faz três coisas: diz para quem é o vídeo, abre uma pergunta e combina texto na tela, fala e imagem dizendo a mesma coisa. Combine qualquer gancho com qualquer fórmula.</p></div>
+    <div class="grid" id="hgrid"></div>
+  </section>
+
+  <section id="reganchos">
+    <div class="sh"><span class="stn">Meio do vídeo</span><h2>Re-ganchos para segurar a atenção</h2>
+    <p>A retenção costuma cair no meio. Um re-gancho é uma frase curta que abre uma nova pergunta antes que a anterior esfrie. Use um a cada 15 a 20 segundos em vídeos acima de 40 segundos.</p></div>
+    <div class="grid" id="rgrid"></div>
+  </section>
+
+  <section id="ctas">
+    <div class="sh"><span class="stn">Fechamento</span><h2>Biblioteca de chamadas (CTA)</h2><p>No máximo uma chamada principal por vídeo, e só prometa o que existe: se pedir "comente MAPA", a entrega precisa estar configurada.</p></div>
+    <div class="tbl"><table><thead><tr><th>Código</th><th>Finalidade</th><th>Exemplo</th><th>Combina com</th></tr></thead><tbody id="ctab"></tbody></table></div>
+  </section>
+
+  <section id="montador">
+    <div class="sh"><span class="stn">Ferramenta</span><h2>Montador de roteiro</h2><p>Escolha fórmula, gancho e chamada, digite o tema e copie o esqueleto. Ele já sai com os IDs para você registrar no teste e colar no Video Creator.</p></div>
+    <div class="builder">
+      <div class="bf">
+        <label for="bTema">Tema do vídeo<input type="text" id="bTema" value="por que abandonamos metas em uma semana"></label>
+        <label for="bF">Fórmula<select id="bF"></select></label>
+        <label for="bH">Gancho<select id="bH"></select></label>
+        <label for="bC">Chamada<select id="bC"></select></label>
+        <label for="bP">Formato de produção<select id="bP"><option>PROD-F01 · personagem falando</option><option>PROD-T02 · entrevista com mentor</option><option>Faceless · imagens + narração</option><option>Demonstração de tela</option></select></label>
+      </div>
+      <div class="bf">
+        <span class="label">Esqueleto</span>
+        <pre id="bOut"></pre>
+        <div class="row"><button class="btn" type="button" id="bCopy">Copiar esqueleto</button><span class="toast" id="bToast" hidden>Copiado</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="qualidade">
+    <div class="sh"><span class="stn">Antes de publicar</span><h2>Qualidade e protocolo de teste</h2></div>
+    <div class="two">
+      <div class="check">
+        <label><input type="checkbox" id="q1"><span>A primeira frase deixa claro para quem é o vídeo</span></label>
+        <label><input type="checkbox" id="q2"><span>O gancho cria interesse sem prometer algo falso</span></label>
+        <label><input type="checkbox" id="q3"><span>Texto na tela, fala e imagem do primeiro segundo dizem a mesma coisa</span></label>
+        <label><input type="checkbox" id="q4"><span>O vídeo entrega a resposta prometida</span></label>
+        <label><input type="checkbox" id="q5"><span>Cada bloco acrescenta informação, emoção ou progressão (nenhum "e então")</span></label>
+        <label><input type="checkbox" id="q6"><span>Todos os loops abertos foram fechados</span></label>
+        <label><input type="checkbox" id="q7"><span>Exemplos são verificáveis ou identificados como ilustrativos</span></label>
+        <label><input type="checkbox" id="q8"><span>A chamada combina com o objetivo e a entrega existe</span></label>
+        <label><input type="checkbox" id="q9"><span>Funciona para quem nunca viu o canal</span></label>
+      </div>
+      <div class="card">
+        <h3>Protocolo de teste</h3>
+        <ul>
+          <li>Escolha 3 ou 4 fórmulas para o primeiro lote.</li>
+          <li>Faça pelo menos 3 vídeos por fórmula, variando o assunto.</li>
+          <li>Registre: strategy_id, hook_id, cta_id, canal, data, duração, tema, link.</li>
+          <li>Compare retenção nos 3 e 30 primeiros segundos, visualizações, salvamentos, compartilhamentos, seguidores e cadastros.</li>
+          <li>Teste uma variável por vez: mesma fórmula com ganchos diferentes, ou mesmo gancho com fórmulas diferentes.</li>
+          <li>Não declare vencedora com base em um único vídeo.</li>
+        </ul>
+        <span class="label" style="margin-top:6px">Registro (CSV)</span>
+        <pre style="min-height:0">strategy_id,hook_id,cta_id,canal,data,duracao_s,tema,link
+STR-01,H07,C03,@seucanal,2026-11-10,48,"padrão invisível",https://...</pre>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="label">Fontes</span>
+    <ol>
+      <li>Sua Biblioteca de Fórmulas v1.0 (STR-01 a STR-24 e referências citadas nela, como o YouTube Blog e a entrevista com Jenny Hoyos).</li>
+      <li>Regra "Mas / Por isso" de Trey Parker e Matt Stone: <a href="https://perell.com/note/but-therefore-rule/" target="_blank" rel="noopener">perell.com</a></li>
+      <li>Story Spine, criado por Kenn Adams em 1991: <a href="https://www.sessionlab.com/methods/story-spine" target="_blank" rel="noopener">sessionlab.com</a></li>
+      <li>Ponte da Epifania, de Russell Brunson: <a href="https://www.russellbrunson.com/blog/the-epiphany-bridge" target="_blank" rel="noopener">russellbrunson.com</a></li>
+      <li>PASTOR, de Ray Edwards: <a href="https://www.goodreads.com/author_blog_posts/6849087-a-six-part-framework-for-writing-better-sales-copy" target="_blank" rel="noopener">goodreads.com</a></li>
+      <li>Estruturas de história para vídeo curto (confissão, POV, reviravolta, conversa por mensagens, série): <a href="https://clippie.ai/blog/viral-storytelling-formats-short-form-video" target="_blank" rel="noopener">clippie.ai</a></li>
+    </ol>
+    <span>As fórmulas foram reescritas e organizadas nesta biblioteca. Os exemplos são ilustrativos e usam o tema de hábitos e paradigmas; troque pelo assunto do seu canal. Nenhuma fórmula garante viralidade.</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var BT={g:["Gancho","--b-g","Abertura que faz parar de rolar"],p:["Promessa / contexto","--b-p","O que vai ser entregue, ou o mínimo de cenário"],v:["Valor","--b-v","Informação, demonstração ou emoção concreta"],l:["Loop / re-gancho","--b-l","Pergunta aberta que segura até a próxima parte"],t:["Virada / tensão","--b-t","Obstáculo, contradição, reviravolta"],y:["Payoff","--b-y","A revelação que cumpre a promessa"],c:["Chamada","--b-c","Convite específico (opcional)"]};
+  document.getElementById("vocab").innerHTML=Object.keys(BT).map(function(k){return '<div style="--c:var('+BT[k][1]+')"><b>'+BT[k][0]+'</b>'+BT[k][2]+'</div>'}).join("");
+
+  var OBJ={atencao:"Parar o scroll",ensinar:"Ensinar e gerar salvamentos",ident:"Identificação e compartilhamento",historia:"Contar histórias",conversa:"Conversas e entrevistas",coment:"Comentários",oferta:"Produto, aula ou material"};
+
+  function F(id,nome,obj,dur,compat,beats,hooks,cuidado,cta,nova,fonte){return{id:id,nome:nome,obj:obj,dur:dur,compat:compat,beats:beats,hooks:hooks,cuidado:cuidado,cta:cta,nova:!!nova,fonte:fonte||""}}
+  var FS=[
+  F("STR-01","Retenção progressiva","atencao","30–75 s","PROD-F01, PROD-T02, faceless",[
+    ["g","Gancho",10,"Por que você repete os mesmos resultados, mesmo mudando de plano?"],
+    ["p","Promessa",8,"Em 40 segundos vou te mostrar o padrão que está por trás disso."],
+    ["v","Valor",22,"Quase tudo o que você faz no dia é automático. O cérebro repete o que já conhece, mesmo quando não ajuda."],
+    ["l","Open loop",12,"Mas, se é automático, como você enxerga o seu padrão?"],
+    ["v","Mais valor",25,"Pegue as três últimas vezes que desistiu de algo e escreva o que aconteceu um minuto antes de cada uma."],
+    ["y","Payoff",13,"O gatilho que se repete nas três é o seu padrão. A mudança começa nele, não no plano."],
+    ["c","Chamada",10,"Salve para fazer o exercício hoje à noite."]],
+    ["Você não tem falta de disciplina. Você tem um padrão invisível.","Três tentativas, o mesmo resultado. Isso não é azar.","Seu plano é novo. Seu comportamento é antigo."],
+    "Não use loops vazios nem guarde toda a informação para o final. Entregue valor antes do primeiro loop.","C03"),
+  F("STR-02","Loop de replay","atencao","15–40 s","PROD-F01, PROD-T02 curto",[
+    ["g","Gancho",20,"A mudança começa antes do resultado."],
+    ["p","Setup",25,"Quem muda de vida não começa pela meta. Começa por uma decisão pequena, repetida todo dia."],
+    ["y","Payoff",35,"Cada hábito mínimo cumprido é uma prova de que você é alguém que cumpre. Essa prova muda as próximas decisões."],
+    ["l","Volta ao início",20,"Por isso, a mudança começa antes…"]],
+    ["A mudança começa antes do resultado.","Você não precisa de motivação para começar.","O primeiro passo não parece um passo."],
+    "O loop não pode deixar o vídeo confuso. A última frase precisa fazer sentido sozinha e também emendar na primeira.","C00"),
+  F("STR-03","Choque, intriga, satisfação","atencao","15–45 s","PROD-F01, PROD-T02",[
+    ["g","Choque",20,"Visualizar seus sonhos não faz você chegar neles."],
+    ["l","Intriga",25,"Então por que tanta gente bem-sucedida jura que visualizar ajuda?"],
+    ["y","Satisfação",55,"Porque quem se beneficia não visualiza o resultado; visualiza os obstáculos e o que vai fazer quando eles aparecerem. Isso vira plano, não fantasia."]],
+    ["Visualizar seus sonhos não faz você chegar neles.","Pensamento positivo pode estar te atrapalhando.","Ter metas grandes não é o que move quem chega lá."],
+    "O choque tem que ser verdadeiro e defensável. Sensacionalismo falso derruba a confiança.","C04"),
+  F("STR-04","Lista numerada","ensinar","20–60 s","PROD-F01, PROD-T02, faceless",[
+    ["g","Número + benefício",15,"3 sinais de que uma crença está decidindo por você. O terceiro passa despercebido."],
+    ["v","Item 1",22,"Você diz \"eu sou assim\" antes de tentar."],
+    ["v","Item 2",22,"Você só procura provas de que não vai dar certo."],
+    ["y","Item 3",26,"Você se sente aliviado quando desiste. O alívio é o sinal de que a crença venceu."],
+    ["c","Resumo / chamada",15,"Qual dos três você reconheceu? Salve para revisar."]],
+    ["3 sinais de que uma crença está decidindo por você.","5 frases que seu cérebro usa para te manter parado.","2 hábitos que parecem bons e travam sua mudança."],
+    "Não diga que o último é o melhor se não for. Cada item precisa valer a atenção por si só.","C03"),
+  F("STR-05","Tutorial em etapas","ensinar","30–90 s","PROD-F01, demonstração de tela",[
+    ["g","Resultado desejado",12,"Em 3 passos você descobre qual crença está travando uma meta sua."],
+    ["p","Contexto",10,"Você só precisa de papel e 5 minutos."],
+    ["v","Passo 1",22,"Escreva a meta e, abaixo, a frase que você pensa quando lembra dela."],
+    ["v","Passo 2",22,"Pergunte: isso é um fato ou uma interpretação?"],
+    ["v","Passo 3",22,"Reescreva a frase como algo que você pode testar nesta semana."],
+    ["y","Resultado",12,"Pronto: a crença virou um experimento, e experimento você consegue fazer."]],
+    ["Em 3 passos você descobre o que está travando sua meta.","Faça isso antes de começar qualquer plano novo.","O exercício de 5 minutos que eu faço todo domingo."],
+    "Os passos precisam ser executáveis por quem está assistindo, sem material escondido.","C03"),
+  F("STR-06","PAS: problema, agitação, solução","ident","20–60 s","PROD-F01, PROD-T02",[
+    ["g","Problema",25,"Você cria metas na segunda e abandona na sexta."],
+    ["t","Agitação",30,"E cada abandono vira uma prova de que você \"não consegue\". A próxima meta já começa desacreditada."],
+    ["y","Solução",45,"Troque a meta por um hábito mínimo: algo tão pequeno que seria ridículo não fazer. Ganhe a semana antes de ganhar o ano."]],
+    ["Você começa na segunda e para na sexta?","Toda meta abandonada deixa uma marca.","O problema não é a meta. É o tamanho dela."],
+    "Agite com consequências reais. Não explore medo nem invente sofrimento.","C04"),
+  F("STR-07","BAB: antes, depois, ponte","ident","20–60 s","PROD-F01, PROD-T02",[
+    ["g","Antes",30,"Antes: eu reagia no automático e me arrependia depois."],
+    ["y","Depois",30,"Hoje: eu percebo o gatilho e escolho a resposta."],
+    ["v","Ponte",40,"A ponte foi simples: por 7 dias anotei cada reação que me incomodou e o que veio logo antes dela."]],
+    ["Antes eu reagia. Agora eu escolho.","O que mudou quando eu anotei minhas reações por 7 dias.","Eu era a pessoa que explodia por nada."],
+    "Não invente resultados nem depoimentos. Se for ilustrativo, diga.","C03"),
+  F("STR-08","Quebra de paradigma","ident","25–60 s","PROD-F01, PROD-T02",[
+    ["g","Crença popular",20,"Dizem que ser positivo o tempo todo te deixa mais forte."],
+    ["t","Contradição",20,"Só que fingir que está tudo bem não é resiliência."],
+    ["v","Razão",35,"Resiliência é sentir o problema, nomear e agir mesmo assim. Quem ignora o que sente não aprende a lidar com isso."],
+    ["y","Nova perspectiva",25,"Ser resiliente não é estar sempre bem. É voltar a agir mais rápido."]],
+    ["Ser positivo o tempo todo não te deixa mais forte.","Motivação é superestimada. Isto aqui não.","Tudo que te ensinaram sobre metas está pela metade."],
+    "A contradição precisa ser defensável com argumento ou evidência.","C04"),
+  F("STR-09","Erros comuns","ensinar","20–60 s","PROD-F01, PROD-T02, faceless",[
+    ["g","Pergunta",15,"Você usa afirmações e não sente diferença nenhuma?"],
+    ["v","Erro 1",22,"Frases vagas, como \"eu sou próspero\", que o cérebro não consegue testar."],
+    ["v","Erro 2",22,"Repetir sem nenhuma ação ligada à frase."],
+    ["y","Correção",26,"Use frases específicas e ligadas a um comportamento: \"eu reviso meus gastos toda sexta\"."],
+    ["v","Exemplo",15,"Repita e cumpra. A frase passa a ter prova."]],
+    ["Pare de repetir afirmações assim.","2 erros que tornam suas afirmações inúteis.","Se suas afirmações não funcionam, provavelmente é isto."],
+    "Corrija sem humilhar quem comete o erro.","C03"),
+  F("STR-10","Mito versus realidade","ensinar","25–60 s","PROD-F01, PROD-T02, faceless",[
+    ["g","Mito",20,"Mito: pensar em dinheiro faz o dinheiro aparecer."],
+    ["t","Por que convence",20,"Parece funcionar porque quem pensa no assunto presta mais atenção às oportunidades."],
+    ["v","O que sabemos",35,"O que muda o resultado são as decisões que vêm da atenção: pedir aumento, cortar um gasto, aprender algo vendável."],
+    ["y","Aplicação",25,"Pense, sim, mas transforme o pensamento em uma ação por semana."]],
+    ["Mito ou verdade: pensar em dinheiro atrai dinheiro?","Esse conselho popular é meia verdade.","Todo mundo repete isso. Pouca gente entende por quê."],
+    "Explique por que o mito convence antes de derrubá-lo. Isso evita soar arrogante.","C01"),
+  F("STR-11","Storytelling de transformação","historia","40–120 s","PROD-F01, PROD-T02, faceless",[
+    ["g","Personagem",12,"Esta é a Ana (história ilustrativa). Três cartões no limite."],
+    ["p","Situação",15,"Ela ganhava bem, mas todo mês faltava dinheiro."],
+    ["t","Obstáculo",18,"Tentou planilha, aplicativo, corte radical. Desistia em duas semanas."],
+    ["v","Decisão",20,"Um dia decidiu só uma coisa: olhar o extrato toda sexta, sem cortar nada."],
+    ["y","Consequência",20,"Em três meses, só de olhar, os gastos caíram. Ninguém precisou proibir nada."],
+    ["v","Lição",15,"Antes de mudar o comportamento, ela mudou a atenção."]],
+    ["Ela ganhava bem e mesmo assim faltava dinheiro.","O hábito de 10 minutos que salvou as finanças da Ana.","Três cartões estourados e uma decisão pequena."],
+    "Se for ficção, identifique. Nunca apresente história inventada como real.","C04"),
+  F("STR-12","Começar pelo clímax","historia","30–90 s","PROD-F01, PROD-T02, faceless",[
+    ["g","Momento decisivo",18,"Naquele dia ela percebeu que não precisava de outra meta. Precisava mudar a rotina."],
+    ["l","Como chegamos aqui?",10,"Mas para entender isso, volta comigo seis meses."],
+    ["p","Contexto",22,"Seis metas em um ano. Nenhuma passou de março."],
+    ["t","Virada",25,"Até que ela comparou os dias em que cumpria com os dias em que falhava: a diferença era o horário de acordar."],
+    ["y","Resolução",25,"Ela não mudou a meta. Mudou o despertador. E a meta veio junto."]],
+    ["Naquele dia ela entendeu que o problema nunca foi a meta.","Foi aqui que tudo mudou. Volta comigo.","Esse foi o pior dia do ano dele. E o mais importante."],
+    "Feche a história que você abriu no clímax.","C09"),
+  F("STR-13","Entrevista com objeção","conversa","45–150 s","PROD-T02",[
+    ["g","Pergunta",15,"Entrevistador: \"Mentalizar o que eu quero basta?\""],
+    ["t","Resposta inesperada",20,"Mentor: \"Basta para você se sentir bem. Não basta para mudar nada.\""],
+    ["l","Objeção",15,"Entrevistador: \"Mas muita gente diz que funcionou.\""],
+    ["v","Explicação",35,"Mentor: \"Funcionou porque a intenção mudou o comportamento delas. A intenção sozinha não paga conta.\""],
+    ["y","Síntese",15,"\"Intenção aponta a direção. Comportamento percorre o caminho.\""]],
+    ["\"Mentalizar basta?\" A resposta dele me surpreendeu.","Perguntei o que todo mundo quer saber.","Ele discordou de tudo que eu achava."],
+    "Falas de figuras históricas são dramatizações, nunca citações reais. Deixe isso claro.","C05"),
+  F("STR-14","Debate de duas perspectivas","conversa","45–120 s","PROD-T02, personagens alternados",[
+    ["g","Posição A",20,"\"Sem disciplina nada muda.\""],
+    ["t","Posição B",20,"\"Sem motivação ninguém nem começa.\""],
+    ["l","Tensão",20,"Então qual sustenta a mudança?"],
+    ["v","Critério",25,"Depende da fase: motivação serve para começar, disciplina para continuar, sistema para não depender de nenhuma."],
+    ["y","Síntese",15,"Você precisa das duas, em momentos diferentes."]],
+    ["Disciplina ou motivação: qual sustenta uma mudança?","Dois mentores, duas respostas opostas.","Os dois estão certos. E os dois estão errados."],
+    "Apresente as duas posições com a mesma força. Se uma parecer espantalho, o debate perde valor.","C01"),
+  F("STR-15","Pergunta de autoavaliação","coment","20–45 s","PROD-F01",[
+    ["g","Pergunta pessoal",25,"Qual decisão você repete mesmo sabendo que não ajuda?"],
+    ["v","Sinais",35,"Você adia e se justifica. Você repete a mesma desculpa. Você sente alívio na hora e culpa depois."],
+    ["y","Interpretação",20,"Se reconheceu dois desses, essa decisão está no piloto automático."],
+    ["c","Convite",20,"Escreva nos comentários qual é a sua. Só nomear já ajuda."]],
+    ["Qual decisão você repete mesmo sabendo que não ajuda?","Responda com sinceridade: você faria diferente hoje?","Três sinais de que você está no piloto automático."],
+    "É reflexão, não diagnóstico psicológico.","C01"),
+  F("STR-16","Curiosidade progressiva","atencao","30–70 s","PROD-F01, PROD-T02, faceless",[
+    ["g","Pergunta",12,"Por que algumas metas parecem impossíveis antes mesmo de começar?"],
+    ["v","Pista 1",22,"A primeira pista está na crença: se você acha que não é para você, nem tenta direito."],
+    ["l","Nova pista",22,"Mas tem uma segunda camada, mais escondida: o seu ambiente reforça essa crença todo dia."],
+    ["y","Revelação",24,"No fim, o que trava não é a meta. É o comportamento que a crença e o ambiente produzem juntos."],
+    ["v","Aplicação",20,"Mude uma coisa no ambiente esta semana e observe o que acontece com a crença."]],
+    ["Por que algumas metas parecem impossíveis antes de começar?","Tem uma camada que quase ninguém vê.","Primeiro pensei que era preguiça. Era outra coisa."],
+    "Cada pista precisa entregar uma resposta parcial de verdade.","C03"),
+  F("STR-17","SCQA: situação, complicação, pergunta, resposta","ensinar","30–90 s","PROD-F01, PROD-T02",[
+    ["p","Situação",20,"Você quer mudar de vida."],
+    ["t","Complicação",25,"Mas mantém os mesmos horários, as mesmas pessoas e os mesmos hábitos."],
+    ["l","Pergunta",15,"Então como sair do ciclo?"],
+    ["y","Resposta",40,"Comece pelo gatilho: identifique um momento do dia que sempre leva ao mesmo comportamento e mude só ele."]],
+    ["Você quer mudar, mas tudo ao seu redor continua igual?","Como sair de um ciclo que se repete?","A pergunta que destrava qualquer mudança."],
+    "Boa para assuntos complexos; mantenha cada parte em uma frase.","C03"),
+  F("STR-18","O quê, por quê, como","ensinar","25–75 s","PROD-F01, PROD-T02, faceless",[
+    ["g","O que é",25,"Paradigma é o conjunto de crenças que filtra o que você enxerga."],
+    ["v","Por que importa",35,"Se o filtro diz que algo é impossível, você nem percebe as oportunidades que contradizem isso."],
+    ["y","Como aplicar",40,"Escolha uma crença e procure, por 3 dias, uma evidência contrária. Anote cada uma."]],
+    ["O que é paradigma, em 30 segundos.","Você usa essa palavra, mas sabe o que significa?","Isso filtra tudo o que você vê."],
+    "Não gaste mais de um quarto do vídeo na definição.","C03"),
+  F("STR-19","Afirmação, significado, ação","coment","15–40 s","PROD-F01",[
+    ["g","Afirmação",25,"Eu posso aprender a mudar meus hábitos."],
+    ["v","Significado",30,"A frase não diz que é fácil. Diz que é aprendizado, e aprendizado tem prática."],
+    ["y","Pequena ação",30,"Escolha um hábito e faça a versão mínima hoje."],
+    ["c","Comentário opcional",15,"Se essa frase representa sua intenção, escreva: EU POSSO APRENDER."]],
+    ["Eu posso aprender a mudar.","Uma frase para repetir antes de desistir.","Isso não é otimismo. É método."],
+    "Nunca prometa prosperidade como consequência de comentar.","C02"),
+  F("STR-20","Desafio de 24 horas ou 7 dias","coment","20–50 s","PROD-F01",[
+    ["g","Convite",20,"Desafio de 24 horas: topa?"],
+    ["v","Regra",25,"Toda vez que você disser \"não consigo\", anote onde e por quê."],
+    ["v","Demonstração",25,"Eu fiz ontem: foram 7 vezes. Cinco eram sobre coisas que eu nunca tentei."],
+    ["y","Critério",15,"No fim do dia, conte e veja quantas eram fato e quantas eram crença."],
+    ["c","Compartilhar",15,"Volte aqui amanhã e comente seu número."]],
+    ["Desafio de 24 horas: topa?","Eu contei quantas vezes disse \"não consigo\" num dia.","7 dias, uma regra simples."],
+    "Só mostre resultados próprios se forem reais.","C01"),
+  F("STR-21","AIDA","oferta","30–75 s","PROD-F01, PROD-T02",[
+    ["g","Atenção",20,"Você sabe que tem crenças que te travam, mas não sabe quais."],
+    ["v","Interesse",25,"Identificar uma crença é o passo que quase todo mundo pula."],
+    ["v","Desejo",30,"Montei um guia com 7 perguntas que mostram, por escrito, quais crenças aparecem nas suas decisões."],
+    ["c","Ação",25,"O guia é gratuito e está no link do perfil."]],
+    ["Você sabe que algo te trava, mas não sabe o quê?","Esse é o passo que todo mundo pula.","7 perguntas que revelam o que você acredita."],
+    "O benefício precisa ser verdadeiro e a chamada clara.","C07"),
+  F("STR-22","Gancho, história, oferta","oferta","40–90 s","PROD-F01, PROD-T02",[
+    ["g","Gancho",15,"Eu repeti o mesmo erro por cinco anos sem perceber."],
+    ["t","História",45,"Cada vez que chegava perto de um resultado, eu sabotava. Só entendi quando alguém me fez desenhar meu paradigma no papel."],
+    ["v","Lição",20,"O padrão era sempre o mesmo, só mudava o cenário."],
+    ["c","Oferta",20,"Vou mostrar esse exercício ao vivo na aula gratuita de quinta. Link no perfil."]],
+    ["Eu repeti o mesmo erro por cinco anos.","O dia em que desenhei meu paradigma no papel.","Eu sabotava tudo quando estava perto de dar certo."],
+    "História real ou ficção identificada. A oferta é a continuação natural, não um corte brusco.","C08"),
+  F("STR-23","Valor, lacuna real, recurso gratuito","oferta","25–60 s","PROD-F01, PROD-T02",[
+    ["v","Valor completo",50,"Faça esta pergunta antes de desistir de algo: \"isso é falta de capacidade ou falta de prática?\" A resposta muda a decisão."],
+    ["l","Próximo nível",20,"Essa é uma das sete perguntas que uso para revisar decisões."],
+    ["c","Recurso",30,"Juntei as sete num PDF. Comente MAPA e eu te envio."]],
+    ["Faça esta pergunta antes de desistir.","Uma pergunta que muda decisões.","Antes de largar algo, responda isto."],
+    "Ensine algo completo antes de oferecer. Só peça comentário se a entrega estiver configurada.","C06"),
+  F("STR-24","Prova, método, aplicação, convite","oferta","30–90 s","PROD-F01, PROD-T02, demonstração",[
+    ["g","Prova",20,"Este é o meu planejamento de hábitos dos últimos 90 dias (mostra a tela)."],
+    ["v","Método",30,"Cada hábito tem uma versão mínima e um gatilho fixo no dia."],
+    ["v","Aplicação",30,"Pegue um hábito seu e escreva: quando eu [gatilho], eu faço [versão mínima]."],
+    ["c","Convite",20,"O modelo que eu uso está no link do perfil, de graça."]],
+    ["Este é o meu planejamento dos últimos 90 dias.","Mostrando exatamente como organizo meus hábitos.","90 dias, um método, sem aplicativo."],
+    "Mostre só dados e provas reais.","C07"),
+  /* Novas */
+  F("STR-25","Mas / Por isso","historia","30–90 s","Todos",[
+    ["g","Situação",15,"Ele decidiu acordar às 5 da manhã."],
+    ["t","Mas…",20,"Mas, na terceira semana, estava dormindo no trabalho."],
+    ["v","Por isso…",20,"Por isso, voltou a acordar às 7 e se sentiu fracassado."],
+    ["t","Mas…",20,"Mas notou que o problema não era o horário: era dormir à 1 da manhã."],
+    ["y","Por isso…",25,"Por isso, mudou a hora de dormir, não a de acordar. E aí funcionou."]],
+    ["Ele decidiu acordar às 5. Durou três semanas.","Fiz tudo certo. Mas deu errado.","O conselho estava certo. A ordem estava errada."],
+    "Troque todo \"e então\" por \"mas\" ou \"por isso\". Se a cena não gera conflito nem consequência, corte.","C04",1,"Trey Parker e Matt Stone"),
+  F("STR-26","Story Spine (espinha da história)","historia","40–90 s","PROD-F01, faceless",[
+    ["p","Era uma vez",12,"Era uma vez alguém que sempre começava a academia em janeiro."],
+    ["p","Todo dia",12,"Todo ano, ia três semanas e parava."],
+    ["t","Até que um dia",15,"Até que um dia decidiu ir só 10 minutos."],
+    ["v","Por causa disso (×3)",33,"Por causa disso, nunca faltou. Por causa disso, os 10 viraram 30. Por causa disso, virou parte de quem ela era."],
+    ["y","Até que finalmente",14,"Até que finalmente, em dezembro, percebeu que nunca tinha parado."],
+    ["c","Moral",14,"A constância vem antes da intensidade."]],
+    ["Todo janeiro ela começava. Todo fevereiro ela parava.","Até que um dia ela tentou o contrário.","10 minutos mudaram o ano dela."],
+    "Funciona para histórias ilustrativas e fábulas. Identifique que é ficção.","C04",1,"Kenn Adams"),
+  F("STR-27","Ponte da Epifania","oferta","60–120 s","PROD-F01, PROD-T02",[
+    ["g","No fundo do poço",15,"Eu tinha seis metas escritas e nenhuma cumprida."],
+    ["t","Jornada e conflito",22,"Tentei aplicativo, coach, disciplina na marra. Cada fracasso me convencia de que o problema era eu."],
+    ["y","A epifania",20,"Até perceber que eu tentava mudar o comportamento sem mudar a crença que o produzia."],
+    ["v","O método (sem detalhes)",23,"Criei um processo de três etapas: enxergar a crença, testar contra a realidade, trocar por uma que eu consiga provar."],
+    ["v","Resultados",20,"Foi assim que cumpri a primeira meta em anos, e é o que ensino na aula gratuita. Link no perfil."]],
+    ["Seis metas escritas, nenhuma cumprida.","O dia em que percebi que o problema não era disciplina.","Eu achava que era preguiça. Era uma crença."],
+    "O método aparece em visão geral; o detalhe fica para a aula ou produto. Resultados precisam ser críveis e reais.","C08",1,"Russell Brunson"),
+  F("STR-28","PASTOR","oferta","60–120 s","PROD-F01, PROD-T02",[
+    ["g","Problema",15,"Você sabe o que precisa fazer, mas não faz."],
+    ["t","Amplificar",15,"E cada dia sem agir aumenta a distância entre quem você é e quem quer ser."],
+    ["v","História",22,"Eu vivi isso até entender que travava sempre no mesmo ponto: na hora de me expor."],
+    ["y","Transformação",18,"Quando trabalhei essa crença, agir deixou de ser uma briga."],
+    ["v","Oferta",15,"No workshop de sábado eu mostro o passo a passo."],
+    ["c","Resposta",15,"Inscrição gratuita pelo link do perfil."]],
+    ["Você sabe o que fazer, mas não faz?","A distância entre saber e fazer tem nome.","Eu travava sempre no mesmo ponto."],
+    "Amplifique com consequências reais, sem terrorismo.","C08",1,"Ray Edwards"),
+  F("STR-29","Círculo da história","historia","60–150 s","PROD-F01, PROD-T02, faceless",[
+    ["p","Zona de conforto",10,"João tinha um emprego estável e um sonho guardado."],
+    ["l","Quer algo",10,"Ele queria viver de música."],
+    ["t","Situação nova",12,"Começou a tocar em bares nos fins de semana."],
+    ["v","Adapta-se",15,"Aprendeu a montar repertório, divulgar e cobrar."],
+    ["y","Consegue",13,"Fechou sua primeira temporada fixa."],
+    ["t","Paga o preço",15,"Mas perdeu os fins de semana com a família."],
+    ["v","Volta",12,"Reorganizou a agenda para equilibrar os dois."],
+    ["y","Mudou",13,"Hoje ele sabe que todo sonho tem um custo, e escolhe pagá-lo."]],
+    ["Ele tinha emprego estável e um sonho guardado.","Todo sonho cobra um preço. Este foi o dele.","Conseguir o que queria foi só a metade."],
+    "Boa para vídeos longos. Em curtos, junte etapas em pares.","C04",1,"Dan Harmon"),
+  F("STR-30","Confissão","ident","30–60 s","PROD-F01, faceless",[
+    ["g","Confissão",20,"Confesso: por dois anos eu fingi que tinha uma rotina."],
+    ["p","Contexto",20,"Postava a agenda organizada e não cumpria metade."],
+    ["t","Piorou quando",20,"Piorou quando alguém me pediu ajuda para montar a dela."],
+    ["y","Consequência e hoje",25,"Foi aí que admiti e comecei pequeno. Hoje cumpro três coisas por dia, e é verdade."],
+    ["c","Pergunta",15,"Você já fingiu ter algo sob controle?"]],
+    ["Confesso: eu fingia ter uma rotina.","Nunca contei isso para ninguém.","Por dois anos eu menti sobre isso."],
+    "A confissão precisa ser verdadeira ou claramente ilustrativa. Gera muitos comentários.","C01",1,"clippie.ai"),
+  F("STR-31","POV (ponto de vista)","ident","15–40 s","Faceless, PROD-F01",[
+    ["g","POV",25,"POV: você abre o celular para estudar e, 40 minutos depois, ainda está no feed."],
+    ["v","Detalhes",25,"Você nem lembra de ter aberto o aplicativo."],
+    ["t","Complicação",20,"E a culpa faz você rolar ainda mais."],
+    ["y","Descoberta",30,"Até deixar o celular em outro cômodo durante 25 minutos. O primeiro dia é estranho; no terceiro, você nem sente falta."]],
+    ["POV: você abre o celular para estudar.","POV: segunda-feira, dia de começar tudo de novo.","POV: você jurou que hoje seria diferente."],
+    "A situação precisa ser reconhecível para o público em um segundo.","C04",1,"clippie.ai"),
+  F("STR-32","Final com reviravolta","atencao","20–60 s","PROD-F01, faceless",[
+    ["p","Situação comum",25,"Todo dia ela anotava as metas num caderno."],
+    ["v","Pista falsa",25,"Fazia isso há anos, com letra caprichada."],
+    ["t","Pista sutil",20,"Mas o caderno tinha só a primeira página usada."],
+    ["y","Revelação",30,"Ela reescrevia a mesma lista toda manhã, e nunca riscava nada. Escrever tinha virado o hábito no lugar de fazer."]],
+    ["Ela anotava as metas todo dia. Há anos.","Repare no detalhe do caderno.","A última frase muda tudo."],
+    "A reviravolta precisa ter pista plantada antes; se surgir do nada, parece trapaça.","C04",1,"clippie.ai"),
+  F("STR-33","Conversa por mensagens","atencao","20–50 s","Faceless (tela de chat)",[
+    ["g","Mensagem de conflito",20,"\"Você disse que ia começar segunda. Hoje é quinta.\""],
+    ["t","Esquiva",20,"\"Essa semana foi corrida.\""],
+    ["t","Evidência",20,"\"Você disse isso nas últimas quatro semanas.\""],
+    ["v","Explicação",20,"\"Eu tenho medo de começar e falhar de novo.\""],
+    ["y","Mensagem final",20,"\"Então começa pequeno. 10 minutos hoje. Eu cobro amanhã.\""]],
+    ["\"Você disse que ia começar segunda.\"","A conversa que todo mundo precisa ter consigo.","Print da conversa que me fez começar."],
+    "Formato ótimo para faceless: tela de chat animada com narração ou só texto.","C04",1,"clippie.ai"),
+  F("STR-34","Série com cliffhanger","historia","3 × 30–60 s","Todos",[
+    ["g","Parte 1: setup",30,"Parte 1: o dia em que decidi mudar tudo em 30 dias. No dia 3, aconteceu algo que eu não esperava."],
+    ["l","Parte 2: recapitula + nova pergunta",35,"Parte 2: (recapitulação em 1 frase) No dia 3 eu desisti. Mas no dia 4 recebi uma mensagem que mudou o plano."],
+    ["y","Parte 3: resolução",35,"Parte 3: a mensagem era de alguém que fez o mesmo desafio e me disse onde eu ia errar. E estava certa."]],
+    ["Parte 1: o dia em que decidi mudar tudo.","Isso vai ter 3 partes. Siga para não perder.","No dia 3, aconteceu algo que eu não esperava."],
+    "Cada parte precisa entregar algo sozinha. Duas ou três partes fortes valem mais que cinco fracas.","C09",1,"clippie.ai"),
+  F("STR-35","Contagem com escalada","atencao","30–60 s","Faceless, PROD-F01",[
+    ["g","Moldura",15,"5 sinais de que você está se sabotando, do mais leve ao mais sério."],
+    ["v","5 e 4",25,"5: você deixa tudo para a última hora. 4: você muda de meta toda semana."],
+    ["v","3 e 2",25,"3: você evita pessoas que já chegaram lá. 2: você se sente aliviado quando algo dá errado."],
+    ["y","Número 1",25,"1: você já sabe o que fazer, e escolhe não fazer, todo dia."],
+    ["c","Desfecho",10,"Qual número você é?"]],
+    ["5 sinais de autossabotagem. O número 1 dói.","Do mais leve ao mais sério.","Se você chegar no número 1, pare e pense."],
+    "Diferente da lista comum: cada item precisa ser mais intenso que o anterior.","C01",1,"clippie.ai"),
+  F("STR-36","Explicação por analogia","ensinar","25–60 s","Faceless, PROD-F01",[
+    ["g","Pergunta",15,"Por que é tão difícil mudar um hábito?"],
+    ["v","Analogia",35,"Pense numa trilha no mato. Quanto mais gente passa, mais limpa ela fica. Hábito é a trilha que seu cérebro mais usou."],
+    ["v","Ponte para o real",25,"Abrir um hábito novo é passar por onde ainda tem mato. Os primeiros dias são lentos."],
+    ["y","Aplicação",25,"Por isso a repetição importa mais que a intensidade: é ela que limpa o caminho."]],
+    ["Seu cérebro funciona como uma trilha no mato.","A explicação mais simples sobre hábitos que já ouvi.","Imagine que seu cérebro é…"],
+    "A analogia precisa ser familiar para o público e não distorcer o conceito.","C03",1),
+  F("STR-37","Experimento: testei por X dias","atencao","40–90 s","PROD-F01, faceless, demonstração",[
+    ["g","Resultado primeiro",15,"Passei 7 dias sem reclamar de nada. No dia 4, quase desisti."],
+    ["p","Regras",15,"Regra: cada reclamação, uma pulseira trocada de braço."],
+    ["v","Dias 1 a 3",25,"Dia 1: 23 trocas. Eu não fazia ideia de quanto reclamava."],
+    ["t","Crise",20,"Dia 4: tudo deu errado, e reclamar parecia justo."],
+    ["y","Resultado",25,"Dia 7: 6 trocas. O que mudou foi perceber antes de falar."]],
+    ["Passei 7 dias sem reclamar. No dia 4, quase desisti.","Testei um hábito por uma semana. Os números.","Fiz isso por 7 dias para você não precisar."],
+    "Mostre números reais do seu teste. Se for ilustrativo, avise.","C03",1),
+  F("STR-38","Ranking","coment","30–75 s","Faceless (tabela animada)",[
+    ["g","Promessa do ranking",15,"Classifiquei 5 hábitos populares do inútil ao essencial."],
+    ["v","Últimos lugares",30,"5º: diário de gratidão sem ação. 4º: acordar às 5 sem dormir cedo."],
+    ["v","Meio",25,"3º: meditar. 2º: planejar a semana no domingo."],
+    ["y","Primeiro",20,"1º: revisar o dia em 3 minutos antes de dormir."],
+    ["c","Provocação",10,"Você colocaria em outra ordem?"]],
+    ["Classifiquei 5 hábitos populares.","Do inútil ao essencial. Você vai discordar.","Esse hábito famoso ficou em último."],
+    "Rankings geram debate; justifique cada posição em uma frase.","C01",1),
+  F("STR-39","Resposta a comentário","coment","20–60 s","Todos",[
+    ["g","Comentário na tela",20,"\"Isso de crença é bobagem, o que importa é esforço.\""],
+    ["v","Concordância parcial",25,"Esforço importa muito. Sem ele nada acontece."],
+    ["t","Contraponto",25,"Mas por que duas pessoas com o mesmo esforço desistem em momentos diferentes?"],
+    ["y","Resposta",30,"A crença decide quanto esforço você aguenta antes de parar."]],
+    ["Respondendo um comentário que discorda de mim.","Alguém disse que isso é bobagem. Vamos ver.","Você perguntou, eu respondo."],
+    "Responda à ideia, nunca ataque a pessoa. Oculte o nome se não tiver permissão.","C01",1),
+  F("STR-40","Se eu começasse do zero","ensinar","30–75 s","PROD-F01, PROD-T02",[
+    ["g","Premissa",15,"Se eu tivesse que mudar minha vida do zero hoje, faria só 3 coisas."],
+    ["v","Coisa 1",25,"Escolheria uma única meta para 90 dias."],
+    ["v","Coisa 2",25,"Mudaria o ambiente antes da força de vontade."],
+    ["y","Coisa 3",25,"Mediria a constância, não o resultado."],
+    ["c","Chamada",10,"Salve e volte aqui daqui a 90 dias."]],
+    ["Se eu começasse do zero hoje, faria só 3 coisas.","O que eu faria diferente se pudesse recomeçar.","Esqueça tudo. Comece por aqui."],
+    "Funciona melhor quando o narrador tem experiência real no assunto.","C03",1),
+  F("STR-41","4Ps: promessa, imagem, prova, empurrão","oferta","30–60 s","PROD-F01, PROD-T02",[
+    ["g","Promessa",20,"Em 21 dias você pode ter uma rotina matinal que não depende de motivação."],
+    ["v","Imagem",30,"Imagine acordar e saber exatamente o que fazer nos primeiros 20 minutos, sem pensar."],
+    ["v","Prova",25,"É o mesmo método que eu uso há dois anos (mostra o registro)."],
+    ["c","Empurrão",25,"O desafio começa segunda. Inscrição gratuita no link."]],
+    ["Uma rotina que não depende de motivação.","Imagine saber o que fazer ao acordar.","21 dias, 20 minutos por manhã."],
+    "A prova tem que ser real e verificável.","C08",1),
+  F("STR-42","Estrela, história, solução","oferta","45–90 s","PROD-F01, PROD-T02, faceless",[
+    ["g","A estrela",15,"Conheça o Pedro (ilustrativo): 34 anos, quer trocar de carreira há cinco."],
+    ["t","A história",40,"Todo ano ele pesquisa cursos, se anima e trava na hora de pagar. A desculpa é dinheiro; o motivo real é medo de começar do zero."],
+    ["y","A solução",30,"O que destravou foi um teste de 30 dias, sem largar o emprego, para provar a si mesmo que conseguia aprender."],
+    ["c","Chamada",15,"Se você é o Pedro, o roteiro desse teste está no link."]],
+    ["Ele quer trocar de carreira há cinco anos.","A desculpa era dinheiro. O motivo era outro.","Você conhece alguém como o Pedro?"],
+    "A estrela deve ser parecida com o público. Ficção precisa ser identificada.","C07",1)
+  ];
+
+  /* ---------- Biblioteca ---------- */
+  var cur=0, filt="todos";
+  var fchips=document.getElementById("fchips"), flist=document.getElementById("flist"), fdetail=document.getElementById("fdetail");
+  function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+  function drawChips(){
+    var keys=["todos"].concat(Object.keys(OBJ));
+    fchips.innerHTML=keys.map(function(k){var n=k==="todos"?FS.length:FS.filter(function(f){return f.obj===k}).length;return '<button type="button" class="chip" aria-pressed="'+(k===filt)+'" data-k="'+k+'">'+(k==="todos"?"Todas":OBJ[k])+' · '+n+'</button>'}).join("");
+  }
+  function mini(f){return f.beats.map(function(b){return '<i style="width:'+b[2]+'%;background:var('+BT[b[0]][1]+')"></i>'}).join("")}
+  function drawList(){
+    flist.innerHTML=FS.map(function(f,i){if(filt!=="todos"&&f.obj!==filt)return"";return '<button type="button" class="it" role="listitem" data-i="'+i+'" aria-current="'+(i===cur)+'"><span class="id">'+f.id.replace("STR-","STR ")+'</span><span><span class="nm">'+esc(f.nome)+(f.nova?'<span class="new">NOVA</span>':'')+'</span><span class="mini">'+mini(f)+'</span></span></button>'}).join("");
+  }
+  function template(f,tema){
+    return f.beats.map(function(b){return "["+b[1].toUpperCase()+" · ~"+b[2]+"%] "+(tema?"("+tema+") ":"")+"_____"}).join("\n");
+  }
+  function drawDetail(){
+    var f=FS[cur];
+    fdetail.innerHTML='<div class="dh"><div style="display:flex;flex-direction:column;gap:6px"><span class="label">'+f.id+(f.fonte?' · '+esc(f.fonte):'')+'</span><h3>'+esc(f.nome)+'</h3><span class="chain">'+f.beats.map(function(b){return esc(b[1])}).join(" → ")+'</span></div><div class="meta"><span class="tag">'+OBJ[f.obj]+'</span><span class="tag good">'+f.dur+'</span>'+(f.nova?'<span class="tag app">Nova</span>':'')+'</div></div>'+
+      '<div><span class="label">Linha do tempo (proporção aproximada)</span><div class="tl" style="margin-top:6px">'+f.beats.map(function(b){return '<div style="flex:'+b[2]+' 1 0;background:var('+BT[b[0]][1]+')" title="'+esc(b[1])+'">'+esc(b[1])+'</div>'}).join("")+'</div></div>'+
+      '<div><span class="label">Roteiro de exemplo</span><div class="beats" style="margin-top:6px">'+f.beats.map(function(b){return '<div class="beat"><div class="bl"><span><i style="background:var('+BT[b[0]][1]+')"></i>'+esc(b[1])+'</span><small>'+BT[b[0]][0]+' · ~'+b[2]+'%</small></div><q>'+esc(b[3])+'</q></div>'}).join("")+'</div></div>'+
+      '<div><span class="label">3 ganchos para esta fórmula</span><div class="hooks" style="margin-top:6px">'+f.hooks.map(function(h){return '<div>“'+esc(h)+'”</div>'}).join("")+'</div></div>'+
+      '<div class="care"><b>Cuidado:</b> '+esc(f.cuidado)+'</div>'+
+      '<div class="meta"><span class="tag">Compatível: '+esc(f.compat)+'</span><span class="tag">Chamada sugerida: '+f.cta+'</span></div>'+
+      '<div class="row"><button class="btn" type="button" data-copy="ex">Copiar exemplo</button><button class="btn ghost" type="button" data-copy="tpl">Copiar modelo em branco</button><button class="btn ghost" type="button" data-build>Abrir no montador</button><span class="toast" id="dToast" hidden>Copiado</span></div>';
+  }
+  function copyText(t,toastId){
+    var done=function(){var el=document.getElementById(toastId);if(el){el.hidden=false;setTimeout(function(){el.hidden=true},1600)}};
+    try{navigator.clipboard.writeText(t).then(done,function(){fallback(t);done()})}catch(e){fallback(t);done()}
+  }
+  function fallback(t){var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}document.body.removeChild(ta)}
+  fchips.addEventListener("click",function(e){var b=e.target.closest(".chip");if(!b)return;filt=b.dataset.k;if(filt!=="todos"&&FS[cur].obj!==filt){cur=FS.findIndex(function(f){return f.obj===filt})}drawChips();drawList();drawDetail()});
+  flist.addEventListener("click",function(e){var b=e.target.closest(".it");if(!b)return;cur=+b.dataset.i;drawList();drawDetail();try{history.replaceState(null,"","#"+FS[cur].id.toLowerCase())}catch(x){}if(window.innerWidth<=900)fdetail.scrollIntoView({block:"start"})});
+  fdetail.addEventListener("click",function(e){var f=FS[cur];var b=e.target.closest("[data-copy]");if(b){var t=b.dataset.copy==="ex"?f.id+" · "+f.nome+"\n"+f.beats.map(function(x){return "["+x[1]+"] "+x[3]}).join("\n"):f.id+" · "+f.nome+"\n"+template(f,"");copyText(t,"dToast");return}if(e.target.closest("[data-build]")){document.getElementById("bF").value=String(cur);build();document.getElementById("montador").scrollIntoView({block:"start"})}});
+  function fromHash(){var h=(location.hash||"").slice(1).toUpperCase();var i=FS.findIndex(function(f){return f.id===h});if(i>=0){cur=i;filt="todos";drawChips();drawList();drawDetail()}}
+  window.addEventListener("hashchange",fromHash);
+  drawChips();drawList();drawDetail();fromHash();
+
+  /* ---------- Ganchos ---------- */
+  var HS=[
+    ["H01","Pergunta direta","Por que você ainda [problema] mesmo tentando [solução]?",["Por que você ainda procrastina mesmo usando agenda?","Por que você ainda se sente cansado mesmo dormindo 8 horas?"]],
+    ["H02","Lista numerada","3 [erros/sinais/passos] para [resultado].",["3 sinais de que você está no piloto automático.","5 passos para terminar o que começa."]],
+    ["H03","Contraste","Você pensa que [crença], mas [contraste defensável].",["Você pensa que falta disciplina, mas falta um gatilho.","Você acha que é preguiça, mas é cansaço de decisão."]],
+    ["H04","Erro","Pare de [comportamento] antes de [consequência real].",["Pare de criar metas anuais antes de ter uma semanal.","Pare de copiar a rotina dos outros."]],
+    ["H05","Identificação","Se você sempre [situação], talvez precise ver isto.",["Se você sempre desiste na segunda semana, veja isto.","Se você começa tudo e não termina nada…"]],
+    ["H06","Promessa específica","Em [tempo], vou explicar como [tarefa].",["Em 40 segundos, vou explicar como criar um hábito que dura.","Em 1 minuto você vai saber qual crença te trava."]],
+    ["H07","Pergunta inesperada","E se o problema não fosse [causa comum]?",["E se o problema não fosse falta de tempo?","E se motivação fosse o motivo de você desistir?"]],
+    ["H08","História","Tudo mudou quando [acontecimento]…",["Tudo mudou quando eu parei de definir metas.","Tudo mudou no dia em que anotei minhas desculpas."]],
+    ["H09","Demonstração","Veja o que acontece quando [ação].",["Veja o que acontece quando você troca \"tenho que\" por \"escolho\".","Olha o que muda numa agenda com só 3 tarefas."]],
+    ["H10","Antes e depois","Antes eu [X]. Agora [Y]. A diferença:",["Antes eu acordava e pegava o celular. Agora faço isto.","Antes eu tinha 10 metas. Agora tenho uma."]],
+    ["H11","Escolha","Qual destas duas você escolheria?",["Começar grande ou começar pequeno: qual você escolhe?","Rotina rígida ou flexível? Escolha antes de eu responder."]],
+    ["H12","Desafio","Experimente [ação] hoje e observe [resultado].",["Experimente ficar 1 hora sem celular hoje e conte quantas vezes pegou nele.","Hoje, diga não para uma coisa e veja o que sobra de tempo."]],
+    ["H13","Número surpreendente","[Número] de [grupo] [fato inesperado].",["Fiz 23 reclamações em um único dia. Eu contei.","Você toma centenas de decisões por dia. Quase todas no automático."]],
+    ["H14","Bastidor / segredo","O que ninguém mostra sobre [tema]:",["O que ninguém mostra sobre quem acorda às 5.","O lado da disciplina que não aparece no Instagram."]],
+    ["H15","Proibição","Nunca [ação comum] se você quer [resultado].",["Nunca comece uma meta numa segunda-feira.","Nunca conte sua meta para todo mundo. Explico."]],
+    ["H16","Resultado primeiro","[Resultado]. Veja como.",["90 dias sem faltar um treino. Eis o truque.","Zerei uma dívida sem cortar o café. Veja como."]],
+    ["H17","Versus","[A] contra [B]: qual funciona?",["Disciplina contra hábito: qual vence?","Lista de tarefas contra blocos de tempo."]],
+    ["H18","POV","POV: [situação reconhecível].",["POV: é domingo à noite e você promete que amanhã muda tudo.","POV: você abriu o celular para ver as horas."]],
+    ["H19","Confissão","Confesso: [algo vulnerável].",["Confesso: eu fingia ter rotina.","Confesso: desisti de 11 metas no ano passado."]],
+    ["H20","Interrupção visual","[Imagem inesperada] + frase curta.",["(Caderno sendo rasgado) \"Foi isso que fiz com meu planejamento.\"","(Despertador jogado longe) \"Acordar cedo não é para todo mundo.\""]],
+    ["H21","Endereçamento","Isto é para quem [perfil específico].",["Isto é para quem já tentou de tudo e ainda se sente travado.","Se você tem mais de 30 e acha que é tarde, fica."]],
+    ["H22","Hipótese","O que aconteceria se [cenário]?",["O que aconteceria se você fizesse só uma coisa por dia durante um ano?","E se você parasse de reclamar por 7 dias?"]],
+    ["H23","Você está fazendo errado","Você está [fazendo X] do jeito errado.",["Você está escrevendo suas metas do jeito errado.","Você está usando sua lista de tarefas ao contrário."]],
+    ["H24","Continuação","Parte [N]: [promessa da série].",["Parte 2: o que aconteceu no dia 4.","Parte 3: a mensagem que mudou o plano."]]
+  ];
+  document.getElementById("hgrid").innerHTML=HS.map(function(h){return '<div class="card"><h3><span class="id">'+h[0]+'</span>'+esc(h[1])+'</h3><div class="mold">'+esc(h[2])+'</div><ul>'+h[3].map(function(x){return "<li>"+esc(x)+"</li>"}).join("")+'</ul></div>'}).join("");
+
+  var RS=[["Promessa adiantada","\"E o terceiro é o que quase ninguém faz.\""],["Virada","\"Mas aqui está o problema.\""],["Atenção dirigida","\"Presta atenção nesta parte, porque é onde a maioria erra.\""],["Pergunta nova","\"E se isso não funcionar para você?\""],["Contagem","\"Faltam dois. O próximo é o mais importante.\""],["Recompensa futura","\"No final eu mostro o meu resultado real.\""],["Contradição","\"Parece óbvio. Só que não é.\""],["Exemplo","\"Deixa eu te mostrar com um caso.\""]];
+  document.getElementById("rgrid").innerHTML=RS.map(function(r){return '<div class="card"><h3>'+esc(r[0])+'</h3><p style="font-size:15px">'+esc(r[1])+'</p></div>'}).join("");
+
+  var CS=[["C00","Sem chamada","Encerrar com uma frase memorável.","STR-02, STR-03, STR-32"],["C01","Reflexão","\"Qual crença você quer revisar?\"","STR-10, STR-15, STR-38"],["C02","Comentário voluntário","\"Se essa frase representa sua intenção, escreva: EU POSSO.\"","STR-19"],["C03","Salvar","\"Salve para repetir o exercício amanhã.\"","STR-01, STR-04, STR-05"],["C04","Compartilhar","\"Envie para alguém que precisa ouvir isso.\"","STR-06, STR-08, STR-25"],["C05","Seguir","\"Siga para mais reflexões sobre paradigmas.\"","STR-13"],["C06","Material gratuito","\"Comente MAPA para receber o guia\" (só com entrega real).","STR-23"],["C07","Link no perfil","\"O material completo está no link do perfil.\"","STR-21, STR-24, STR-42"],["C08","Webinar / aula","\"Inscreva-se na aula gratuita pelo link do perfil.\"","STR-22, STR-27, STR-28"],["C09","Continuação","\"Na parte 2 eu mostro como aplicar\" (só se planejada).","STR-12, STR-34"]];
+  document.getElementById("ctab").innerHTML=CS.map(function(c){return "<tr><td>"+c[0]+"</td><td>"+esc(c[1])+"</td><td>"+esc(c[2])+"</td><td>"+esc(c[3])+"</td></tr>"}).join("");
+
+  /* ---------- Montador ---------- */
+  var bF=document.getElementById("bF"), bH=document.getElementById("bH"), bC=document.getElementById("bC"), bP=document.getElementById("bP"), bT=document.getElementById("bTema"), bOut=document.getElementById("bOut");
+  bF.innerHTML=FS.map(function(f,i){return '<option value="'+i+'">'+f.id+' · '+esc(f.nome)+'</option>'}).join("");
+  bH.innerHTML=HS.map(function(h,i){return '<option value="'+i+'">'+h[0]+' · '+esc(h[1])+'</option>'}).join("");
+  bC.innerHTML=CS.map(function(c,i){return '<option value="'+i+'">'+c[0]+' · '+esc(c[1])+'</option>'}).join("");
+  bH.value="6"; bC.value="3";
+  function build(){
+    var f=FS[+bF.value], h=HS[+bH.value], c=CS[+bC.value], tema=bT.value.trim()||"[tema]";
+    var lines=["strategy_id: "+f.id+"  hook_id: "+h[0]+"  cta_id: "+c[0],"formato: "+bP.value,"tema: "+tema,"duração alvo: "+f.dur,"",
+      "GANCHO ("+h[1]+")","molde: "+h[2],"escreva 3 opções:","  1. ____","  2. ____","  3. ____",""];
+    f.beats.forEach(function(b,i){if(i===0&&b[0]==="g")return;lines.push("["+b[1].toUpperCase()+" · ~"+b[2]+"%]");lines.push("  referência: "+b[3]);lines.push("  seu texto sobre \""+tema+"\": ____");lines.push("")});
+    lines.push("CHAMADA ("+c[1]+"): "+c[2]);
+    lines.push("");lines.push("cuidado: "+f.cuidado);
+    bOut.textContent=lines.join("\n");
+  }
+  [bF,bH,bC,bP].forEach(function(el){el.addEventListener("change",build)});bT.addEventListener("input",build);build();
+  document.getElementById("bCopy").addEventListener("click",function(){copyText(bOut.textContent,"bToast")});
+})();
+</script>

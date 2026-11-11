@@ -13,8 +13,8 @@ from pathlib import Path
 
 import psutil
 
-from . import canais, capa, cenas_auto, estilos, library, metadados
-from .parser import IDIOMAS, SCRIPT_EXT, TEMPLATES, embedded_images, episode_label, parse_script
+from . import biblioteca_animacoes, canais, capa, cenas_auto, estilos, library, metadados
+from .parser import CENAS_ANIMACAO, IDIOMAS, SCRIPT_EXT, TEMPLATES, embedded_images, episode_label, parse_script
 from .parser import animation_source as parser_animation_source
 
 APP = Path(__file__).resolve().parent.parent
@@ -24,7 +24,7 @@ ENGINE = {"F01": (LAB / "scripts" / "gerar_video.py", LAB / "templates" / "forma
           "T02": (LAB / "scripts" / "gerar_entrevista.py", LAB / "templates" / "T02_entrevista.json"),
           # T03 = the T02 interview with the speaker's mouth moving (SadTalker) and no sound bars; same scripts
           "T03": (LAB / "scripts" / "gerar_entrevista.py", LAB / "templates" / "T03_entrevista_falando.json"),
-          # A01 = animations only (no character, no captions, no cover): the engine lives in its own folder
+          # A01 = animations only (no character, no captions; the engine draws its own cover): it lives in its own folder
           "A01": (LAB / "scripts" / "gerar_animacao.py", LAB / "templates" / "A01_animacao.json")}
 ANIMACAO = Path(r"D:\Video-Creator\guardian-studio")
 IMAGE_EXT = (".png", ".jpg", ".jpeg", ".webp")
@@ -93,6 +93,12 @@ def _animation_voice():
     return library.get("personagens", m[1]) if m else None
 
 
+def _missing_animation_images(video):
+    missing = sorted({f for c in video["cenas"] for f in c.get("imagens", [])
+                      if not (ANIMACAO / "public" / "imagens" / Path(f).name).exists()})
+    return [f"Imagem '{f}' não encontrada: envie o arquivo junto com o roteiro." for f in missing]
+
+
 def _check_animation(video):
     if not (ANIMACAO / "node_modules").exists():
         return ["O motor de animação não está instalado (rode instalar.bat na pasta guardian-studio)."]
@@ -103,17 +109,19 @@ def _check_animation(video):
     if not ch or not ch["voz"].get("referencia"):
         return ["Esse personagem não tem voz clonada para narrar a animação."]
     video["personagens"], video["personagens_status"] = [ch["nome"]], {ch["nome"]: ch["id"]}
-    missing = sorted({f for c in video["cenas"] for f in c.get("imagens", [])
-                      if not (ANIMACAO / "public" / "imagens" / Path(f).name).exists()})
-    return [f"Imagem '{f}' não encontrada: envie o arquivo junto com o roteiro." for f in missing]
+    return _missing_animation_images(video)
 
 
 def check(video):
     """Recompute problems against the current library (e.g. after registering a new character)."""
-    problems = list(video["problemas_pdf"])
+    known = CENAS_ANIMACAO | {s["nome"] for s in biblioteca_animacoes.custom_scenes()}
+    # an animation that was missing when the script was read may have been learned since
+    problems = [p for p in video["problemas_pdf"] if not ((m := re.search(r"animação '(.+?)' não existe", p)) and m[1] in known)]
     video["fotos_faltando"] = []  # registered characters still on the grey placeholder: the list shows a button
     if video["template"] == "A01":
         problems += _check_animation(video)
+    elif any(c.get("animacao") for c in video["cenas"]):
+        problems += _missing_animation_images(video)
     if video["template"] == "T02":
         video["personagens_status"] = {}
         for name in video["personagens"]:
@@ -135,7 +143,7 @@ def check(video):
             if ch and ch.get("imagem_provisoria"):
                 video["fotos_faltando"].append({"id": ch["id"], "nome": ch["nome"]})
         imgs = list(video["imagens"]) + [""] * (len(video["cenas"]) - len(video["imagens"]))
-        missing = [(i + 1, c["mode"]) for i, (c, p) in enumerate(zip(video["cenas"], imgs)) if not p]
+        missing = [(i + 1, c["mode"]) for i, (c, p) in enumerate(zip(video["cenas"], imgs)) if not p and c["mode"] != "animacao"]
         ch = cenas_auto.character_ready(video["personagens"][0] if video["personagens"] else None)
         key = cenas_auto.pixabay_key()
         fala = [n for n, m in missing if m == "fala"]
@@ -177,17 +185,17 @@ def analyse(batch_id, files, channel=None):
                  "episodio_txt": episode_label(parsed["episodio"], parsed["idioma"]) if parsed.get("episodio") else None,
                  "problemas_pdf": parsed["problemas"], "imagens": [], "origem_imagens": "",
                  "avisos_animacao": parsed.get("avisos_animacao", []),
-                 "animacoes_total": sum(len(c.get("animacoes") or []) for c in parsed["cenas"]),
+                 "animacoes_total": sum(len(c.get("animacoes") or []) + bool(c.get("animacao")) for c in parsed["cenas"]),
                  "status": "analisado", "etapa": "", "passos_feitos": 0, "passos_total": 0}
         if parsed["metadados"]:  # title/description/hashtags written in the script itself: the AI won't redo them
             video["metadados"] = {**parsed["metadados"], "origem": "roteiro",
                                   "atualizado": time.strftime("%d/%m/%Y %H:%M")}
         if parsed["template"] == "F01":
             video["imagens"], video["origem_imagens"] = _scene_images(pdf, files, len(parsed["cenas"]))
-        if parsed["template"] == "A01":  # images sent with the script: the scenes read them by name from the engine's folder
-            for f in files:
-                if f.suffix.lower() in IMAGE_EXT and f.parent == pdf.parent:
-                    shutil.copy2(f, ANIMACAO / "public" / "imagens" / f.name)
+        named = {Path(n).name for c in parsed["cenas"] for n in c.get("imagens", [])}
+        for f in files:  # images sent with the script: the scenes read them by name from the engine's folder
+            if f.suffix.lower() in IMAGE_EXT and f.parent == pdf.parent and (parsed["template"] == "A01" or f.name in named):
+                shutil.copy2(f, ANIMACAO / "public" / "imagens" / f.name)
         videos.append(check(video))
     batch = {"id": batch_id, "criado_em": time.strftime("%d/%m/%Y %H:%M"), "canal": channel, "videos": videos,
              "opcoes": {},
@@ -236,11 +244,10 @@ def _build_project(batch, video, options):
     folder.mkdir(parents=True, exist_ok=True)
     musics = library.music()
     choice = options.get("musica", "nenhuma")
-    animacao = [m for m in musics if "animacao" in (m.get("temas") or [])]  # tracks sent on the animation template
     if choice == "personagem":
         music_item = _character_music(video)
     elif choice == "animacao":
-        music_item = random.choice(animacao) if animacao else None
+        music_item = library.next_animation_music()
     else:
         music_item = (random.choice(musics) if choice == "aleatoria" and musics
                       else library.get("musicas", choice) if choice not in ("nenhuma", "aleatoria", "animacao") else None)
@@ -266,10 +273,11 @@ def _build_project(batch, video, options):
     elif video["template"] == "F01":
         imgs = list(video["imagens"]) + [""] * (len(video["cenas"]) - len(video["imagens"]))
         scenes = [{"id": c["id"], "text": c["text"], "mode": c["mode"], "image": img,
-                   "animacoes": c.get("animacoes") or []}
+                   "animacoes": c.get("animacoes") or [], "animacao": c.get("animacao")}
                   for c, img in zip(video["cenas"], imgs)]
         (folder / "cenas.json").write_text(json.dumps(scenes, indent=2, ensure_ascii=False), encoding="utf-8")
-        video["capa_fonte"] = {"fundo": imgs[0]} if imgs and imgs[0] else None  # auto images: set in _run
+        first = next((i for i, c in zip(imgs, video["cenas"]) if c["mode"] != "animacao"), None)
+        video["capa_fonte"] = {"fundo": first} if first else None  # auto images: set in _run
         video["passos_total"] = 3 + (1 if any(c["mode"] == "fala" for c in scenes) else 0)  # SadTalker: one step for all
     else:
         chars = {}
@@ -397,7 +405,7 @@ def _auto_images(batch_id, v):
             s["image"] = ""
             for k in ("pose", "fundo_video"):
                 s.pop(k, None)
-    if all(s.get("image") and Path(s["image"]).exists() for s in scenes):
+    if all(s["mode"] == "animacao" or (s.get("image") and Path(s["image"]).exists()) for s in scenes):
         return
     _update(batch_id, v["id"], etapa="Montando as imagens das cenas")
     enc = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))["video"]
@@ -408,9 +416,19 @@ def _auto_images(batch_id, v):
         s.update(extras.get(i, {}))  # pose layer + moving background video for the composer
     cenas_file.write_text(json.dumps(scenes, indent=2, ensure_ascii=False), encoding="utf-8")
     fields = {"imagens": imgs, "imagens_origem": origens}
-    if not v.get("capa_fonte"):
-        fields["capa_fonte"] = {"fundo": imgs[0]}
+    first = next((i for i in imgs if i), None)  # the cover comes from a picture: an animation scene has none
+    if not v.get("capa_fonte") and first:
+        fields["capa_fonte"] = {"fundo": first}
     _update(batch_id, v["id"], **fields)
+
+
+def _file_name(v):
+    """A01 output: 'dia07 - Title', so a folder sorted by name is already in publishing order."""
+    stem = Path(v["arquivo"]).stem
+    m = re.match(r"dia[\s_-]*(\d+)", stem, re.I)
+    tag = f"dia{int(m[1]):02}" if m else stem
+    title = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "", v["titulo"] or "").strip().rstrip(".")[:90].strip()
+    return f"{tag} - {title}" if title else tag
 
 
 def _run(batch_id, video_id):
@@ -423,6 +441,10 @@ def _run(batch_id, video_id):
         _auto_images(batch_id, v)
         v = next(x for x in load(batch_id)["videos"] if x["id"] == video_id)  # images + cover source updated
     add_series_strip(v, batch_id)
+    if v["template"] == "A01":  # here, not when the project is built: videos already in the queue get it too
+        tpl = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))
+        tpl["nome_arquivo"] = _file_name(v)
+        Path(v["template_json"]).write_text(json.dumps(tpl, indent=2, ensure_ascii=False), encoding="utf-8")
     cover = make_cover(v, out_dir, batch_id) if v["template"] == "T02" else None
     if cover:  # T02: the composer puts the cover over the first seconds in its final pass (no extra encode)
         tpl = json.loads(Path(v["template_json"]).read_text(encoding="utf-8"))
@@ -462,8 +484,14 @@ def _run(batch_id, video_id):
         rep = json.loads(report.read_text(encoding="utf-8")) if report.exists() else {}
         stamped = rep.get("capa_no_video", False)
         # voice check (T02): defects found in the narration, and what is still left after the automatic fix
+        extra = out_dir / "avisos_animacao.json"
+        if extra.exists():  # an animation scene that could not be drawn: the video is fine, the card says what happened
+            _update(batch_id, video_id, avisos_animacao=[*v.get("avisos_animacao", []), *json.loads(extra.read_text(encoding="utf-8"))])
         _update(batch_id, video_id, voz_alertas=rep.get("voz_alertas"), ritmo=rep.get("ritmo"),
                 voz_corrigidos=max(0, (rep.get("voz_problemas_encontrados") or 0) - len(rep.get("voz_alertas") or [])))
+        if v["template"] == "A01":  # drawn by the engine, which also shows it on the first frames
+            biblioteca_animacoes.sync()
+            cover, stamped = (str(out_dir / "capa.png"), True) if (out_dir / "capa.png").exists() else (None, False)
         cover = cover or make_cover(v, out_dir, batch_id)
         if cover and not stamped:  # F01, or the original composer was used: stamp it afterwards
             _update(batch_id, video_id, etapa="Colocando a capa no início do vídeo", passos_feitos=done)
@@ -536,8 +564,53 @@ def retry(batch_id, video_id):
             raise ValueError("Resolva antes: " + " ".join(v["problemas"]))
         v["status"] = "analisado"
         save(batch)
-    _update(batch_id, video_id, apagado=False, capa=None, capa_no_video=False, drive=None)
+    (Path(v.get("projeto") or ".") / ORIGINAL_VELOCIDADE).unlink(missing_ok=True)  # a new render starts at its own speed
+    _update(batch_id, video_id, apagado=False, capa=None, capa_no_video=False, drive=None, velocidade=None)
     return start(batch_id, [video_id], load(batch_id).get("opcoes") or {})
+
+
+VELOCIDADE_MIN, VELOCIDADE_MAX = 0.75, 1.5
+ORIGINAL_VELOCIDADE = "velocidade_original.mp4"  # in the project folder, never in saida (the app takes the .mp4 it finds there)
+
+
+def set_speed(batch_id, video_id, fator):
+    """Re-encodes the finished video at this speed (voice keeps its pitch). The first change keeps the original render,
+    and every later change starts from it: 1.0 brings the original back."""
+    fator = round(float(fator), 2)
+    if not VELOCIDADE_MIN <= fator <= VELOCIDADE_MAX:
+        raise ValueError(f"Escolha uma velocidade entre {VELOCIDADE_MIN} e {VELOCIDADE_MAX}.")
+    v = get_video(batch_id, video_id)
+    if v["status"] != "pronto" or v.get("apagado") or not v.get("saida") or not Path(v["saida"]).exists():
+        raise ValueError("Esse vídeo não está pronto (ou o arquivo foi apagado).")
+    out, orig = Path(v["saida"]), Path(v["projeto"]) / ORIGINAL_VELOCIDADE
+    if not orig.exists():
+        if fator == 1:
+            _update(batch_id, video_id, velocidade=1.0)
+            return
+        shutil.copy2(out, orig)
+    tmp = out.with_name("_velocidade.mp4")
+    if fator == 1:
+        shutil.copy2(orig, tmp)
+    else:
+        base = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(orig), "-vf", f"setpts=PTS/{fator}",
+                "-af", f"atempo={fator}", "-c:a", "aac", "-b:a", "192k", "-pix_fmt", "yuv420p", "-movflags", "+faststart"]
+        for enc in (["-c:v", "h264_nvenc", "-preset", "p5", "-rc", "vbr", "-cq", "19", "-b:v", "0"],
+                    ["-c:v", "libx264", "-preset", "fast", "-crf", "18"]):  # no NVIDIA encoder: the CPU one
+            if subprocess.run([*base, *enc, str(tmp)], capture_output=True).returncode == 0:
+                break
+        else:
+            tmp.unlink(missing_ok=True)
+            raise ValueError("Não consegui mudar a velocidade deste vídeo.")
+    for _ in range(20):  # the page may still be reading the old file for a moment
+        try:
+            tmp.replace(out)
+            break
+        except PermissionError:
+            time.sleep(0.5)
+    else:
+        tmp.unlink(missing_ok=True)
+        raise ValueError("O vídeo está aberto em outro programa. Feche e tente de novo.")
+    _update(batch_id, video_id, velocidade=fator)
 
 
 def delete_batch(batch_id):
@@ -595,6 +668,32 @@ def stop(batch_id, video_id):
     _on_tree("kill")
 
 
+def cancel_batch(batch_id):
+    """Stop the batch's running video and take the rest out of the queue; finished videos stay."""
+    with _lock:
+        batch = load(batch_id)
+        running = _current.get("video") if _current.get("batch") == batch_id else None
+        waiting = [v for v in batch["videos"] if v["status"] in ("na_fila", "gerando") and v["id"] != running]
+        for v in waiting:  # the worker skips their queue entries
+            v.update(status="analisado", etapa="", erro=None, passos_feitos=0, fim=None)
+        save(batch)
+        if running:
+            _current["parar"] = True
+            _on_tree("kill")
+    if _paused.is_set() and not any(v["status"] in ("na_fila", "gerando")
+                                    for b in batches() if b["id"] != batch_id for v in b["videos"]):
+        resume()  # a pause with nothing left to hold would freeze the next batch
+    return len(waiting) + bool(running)
+
+
+def _still_queued(batch_id, video_id):
+    """False for an entry left by a cancelled or deleted batch."""
+    try:
+        return get_video(batch_id, video_id)["status"] == "na_fila"
+    except (OSError, StopIteration):
+        return False
+
+
 def _wait_if_paused():
     while _paused.is_set():
         time.sleep(0.5)
@@ -604,7 +703,10 @@ def _worker():
     while True:
         batch_id, video_id = _queue.get()
         _wait_if_paused()
-        _current.update(batch=batch_id, video=video_id, proc=None, parar=False)
+        with _lock:  # one check with the claim, so a cancel can't land between them
+            if not _still_queued(batch_id, video_id):
+                continue
+            _current.update(batch=batch_id, video=video_id, proc=None, parar=False)
         try:
             _run(batch_id, video_id)
         except Exception as exc:  # keep the queue alive; the error shows on the video card
@@ -623,4 +725,5 @@ def resume_pending():
                 _queue.put((b["id"], v["id"]))
 
 
+biblioteca_animacoes.sync()
 threading.Thread(target=_worker, daemon=True).start()

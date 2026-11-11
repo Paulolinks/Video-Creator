@@ -10,6 +10,7 @@ Tipos (português / inglês):
     [FLUXO: etapa 1 | etapa 2 | etapa 3]           [FLOW: step 1 | step 2 | step 3]
     [CARDS: errado: detalhe | certo: detalhe]      [CARDS: wrong: detail | right: detail]
     [DESTAQUE: PALAVRA | subtítulo]                [HIGHLIGHT: WORD | subtitle]
+    [JORNADA: título | OBJETO: rótulo | ...]       [JOURNEY: title | OBJECT: label | ...]  (cena de tela cheia)
 """
 import re
 import unicodedata
@@ -17,8 +18,20 @@ import unicodedata
 TIPOS = {"CONTADOR": "counter", "COUNTER": "counter", "BARRAS": "bars", "BARS": "bars", "GRAFICO": "bars",
          "FLUXO": "flow", "FLOW": "flow", "ETAPAS": "flow", "STEPS": "flow", "CARDS": "cards", "CARD": "cards",
          "COMPARACAO": "cards", "DESTAQUE": "keyword", "HIGHLIGHT": "keyword", "PALAVRACHAVE": "keyword",
-         "KEYWORD": "keyword"}
-NOMES = {"counter": "Contador", "bars": "Barras", "flow": "Fluxo", "cards": "Cards", "keyword": "Destaque"}
+         "KEYWORD": "keyword", "JORNADA": "journey", "JOURNEY": "journey", "FUNIL": "journey", "FUNNEL": "journey"}
+NOMES = {"counter": "Contador", "bars": "Barras", "flow": "Fluxo", "cards": "Cards", "keyword": "Destaque",
+         "journey": "Jornada"}
+OBJETOS_JORNADA = {"PORTA": "door", "DOOR": "door", "PRESENTE": "gift", "GIFT": "gift", "ENVELOPE": "mail", "EMAIL": "mail",
+                   "MAIL": "mail", "TELA": "screen", "SCREEN": "screen", "VIDEO": "screen", "VSL": "screen",
+                   "PALCO": "stage", "STAGE": "stage", "WEBINAR": "stage", "LIVE": "stage", "CALENDARIO": "calendar",
+                   "CALENDAR": "calendar", "DATA": "calendar", "RELOGIO": "clock", "CLOCK": "clock", "TIMER": "clock",
+                   "CARRINHO": "cart", "CART": "cart", "OFERTA": "cart", "OFFER": "cart", "COMPRA": "cart",
+                   "CHAVE": "key", "KEY": "key", "ACESSO": "key", "ESCADA": "stairs", "STAIRS": "stairs",
+                   "UPSELL": "stairs", "CORACAO": "heart", "HEART": "heart", "FIDELIDADE": "heart", "TROFEU": "trophy",
+                   "TROPHY": "trophy", "RESULTADO": "trophy", "TELEFONE": "phone", "PHONE": "phone", "LIGACAO": "phone",
+                   "CASA": "house", "HOUSE": "house", "HOME": "house"}
+_STOP_CHAVES = {"PARA", "COMO", "MAIS", "QUE", "COM", "UMA", "ESSE", "ESSA", "ISSO", "ESTE", "ESTA", "SEUS", "SUAS",
+                "SOBRE", "THE", "AND", "WITH", "THAT", "THIS", "YOUR", "FROM", "INTO", "MUITO", "PELO", "PELA", "NAO"}
 # [NOME: conteúdo] com NOME em maiúsculas (evita apagar colchetes comuns do texto)
 _MARCA = re.compile(r"\[\s*([A-ZÁÉÍÓÚÂÊÔÃÕÇ][A-ZÁÉÍÓÚÂÊÔÃÕÇ _\-]{1,24})\s*:\s*([^\[\]]*)\]")
 
@@ -39,7 +52,7 @@ def extrair(texto):
         nome = norm(m.group(1))
         if nome not in TIPOS:
             avisos.append(f"Marcação desconhecida removida: {m.group(0)[:60]} (use CONTADOR, BARRAS, FLUXO, "
-                          "CARDS ou DESTAQUE).")
+                          "CARDS, DESTAQUE ou JORNADA).")
             continue
         tipo = TIPOS[nome]
         campos = [c.strip() for c in m.group(2).split("|")]
@@ -48,6 +61,7 @@ def extrair(texto):
         except ValueError as ex:
             avisos.append(f"{NOMES[tipo]} ignorado ({m.group(0)[:60]}): {ex}")
             continue
+        avisos += payload.pop("avisos", [])
         anims.append({"tipo": tipo, "palavra": len(palavras), "payload": payload, "marcacao": m.group(0)})
     palavras += texto[pos:].split()
     return " ".join(palavras), anims, avisos
@@ -123,7 +137,50 @@ def montar(tipo, campos):
         return {"cards": cards}
     if tipo == "keyword":
         return {"text": campos[0], "subtitle": campos[1] if len(campos) > 1 else ""}
+    if tipo == "journey":
+        titulo = "" if ":" in campos[0] else campos[0]
+        etapas, avisos = [], []
+        for c in campos[1 if not titulo == "" else 0:]:
+            obj, _, rotulo = c.partition(":")
+            if not rotulo.strip():
+                raise ValueError(f"a etapa '{c}' está sem rótulo (use OBJETO: rótulo)")
+            if norm(obj) not in OBJETOS_JORNADA:
+                avisos.append(f"Objeto '{obj.strip()}' desconhecido na JORNADA: usei PORTA.")
+            etapas.append({"obj": OBJETOS_JORNADA.get(norm(obj), "door"), "label": rotulo.strip()})
+        if not 2 <= len(etapas) <= 5:
+            raise ValueError("precisa de 2 a 5 etapas")
+        return {"title": titulo, "steps": etapas, "avisos": avisos}
     raise ValueError(f"tipo {tipo}")
+
+
+def jornada_para_cena(payload):
+    """The marker's payload -> the fields of the engine's "jornada" scene (the same fields a script can write by hand)."""
+    return {"cena": "jornada", "params": {"titulo": payload["title"],
+                                          "etapa": [f"{s['obj']} | {s['label']}" for s in payload["steps"]]}}
+
+
+def chaves(texto):
+    return {norm(w) for w in texto.split() if len(norm(w)) >= 4 and norm(w) not in _STOP_CHAVES}
+
+
+def bate(n, chave):
+    return n == chave or (len(chave) >= 5 and len(n) >= 5 and n[:5] == chave[:5])
+
+
+def checar_jornada(etapas, texto):
+    """etapas: ["OBJETO | rótulo", ...]. -> (problema que impede o vídeo ou None, avisos)."""
+    if not 2 <= len(etapas) <= 5:
+        return f"a JORNADA precisa de 2 a 5 linhas etapa: (tem {len(etapas)}).", []
+    avisos, falado = [], [norm(w) for w in texto.split()]
+    for e in etapas:
+        obj, _, rotulo = e.partition("|")
+        if not rotulo.strip():
+            return f"a etapa '{e}' da JORNADA está sem rótulo (use OBJETO | rótulo).", []
+        if norm(obj) not in OBJETOS_JORNADA and obj.strip() not in OBJETOS_JORNADA.values():
+            avisos.append(f"objeto '{obj.strip()}' desconhecido na JORNADA: usei PORTA.")
+        if not any(bate(n, c) for c in chaves(rotulo) for n in falado):
+            avisos.append(f"a etapa '{rotulo.strip()}' da JORNADA não aparece na fala; ela vai acender sozinha por tempo.")
+    return None, avisos
 
 
 # ------------------------------------------------------------------ números falados (pt e en)

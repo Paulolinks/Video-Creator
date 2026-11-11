@@ -1,10 +1,13 @@
 // Gera os vídeos a partir dos roteiros da pasta "roteiros".
 // Uso: node scripts/gerar.mjs            -> gera todos os roteiros que ainda não têm vídeo
 //      node scripts/gerar.mjs dia01       -> gera (ou refaz) só o dia01
+//      node scripts/gerar.mjs dia01 --so-capa -> só a capa, rápido e sem voz
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {execSync} from 'node:child_process';
+import {INTERNAS, registrar, separarCodigo, sincronizar, testarNovas} from './biblioteca.mjs';
+import {aplicarRodizio} from './rodizio.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const P = (...a) => path.join(ROOT, ...a);
@@ -26,10 +29,13 @@ export function lerRoteiro(txt) {
   for (const raw of txt.split(/\r?\n/)) {
     const l = raw.trim(); if (!l || l.startsWith('#')) continue;
     const i = l.indexOf(':'); if (i < 0) continue;
-    const k = l.slice(0, i).trim().toLowerCase(); const v = l.slice(i + 1).trim();
+    const bruta = l.slice(0, i).trim(); const k = bruta.toLowerCase(); const v = l.slice(i + 1).trim();
     if (k === 'fala') { cur = {text: v, scene: 'frase', hl: [], params: {}}; linhas.push(cur); continue; }
     if (!cur) { head[k] = v; continue; }
     if (k === 'cena') cur.scene = v.toLowerCase();
+    else if (bruta === 'TRANSICAO') cur.transicao = v.toLowerCase();
+    else if (bruta === 'CAMERA') cur.camera = v.toLowerCase();
+    else if (bruta === 'TEXTO') cur.texto = v.toLowerCase();
     else if (k === 'destaque') cur.hl = v.split(',').map(s => s.trim()).filter(Boolean);
     else if (cur.params[k] === undefined) cur.params[k] = v;
     else cur.params[k] = [].concat(cur.params[k], v);
@@ -72,13 +78,44 @@ async function falar({text, prev, next, voz, modelo, chave, destino}) {
 }
 
 // ---------- monta a linha do tempo ----------
-async function montar(nome, cfg) {
+function lerTudo(nome, cfg) {
+  const app = process.env;
+  const {texto, blocos} = separarCodigo(fs.readFileSync(app.GUARDIAN_ROTEIRO || P('roteiros', nome + '.txt'), 'utf8'));
+  const {head, linhas} = lerRoteiro(texto);
+  if (!linhas.length) throw new Error('o roteiro não tem nenhuma linha FALA:');
+  return {head, linhas, blocos};
+}
+
+// Copia o logo para o public (o Remotion só enxerga arquivos dali).
+function copiarLogo(nome) {
+  if (!process.env.GUARDIAN_LOGO) return null;
+  const gen = P('public', 'gen', nome); fs.mkdirSync(gen, {recursive: true});
+  const dst = 'logo' + path.extname(process.env.GUARDIAN_LOGO); fs.copyFileSync(process.env.GUARDIAN_LOGO, path.join(gen, dst));
+  return `gen/${nome}/${dst}`;
+}
+
+// Fala que pede uma cena que não existe (ou quebrou) vira "frase": o vídeo sai mesmo assim.
+function trocarCenasInexistentes(linhas, custom) {
+  const validas = new Set([...INTERNAS, ...custom.map(c => c.nome)]);
+  for (const l of linhas) if (!validas.has(l.scene)) { console.log(`  ! Cena "${l.scene}" não existe: esta fala usa "frase".`); l.scene = 'frase'; }
+}
+
+function visual(nome, head, linhas, custom, logo) {
+  trocarCenasInexistentes(linhas, custom);
+  const v = aplicarRodizio(ROOT, nome, head, linhas, custom.filter(c => c.rodizio).map(c => c.nome));
+  if (v.padrao) for (const l of linhas) l.transicao = l.transicao || v.padrao;
+  const noVideo = process.env.GUARDIAN_CAPA ? (head.capa_no_video || 'sim').toLowerCase() !== 'nao' : (head.capa_no_video || '').toLowerCase() === 'sim';
+  const capa = {...v.capa, marca: head.capa_marca || '', logo, idioma: process.env.GUARDIAN_IDIOMA || (/portugu/i.test(head.idioma || '') ? 'pt' : 'en')};
+  console.log(`  visual: tema ${v.tema} · texto ${v.texto} · capa ${capa.estilo}`);
+  return {tema: v.tema, texto: v.texto, capa, capaNoVideo: noVideo};
+}
+
+async function montar(nome, cfg, custom) {
   // GUARDIAN_*: enviados pelo Video Creator (template "Só animação"); sem eles, tudo funciona como antes
   const app = process.env;
-  const {head, linhas} = lerRoteiro(fs.readFileSync(app.GUARDIAN_ROTEIRO || P('roteiros', nome + '.txt'), 'utf8'));
-  if (!linhas.length) throw new Error('o roteiro não tem nenhuma linha FALA:');
+  const {head, linhas} = lerTudo(nome, cfg);
   const chave = cfg.ELEVENLABS_API_KEY, voz = head.voz || cfg.VOZ_ID, modelo = cfg.MODELO || 'eleven_multilingual_v2';
-  const externo = cfg.COMANDO_VOZ && cfg.COMANDO_VOZ.trim();
+  const externo = !app.GUARDIAN_SEM_VOZ && cfg.COMANDO_VOZ && cfg.COMANDO_VOZ.trim();  // GUARDIAN_SEM_VOZ: confere o visual sem gastar a voz
   const comVoz = Boolean(chave && voz);
   const gen = P('public', 'gen', nome); fs.mkdirSync(gen, {recursive: true});
   let ext = null;
@@ -99,6 +136,8 @@ async function montar(nome, cfg) {
     ext = JSON.parse(fs.readFileSync(res, 'utf8'));
     if (ext.length !== linhas.length) throw new Error(`o motor de voz devolveu ${ext.length} áudios para ${linhas.length} falas`);
   } else if (!comVoz) console.log('  ! Sem voz configurada no config.txt: o vídeo sai SEM VOZ, só para conferir o visual.');
+  const logo = copiarLogo(nome);
+  const look = visual(nome, head, linhas, custom, logo);
   let t = LEAD; const out = [];
   for (let i = 0; i < linhas.length; i++) {
     const l = linhas[i];
@@ -111,7 +150,7 @@ async function montar(nome, cfg) {
       const m = await falar({text: l.text, prev: linhas[i - 1]?.text, next: linhas[i + 1]?.text, voz, modelo, chave, destino: path.join(gen, file)});
       ({words, duration} = m); audio = `gen/${nome}/${file}`; console.log('ok');
     } else ({words, duration} = estimar(l.text));
-    out.push({text: l.text, hl: l.hl, scene: l.scene, params: l.params, start: Math.round(t * FPS), dur: Math.round((duration + GAP) * FPS), audio, words});
+    out.push({text: l.text, hl: l.hl, scene: l.scene, params: l.params, transicao: l.transicao, camera: l.camera, texto: l.texto, variante: l.variante, start: Math.round(t * FPS), dur: Math.round((duration + GAP) * FPS), audio, words});
     t += duration + GAP;
   }
   let music = null;
@@ -121,30 +160,55 @@ async function montar(nome, cfg) {
     if (fs.existsSync(src)) { const dst = 'musica' + path.extname(mus); fs.copyFileSync(src, path.join(gen, dst)); music = {file: `gen/${nome}/${dst}`, volume: parseFloat(app.GUARDIAN_VOLUME || head.volume_musica || cfg.VOLUME_MUSICA || '0.12')}; }
     else console.log(`  ! Música "${mus}" não encontrada na pasta musica. Seguindo sem música.`);
   }
-  let logo = null;
-  if (app.GUARDIAN_LOGO) { const dst = 'logo' + path.extname(app.GUARDIAN_LOGO); fs.copyFileSync(app.GUARDIAN_LOGO, path.join(gen, dst)); logo = `gen/${nome}/${dst}`; }
-  return {fps: FPS, total: Math.round((t + TAIL) * FPS), music, logo, lines: out};
+  return {fps: FPS, total: Math.round((t + TAIL) * FPS), music, logo, lines: out, ...look};
 }
 
 // ---------- principal ----------
 async function main() {
   const cfg = lerConfig();
-  const pedidos = process.argv.slice(2).map(a => path.basename(a).replace(/\.txt$/i, ''));
+  const args = process.argv.slice(2), soCapa = args.includes('--so-capa');
+  const pedidos = args.filter(a => !a.startsWith('--')).map(a => path.basename(a).replace(/\.txt$/i, ''));
   const todos = fs.readdirSync(P('roteiros')).filter(f => f.toLowerCase().endsWith('.txt')).map(f => f.slice(0, -4));
   const fila = pedidos.length ? pedidos : todos.filter(n => !fs.existsSync(P('videos', n + '.mp4')));
   if (!fila.length) { console.log('Nada para gerar: todos os roteiros já têm vídeo na pasta "videos".\nPara refazer um, apague o vídeo ou rode: gerar-video.bat dia01'); return; }
   fs.mkdirSync(P('videos'), {recursive: true});
+  const {bundle} = await import('@remotion/bundler');
+  const {renderMedia, renderStill, selectComposition} = await import('@remotion/renderer');
+  const browserExecutable = process.env.REMOTION_CHROME || null;
+
+  // Animações novas escritas no roteiro entram na biblioteca antes de tudo; a que falhar não impede o vídeo.
+  const novas = [];
+  for (const n of fila) { try { novas.push(...registrar(ROOT, lerTudo(n, cfg).blocos).novos); } catch (e) { console.log(`  ERRO: ${e.message}`); } }
+  if (novas.length) await testarNovas(ROOT, novas, bundle, renderStill, selectComposition, browserExecutable, P('public'));
+  const custom = sincronizar(ROOT);
+
+  const capaDe = async (serveUrl, n, tl) => {
+    const destino = process.env.GUARDIAN_CAPA || P('videos', n + '-capa.png');
+    const inputProps = {capa: tl.capa, tema: tl.tema};
+    const composition = await selectComposition({serveUrl, id: 'Capa', inputProps, browserExecutable});
+    await renderStill({composition, serveUrl, output: destino, inputProps, browserExecutable});
+    console.log(`[${n}] capa pronta: ${destino}`);
+  };
+  if (soCapa) {
+    const serveUrl0 = await (async () => {
+      const tl0 = {};
+      for (const n of fila) { const {head, linhas} = lerTudo(n, cfg); tl0[n] = visual(n, head, linhas, custom, copiarLogo(n)); }
+      const url = await bundle({entryPoint: P('src', 'index.ts'), publicDir: P('public')});
+      for (const n of fila) await capaDe(url, n, tl0[n]);
+      return url;
+    })();
+    void serveUrl0;
+    return;
+  }
+
   const tls = {};
   for (const n of fila) {
     console.log(`\n[${n}] lendo roteiro e gerando voz`);
-    try { tls[n] = await montar(n, cfg); } catch (e) { console.log(`  ERRO: ${e.message}`); }
+    try { tls[n] = await montar(n, cfg, custom); } catch (e) { console.log(`  ERRO: ${e.message}`); }
   }
   const prontos = Object.keys(tls); if (!prontos.length) process.exit(1);
   console.log('\nPreparando o projeto de vídeo (só demora na primeira vez)...');
-  const {bundle} = await import('@remotion/bundler');
-  const {renderMedia, selectComposition} = await import('@remotion/renderer');
   const serveUrl = await bundle({entryPoint: P('src', 'index.ts'), publicDir: P('public')});
-  const browserExecutable = process.env.REMOTION_CHROME || null;
   for (const n of prontos) {
     const inputProps = {timeline: tls[n]};
     const composition = await selectComposition({serveUrl, id: 'Video', inputProps, browserExecutable});
@@ -153,6 +217,7 @@ async function main() {
     await renderMedia({composition, serveUrl, codec: 'h264', outputLocation: saida, inputProps, browserExecutable,
       onProgress: ({progress}) => { const p = Math.floor(progress * 10); if (p !== last) { last = p; process.stdout.write(`\r[${n}] renderizando ${p * 10}%  `); } }});
     console.log(`\n[${n}] pronto: videos\\${n}.mp4 (${(tls[n].total / FPS).toFixed(1)} s)`);
+    try { await capaDe(serveUrl, n, tls[n]); } catch (e) { console.log(`  ! A capa falhou (${e.message}); o vídeo está pronto.`); }
   }
 }
-main().catch(e => { console.error('\nERRO:', e.message); process.exit(1); });
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch(e => { console.error('\nERRO:', e.message); process.exit(1); });

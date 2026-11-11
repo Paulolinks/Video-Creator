@@ -1,0 +1,128 @@
+TITULO: Variation Test
+TEMA: noite
+TRANSICAO: mista
+TEXTO: topo
+CAPA_TITULO: Every System Is Talking
+CAPA_DESTAQUE: Talking
+CAPA_ESTILO: produto
+
+FALA: This is a test of the new phone scene.
+CENA: celular
+DESTAQUE: phone
+titulo: Johnson family
+hora: 10:31
+notificacao: Your Company | We noticed a change on your system
+msg: eles | Is everything ok?
+msg: eu | Yes, we'd just like to take a look.
+
+FALA: Now the map with real names on the pins.
+CENA: mapapins
+DESTAQUE: names
+CAMERA: zoom-in
+titulo: service area
+canto: illustration
+pino: Johnson residence | check
+pino: M. Alvarez | ok
+pino: Park family | ok
+pino: S. Nguyen | ok
+foco: Johnson residence
+rotulo: homes connected
+
+FALA: One screen, a hundred systems.
+CENA: painel
+DESTAQUE: hundred
+total: 100
+normal: 94
+observar: 4
+alerta: Johnson residence | Split dropping
+alerta: M. Alvarez | Repeated starts
+
+FALA: The line draws itself.
+CENA: linha
+DESTAQUE: draws
+titulo: temperature split
+canto: illustration
+ponto: Day 1 | 20
+ponto: Day 4 | 20
+ponto: Day 7 | 19
+ponto: Day 10 | 16
+ponto: Day 13 | 14
+limite: 17
+marcar: Day 10
+
+FALA: A timeline of what happened.
+CENA: linhadotempo
+DESTAQUE: timeline
+TEXTO: palavra
+evento: Jun 11 | Alert | check
+evento: Jun 13 | Tech visit | ok
+evento: Jun 14 | Back to normal | ok
+
+FALA: Before and after.
+CENA: comparar
+DESTAQUE: after.
+TRANSICAO: cortina
+esquerda: Without monitoring
+direita: With Guardian
+item: You find out last | You call first
+item: No history | Months of history
+vence: direita
+
+FALA: The gauge settles.
+CENA: medidor
+DESTAQUE: gauge
+titulo: running current
+valor: 18
+min: 0
+max: 30
+faixa: 0 | 20 | verde
+faixa: 20 | 25 | amarelo
+faixa: 25 | 30 | vermelho
+unidade: A
+
+FALA: Check, check, check.
+CENA: checklist
+DESTAQUE: Check,
+titulo: install day
+item: Unit installed | ok
+item: Readings flowing | ok
+item: Homeowner app | nao
+
+FALA: The report opens.
+CENA: relatorio
+DESTAQUE: report
+titulo: SYSTEM REPORT 2026
+para: The Johnson family
+secao: The year | 365 days monitored ; running normally
+secao: Seasons | Spring 19 ; Summer 18 ; Fall 19 ; Winter 20
+secao: What we did | Jun 11 call ; Jun 13 visit
+rodape: Your plan renews January 15
+
+FALA: The form fills itself.
+CENA: formulario
+DESTAQUE: form
+titulo: Get started
+campo: Name | Mike
+campo: Company | Ridge Air
+campo: Systems per year | 300
+botao: Send
+
+FALA: The flow from signal to call.
+CENA: fluxo
+DESTAQUE: flow
+TRANSICAO: flash
+etapa: sinal | Signal
+etapa: alerta | Alert
+etapa: escritorio | Office
+etapa: telefone | Call
+etapa: tecnico | Visit
+ativo: 2
+
+FALA: And the device itself.
+CENA: guardian3d
+DESTAQUE: device
+CAMERA: subir
+sinal: supply | 56°F
+sinal: return | 75°F
+sinal: current | 18.2 A
+rotulo: ILLUSTRATION

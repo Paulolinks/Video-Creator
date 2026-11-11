@@ -13,7 +13,7 @@ from pathlib import Path
 from flask import Flask, abort, jsonify, request, send_file, send_from_directory
 from werkzeug.utils import secure_filename
 
-from core import canais, capa, estilos, gdrive, jobs, library, metadados, recorte
+from core import biblioteca_animacoes, canais, capa, estilos, gdrive, jobs, library, metadados, recorte
 from core.parser import SCRIPT_EXT
 
 APP = Path(__file__).resolve().parent
@@ -408,6 +408,44 @@ def parar_video(bid, vid):
     except ValueError as exc:
         return err(str(exc))
     return jsonify({"ok": True})
+
+
+@app.get("/api/animacoes")
+def animacoes():
+    return jsonify(biblioteca_animacoes.estado())
+
+
+@app.post("/api/animacoes")
+def enviar_animacoes():
+    """A file with new animations: the app tests each one, renders a sample video and adds it to its library."""
+    textos = []
+    for f in request.files.getlist("arquivos"):
+        raw = f.read()
+        try:
+            textos.append(raw.decode("utf-8-sig"))
+        except UnicodeDecodeError:
+            textos.append(raw.decode("cp1252", errors="replace"))
+    try:
+        biblioteca_animacoes.aprender(textos)
+    except ValueError as exc:
+        return err(str(exc))
+    return jsonify(biblioteca_animacoes.estado())
+
+
+@app.post("/api/lotes/<bid>/videos/<vid>/velocidade")
+def velocidade_video(bid, vid):
+    try:
+        jobs.set_speed(secure_filename(bid), vid, (request.get_json(force=True) or {}).get("fator", 1))
+    except (ValueError, TypeError, StopIteration) as exc:
+        return err(str(exc) or "Vídeo não encontrado.")
+    return jsonify({"ok": True})
+
+
+@app.post("/api/lotes/<bid>/cancelar")
+def cancelar_lote(bid):
+    if not (jobs.BATCHES / secure_filename(bid) / "lote.json").exists():
+        abort(404)
+    return jsonify({"cancelados": jobs.cancel_batch(secure_filename(bid))})
 
 
 @app.post("/api/fila/pausar")

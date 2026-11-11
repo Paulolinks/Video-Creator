@@ -24,6 +24,7 @@ from PIL import Image
 from compor_entrevista import FONTS, Waveform, prepare_background, read_wav, run, write_ass
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "smart_motion"))
 import smart_motion  # noqa: E402
+import cenas_animadas  # noqa: E402
 
 NVENC_TEMP = ["-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr", "-cq", "14", "-b:v", "0", "-pix_fmt", "yuv420p"]
 X264_TEMP = ["-c:v", "libx264", "-preset", "veryfast", "-crf", "14", "-pix_fmt", "yuv420p"]
@@ -220,11 +221,15 @@ def compose(tpl, roteiro, work, out):
                           round(seconds, 3), enc_args], sort_keys=True, default=str)
         return hashlib.sha1(raw.encode()).hexdigest()
 
+    animadas = [i for i, sc in enumerate(scenes) if sc.get("animacao")]
+    avisos = cenas_animadas.renderizar(tpl, [(scenes[i], jobs[i][5], jobs[i][4]) for i in animadas], work / "cenas", "centro",
+                                       lambda sc: align[sc["id"]]["words"])
+    cenas_animadas.guardar_avisos(work, avisos)
     keys = [clip_key(j) for j in jobs]
     todo = [i for i, (clip, key) in enumerate(zip(clips, keys))
-            if not (clip.exists() and clip.with_suffix(".key").exists()
-                    and clip.with_suffix(".key").read_text(encoding="utf-8") == key)]
-    for i in set(range(len(jobs))) - set(todo):
+            if i not in animadas and not (clip.exists() and clip.with_suffix(".key").exists()
+                                          and clip.with_suffix(".key").read_text(encoding="utf-8") == key)]
+    for i in set(range(len(jobs))) - set(todo) - set(animadas):
         stages[f"render_{scenes[i]['id']}_s"] = "reaproveitada"
     for i in todo:  # a clip being redrawn is not valid until its key is written again
         clips[i].with_suffix(".key").unlink(missing_ok=True)

@@ -34,26 +34,26 @@
   ],
   "fila_poses": {
     "fila": [
-      "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte_3.png",
-      "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte_5.png",
-      "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte.png"
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte_3.png"
     ],
     "usados": [
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte_2.png",
       "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte_4.png",
-      "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte_2.png"
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte.png",
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte_5.png"
     ],
-    "ultimo": "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte_2.png"
+    "ultimo": "D:\\Video-Creator\\app\\data\\personagens\\paulo_maquiavel\\recorte_5.png"
   },
   "fila_fundos": {
     "fila": [
-      "paulo_maquiavel_21849_322234096",
       "paulo_maquiavel_207982",
       "paulo_maquiavel_159948_820010982",
-      "paulo_maquiavel_352584"
+      "paulo_maquiavel_204243_923909579"
     ],
     "usados": [
+      "paulo_maquiavel_352584",
       "paulo_maquiavel_111280_690770681",
-      "paulo_maquiavel_204243_923909579",
+      "paulo_maquiavel_21849_322234096",
       "biblioteca_a_luz_de_velas_1"
     ],
     "ultimo": "biblioteca_a_luz_de_velas_1"
@@ -64,5 +64,5 @@
     "dark_background"
   ],
   "musicas_manual": true,
-  "musica_indice": 24
+  "musica_indice": 49
 }

@@ -45,3 +45,16 @@ Cores: azul, laranja, verde, vermelho, cinza, amarelo.
 `estudio.bat` abre o Remotion Studio no navegador.
 
 Licença do Remotion: grátis para pessoa física e empresa de até 3 pessoas (remotion.dev/license).
+
+
+## Variação visual (rodízio) e biblioteca de animações
+
+Cada vídeo sai com tema, estilo de texto, transições, câmera e capa diferentes, sem precisar escrever nada no roteiro.
+O histórico fica em `rodizio.json` (evita repetir tema e capa dos últimos 3 vídeos). `RODIZIO: nao` no roteiro volta ao visual antigo.
+
+- Temas: claro, noite, blueprint, papel, terminal, alerta.
+- Texto: topo, centro, baixo, palavra, caixa.
+- Transições: blocos, deslizar, zoom, cortina, circulo, flash, mista.
+- Capas: gigante, numero, pergunta, alerta, produto, dividida, moldura, faixas. `node scripts/gerar.mjs dia01 --so-capa` gera só a capa.
+- Cenas: as 12 originais mais celular, mapapins, painel, linha, linhadotempo, comparar, medidor, checklist, relatorio, formulario, fluxo, guardian3d.
+- Animação nova: bloco `CODIGO: nome` ... `FIM_CODIGO` no roteiro. Ela é testada, guardada em `src/custom/` e listada em `biblioteca.md`. A que falhar vai para `src/custom/_quebradas/` e a fala usa `frase`.

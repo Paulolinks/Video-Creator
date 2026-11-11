@@ -10,6 +10,8 @@ MODE / NARRATION / IMAGE; TITLE / SUBTITLE / FORMAT; END). The language ("pt" or
 LANGUAGE:/IDIOMA: line, or is detected from the words of the text, and decides how the voice reads it.
 Animation markers inside the spoken text ([CONTADOR: ...], [BARRAS: ...], [FLUXO: ...], [CARDS: ...],
 [DESTAQUE: ...]) are removed from the text (never spoken) and kept per scene in "animacoes" (Smart Motion).
+A scene of the character templates can also be a full-screen animation of the animation engine: an "ANIMACAO: nome"
+block with its fields under it, or a [JORNADA: ...] marker. It is kept in scene["animacao"].
 """
 import io
 import re
@@ -19,13 +21,24 @@ from pathlib import Path
 
 from pypdf import PdfReader
 
+from .biblioteca_animacoes import custom_scenes
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "VIDEO_CREATOR_LAB" / "smart_motion"))
 import marcacoes  # noqa: E402  (stdlib only: markers + spoken numbers)
 
 TEMPLATES = {"T02": "Entrevista com mentor", "F01": "Personagem falando", "A01": "Só animação"}
 # "Só animação" (A01): each block starts with "FALA: ..." and names its animation in "CENA: <tipo>"
 CENAS_ANIMACAO = {"contador", "tabela", "console", "contato", "termostato", "busca", "barras", "produto", "comentario",
-                  "mapa", "imagem", "frase"}
+                  "mapa", "imagem", "frase", "celular", "mapapins", "painel", "linha", "linhadotempo", "comparar",
+                  "medidor", "checklist", "relatorio", "formulario", "fluxo", "guardian3d", "jornada"}
+# ("produto", "imagem"): the fields that name a picture sent with the script
+_FALTA_ANIMACAO = "Se for nova, envie o arquivo dela em Animações e clique em Reanalisar."
+_CAMPOS_IMAGEM = (("produto", "imagem"), ("imagem", "arquivo"), ("guardian3d", "imagem"))
+_BLOCO_ANIMACAO = re.compile(r"^(?:ANIMA[ÇC][ÃA]O|ANIMATION)\s*:\s*([\w\- ]+?)\s*$", re.M | re.I)
+_CAMPO_ANIMACAO = re.compile(r"^([\wÀ-ú]+)\s*:\s*(.*)$")
+_FIM_BLOCO_ANIMACAO = {"IMAGEM", "IMAGE", "BUSCA", "SEARCH", "NARRAÇÃO", "NARRACAO", "NARRATION"}
+_JORNADA_NA_FALA = re.compile(r"^(\s*FALA\s*:\s*)(.*?)\[\s*(?:JORNADA|JOURNEY|FUNIL|FUNNEL)\s*:\s*([^\[\]]*)\]\s*(.*)$", re.I)
+_INICIO_CODIGO, _FIM_CODIGO = re.compile(r"^\s*CODIGO\s*:", re.I), re.compile(r"^\s*FIM_CODIGO\s*$", re.I)
 _FALA = re.compile(r"^\s*FALA\s*:", re.M | re.I)
 _FORMATO_ANIMACAO = re.compile(r"^\s*(?:FORMATO|FORMAT)\s*:\s*(?:A01\b|S[ÓO][\s_]*ANIMA|ANIMA)", re.M | re.I)
 _BLOCO_NUMERADO = re.compile(r"^\s*(?:CENA|SCENE)[\s_\-]*\d+", re.M | re.I)
@@ -36,7 +49,7 @@ _CENA = r"^(?:CENA|SCENE)[\s_\-]*(\d+)\s*[|:\-–—]\s*"
 _SCENE_T02 = re.compile(_CENA + r"(?:(?:PERSONAGEM|CHARACTER|SPEAKER)\s*:\s*)?([^\n:|]+?)\s*$", re.M | re.I)
 _SCENE_F01 = re.compile(_CENA + r"(?:MODO|MODE)\s*:\s*(\w+)\s*$", re.M | re.I)
 _MODES = {"fala": "fala", "talk": "fala", "talking": "fala", "speak": "fala", "speaking": "fala",
-          "dolly": "dolly", "zoom": "zoom"}
+          "dolly": "dolly", "zoom": "zoom", "animacao": "animacao", "animação": "animacao", "animation": "animacao"}
 # end of the script: "FIM"/"END", the framework's technical section, the post description, or a numbered
 # section heading such as "3. Descrição sugerida para publicação" that ChatGPT adds after the scenes
 _STOP = re.compile(r"^(FIM\b.*|END\b.*|PADR[ÃA]O FIXO.*|POST DESCRIPTION.*|DESCRI[ÇC][ÃA]O DO POST.*|METADADOS\b.*|"
@@ -177,6 +190,20 @@ def _header(head):
     return info
 
 
+def _jornada_na_fala(line):
+    """A01: "FALA: [JORNADA: ...] text" becomes the engine's own lines (FALA, CENA: jornada, titulo, etapa...)."""
+    m = _JORNADA_NA_FALA.match(line)
+    if not m:
+        return line
+    try:
+        cena = marcacoes.jornada_para_cena(marcacoes.montar("journey", [c.strip() for c in m.group(3).split("|")]))
+    except ValueError:
+        return f"{m.group(1)}{m.group(2)}{m.group(4)}"  # no steps to draw: the parser reports the scene
+    head = f"titulo: {cena['params']['titulo']}\n" if cena["params"]["titulo"] else ""
+    return (f"{m.group(1)}{m.group(2)}{m.group(4)}\nCENA: jornada\n{head}"
+            + "\n".join(f"etapa: {e}" for e in cena["params"]["etapa"]))
+
+
 def animation_source(path):
     """An A01 script as the animation engine reads it. Not read_text(): that strips the '#' of comment lines."""
     path = Path(path)
@@ -188,15 +215,27 @@ def animation_source(path):
             text = raw.decode("utf-8-sig")
         except UnicodeDecodeError:
             text = raw.decode("cp1252")
-    text = "\n".join(x.replace("**", "").replace("`", "") for x in text.splitlines())
+    lines, in_code = [], False
+    for x in text.splitlines():  # the code of a new animation goes to the engine exactly as it was written
+        if _INICIO_CODIGO.match(x):
+            in_code = True
+        lines.append(x if in_code else _jornada_na_fala(x.replace("**", "").replace("`", "")))
+        if _FIM_CODIGO.match(x):
+            in_code = False
+    text = "\n".join(lines)
     meta = _META_START.search(text)
     return text[:meta.start()] if meta else text
 
 
 def _parse_animation(source, result):
-    head, cenas, cur = {}, [], None
+    head, cenas, cur, in_code = {}, [], None, False
     for raw in source.splitlines():
         line = raw.strip()
+        if _INICIO_CODIGO.match(line):
+            in_code = True
+        if in_code:
+            in_code = not _FIM_CODIGO.match(line)
+            continue
         if not line or line.startswith("#") or ":" not in line:
             continue
         key, value = (x.strip() for x in line.split(":", 1))
@@ -208,7 +247,9 @@ def _parse_animation(source, result):
             head[key] = value
         elif key == "cena":
             cur["cena"] = value.lower()
-        elif (cur["cena"], key) in (("produto", "imagem"), ("imagem", "arquivo")):
+        elif key == "etapa":
+            cur.setdefault("etapas", []).append(value)
+        elif (cur["cena"], key) in _CAMPOS_IMAGEM:
             cur["imagens"].append(value)
     result.update(template="A01", titulo=head.get("titulo") or head.get("título") or "", cenas=cenas,
                   personagens=[head["voz"].upper()] if head.get("voz") else [], avisos_animacao=[])
@@ -217,13 +258,65 @@ def _parse_animation(source, result):
     holes = sorted(set(_PLACEHOLDER.findall(" ".join(c["text"] for c in cenas))))
     if holes:
         result["problemas"].append(f"Campos do modelo não preenchidos: {', '.join(holes[:4])}. Troque pelo texto real.")
+    known = CENAS_ANIMACAO | {s["nome"] for s in custom_scenes()}
     for c in cenas:
         if not c["text"]:
             result["problemas"].append(f"{c['id']} sem texto de fala.")
-        if c["cena"] not in CENAS_ANIMACAO:
-            result["problemas"].append(f"{c['id']}: animação '{c['cena']}' não existe. Use uma destas: "
-                                       f"{', '.join(sorted(CENAS_ANIMACAO))}.")
+        if c["cena"] not in known:
+            result["problemas"].append(f"{c['id']}: animação '{c['cena']}' não existe. {_FALTA_ANIMACAO} Disponíveis: "
+                                       f"{', '.join(sorted(known))}.")
+        if c["cena"] == "jornada":
+            _check_journey(c, c.get("etapas", []), result)
     return result
+
+
+def _check_journey(scene, etapas, result):
+    problem, notes = marcacoes.checar_jornada(etapas, scene["text"])
+    label = scene["id"].replace("_", " ").title()
+    if problem:
+        result["problemas"].append(f"{label}: {problem}")
+    result["avisos_animacao"] += [f"{label}: {n}" for n in notes]
+
+
+def _scene_animation(body):
+    """A character-template scene's text -> (text without the "ANIMACAO: nome" block, {cena, params} or None).
+    The block ends at the first blank line, or at a line that is not "field: value"."""
+    m = _BLOCO_ANIMACAO.search(body)
+    if not m:
+        return body, None
+    lines = body[m.end():].lstrip("\r\n").split("\n")
+    params, used = {}, 0
+    for line in lines:
+        field = _CAMPO_ANIMACAO.match(line.strip())
+        if not field or field.group(1).upper() in _FIM_BLOCO_ANIMACAO:
+            break
+        key, value = field.group(1).lower(), field.group(2).strip()
+        params[key] = [*params[key], value] if isinstance(params.get(key), list) else [params[key], value] if key in params else value
+        used += 1
+    rest = "\n".join(lines[used:])
+    return f"{body[:m.start()]}\n{rest}", {"cena": m.group(1).strip().lower(), "params": params}
+
+
+def _check_scene_animations(result):
+    """The animation scenes of a character template: known name, journey steps, pictures to send with the script."""
+    known = CENAS_ANIMACAO | {s["nome"] for s in custom_scenes()}
+    for c in result["cenas"]:
+        anim = c.get("animacao")
+        if c.get("mode") == "animacao" and not anim:
+            n = c["id"].replace("_", " ").title()
+            result["problemas"].append(f"{n} está no MODO ANIMACAO, mas não tem [JORNADA: ...] na narração nem a linha ANIMACAO: nome.")
+        if not anim:
+            continue
+        if anim["cena"] not in known:
+            result["problemas"].append(f"{c['id']}: animação '{anim['cena']}' não existe. {_FALTA_ANIMACAO} Disponíveis: "
+                                       f"{', '.join(sorted(known))}.")
+        c["imagens"] = [str(v) for (name, field) in _CAMPOS_IMAGEM if name == anim["cena"]
+                        for v in ([anim["params"][field]] if field in anim["params"] else [])]
+        if anim["cena"] == "jornada":
+            e = anim["params"].get("etapa", [])
+            _check_journey(c, [e] if isinstance(e, str) else e, result)
+
+
 
 
 def _is_animation(source):
@@ -261,15 +354,16 @@ def parse_script(path):
         for i, m in enumerate(t02):
             end = t02[i + 1].start() if i + 1 < len(t02) else len(text)
             name = _clean(m.group(2)).upper()
-            body = text[m.end():end].strip()
-            body = re.sub(rf"^{re.escape(name)}\s*:\s*", "", body, flags=re.I)  # "NOME: fala"
-            result["cenas"].append({"id": f"CENA_{int(m.group(1)):02}", "personagem": name, "text": _clean(body)})
+            body, anim = _scene_animation(text[m.end():end].strip())
+            body = re.sub(rf"^{re.escape(name)}\s*:\s*", "", body.strip(), flags=re.I)  # "NOME: fala"
+            result["cenas"].append({"id": f"CENA_{int(m.group(1)):02}", "personagem": name, "text": _clean(body),
+                                    "animacao": anim})
         result["personagens"] = list(dict.fromkeys(c["personagem"] for c in result["cenas"]))
     elif "PERSONAGEM_FALANDO" in fmt or "CHARACTER_TALKING" in fmt or f01:
         result["template"] = "F01"
         for i, m in enumerate(f01):
             end = f01[i + 1].start() if i + 1 < len(f01) else len(text)
-            body = text[m.end():end]
+            body, anim = _scene_animation(text[m.end():end])
             narr = re.search(r"(?:NARRA[ÇC][ÃA]O|NARRATION)\s*:\s*(.*?)(?=^IMAGE[M]?\s*:|^(?:BUSCA|SEARCH)\s*:|\Z)",
                              body, re.S | re.M | re.I)
             img = re.search(r"^IMAGE[M]?\s*:\s*(.*?)(?=^(?:BUSCA|SEARCH)\s*:|\Z)", body, re.S | re.M | re.I)
@@ -278,10 +372,11 @@ def parse_script(path):
             result["cenas"].append({"id": f"CENA_{int(m.group(1)):02}", "mode": _MODES.get(mode, mode),
                                     "text": _clean(narr.group(1)) if narr else "",
                                     "descricao_imagem": _clean(img.group(1)) if img else "",
-                                    "busca": _clean(busca.group(1)) if busca else ""})
+                                    "busca": _clean(busca.group(1)) if busca else "", "animacao": anim})
         if info["personagem"]:
             result["personagens"] = [info["personagem"].upper()]
     result["avisos_animacao"] = _animations(result["cenas"])
+    _check_scene_animations(result)
     if not result["template"]:
         result["problemas"].append("Não identifiquei o template: o roteiro precisa da linha FORMATO e dos blocos "
                                    "CENA 01 | PERSONAGEM: ... (Entrevista) ou CENA 01 | MODO: ... (Personagem falando).")
@@ -297,8 +392,8 @@ def parse_script(path):
     for c in result["cenas"]:
         if not c["text"]:
             result["problemas"].append(f"{c['id']} sem texto de fala.")
-        if c.get("mode") and c["mode"] not in ("fala", "dolly", "zoom"):
-            result["problemas"].append(f"{c['id']}: modo '{c['mode']}' desconhecido (use FALA, DOLLY ou ZOOM).")
+        if c.get("mode") and c["mode"] not in ("fala", "dolly", "zoom", "animacao"):
+            result["problemas"].append(f"{c['id']}: modo '{c['mode']}' desconhecido (use FALA, DOLLY, ZOOM ou ANIMACAO).")
     return result
 
 
@@ -312,6 +407,9 @@ def _animations(scenes):
         warnings += [f"{label}: {n}" for n in notes]
         kept = []
         for a in anims:
+            if a["tipo"] == "journey":
+                c["animacao"] = c.get("animacao") or marcacoes.jornada_para_cena(a["payload"])
+                continue
             missing = marcacoes.checar_no_texto(a, c["text"])
             if missing:
                 vals = ", ".join(f"{v:,.0f}".replace(",", ".") if v == int(v) else str(v) for v in missing)
@@ -319,6 +417,13 @@ def _animations(scenes):
                                 "desta cena (escreva o número por extenso na fala).")
             else:
                 kept.append(a)
+        if c.get("animacao"):
+            if kept:
+                warnings.append(f"{label}: a animação ocupa a tela toda, então as outras marcações desta cena foram removidas.")
+                kept = []
+            if c.get("mode") not in (None, "animacao"):
+                warnings.append(f"{label} virou MODO ANIMACAO por causa da animação marcada nela.")
+                c["mode"] = "animacao"
         c["animacoes"] = kept
     return warnings
 

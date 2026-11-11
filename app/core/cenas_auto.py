@@ -239,7 +239,7 @@ def complete(video, folder, W, H):
     poses = Fila(ch, "fila_poses", library.images(ch)) if ch else None
     bgs = Fila(ch, "fila_fundos", _bg_pool(ch), key=lambda b: b["id"]) if ch else None
     for i, c in enumerate(video["cenas"]):
-        if imgs[i] and Path(imgs[i]).exists():
+        if (imgs[i] and Path(imgs[i]).exists()) or c["mode"] == "animacao":  # the animation engine draws that scene
             continue
         out = folder / f"cena{i + 1}.jpg"
         if c["mode"] == "fala":

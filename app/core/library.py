@@ -327,6 +327,23 @@ def logos():
     return _items(LOGOS)
 
 
+def animation_music():
+    """The animation template's own tracks, oldest first: a new one joins at the end of the rotation."""
+    return sorted((m for m in music() if "animacao" in (m.get("temas") or [])),
+                  key=lambda m: (m.get("criado_em", ""), m["nome"]))
+
+
+def next_animation_music():
+    """Each new animation video takes the next track and the turn survives between batches; after the last, the first."""
+    pool = animation_music()
+    if not pool:
+        return None
+    state = DATA / "rodizio_animacao.json"
+    idx = (_read(state)["indice"] if state.exists() else 0) % len(pool)
+    _write(state, {"indice": idx + 1})  # not wrapped here: a track added after the last one played is next
+    return pool[idx]
+
+
 def unique_name(kind, nome):
     """A media name whose id is free (the id comes from the name: equal names used to overwrite each other)."""
     base, n, cand = nome.strip(), 2, nome.strip()

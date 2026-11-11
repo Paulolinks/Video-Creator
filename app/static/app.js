@@ -531,7 +531,7 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
   const musicaEscolhida = b.videos.some((v) => v.template !== "A01" && (v.personagens || []).some((p) =>
     LIB.personagens.find((c) => c.id === v.personagens_status?.[p])?.musicas_manual));
   const soAnimacao = b.videos.some((v) => v.template === "A01") && musicasAnimacao().length;
-  musicSel.value = musicaEscolhida ? "personagem" : soAnimacao ? "animacao" : "nenhuma";
+  musicSel.value = musicaEscolhida ? "personagem" : soAnimacao ? (musicSel.dataset.tocado ? musicSel.value : "animacao") : "nenhuma";
   syncVolume();
   const chars = [...new Set(b.videos.filter((v) => v.template === "T02").flatMap((v) => v.personagens))]
     .map((p) => [p, LIB.personagens.find((c) => c.id === b.videos.find((v) => v.personagens_status?.[p])?.personagens_status[p])])
@@ -543,7 +543,7 @@ function renderBatch(b) {  // refreshes the popup; upload() is what opens it
   $$(".chk").forEach((c) => (c.onchange = syncStart));
 }
 $("#chk-all").onchange = (e) => { $$(".chk:not(:disabled)").forEach((c) => (c.checked = e.target.checked)); syncStart(); };
-$("#opt-musica").onchange = syncVolume;
+$("#opt-musica").onchange = (e) => { e.target.dataset.tocado = "1"; syncVolume(); };
 $("#opt-volume").oninput = (e) => ($("#vol-val").textContent = `${e.target.value}%`);
 $("#vol-wrap").classList.add("hide");
 
@@ -827,7 +827,7 @@ function syncAnimacao() {
   $("#btn-avancadas").classList.toggle("hide", so);
   $("#avancadas").classList.toggle("hide", !so);
   mostrarOpcoesAnimacao(so || BATCH?.videos.some((v) => v.template === "A01"));
-  if (so && !BATCH && musicasAnimacao().length) { $("#opt-musica").value = "animacao"; syncVolume(); }
+  preencherMusicas();
 }
 function mostrarOpcoesAnimacao(sim) {
   $("#card-logo").classList.toggle("hide", !sim);
@@ -837,12 +837,16 @@ function musicasAnimacao() { return (LIB.musicas || []).filter((m) => (m.temas |
 function syncVolume() { $("#vol-wrap").classList.toggle("hide", $("#opt-musica").value === "nenhuma"); }
 function preencherMusicas() {  // filled as soon as the library loads: the list doesn't wait for a script
   const sel = $("#opt-musica"), atual = sel.value, anim = musicasAnimacao(), vazia = LIB.musicas.length ? "" : "disabled";
+  const ehAnim = (v) => v.template === "A01";
+  const so = BATCH ? BATCH.videos.every(ehAnim) : MODO === "placa" && TEMPLATE === "A01";  // only this template's tracks
+  if (!so) delete sel.dataset.tocado;
   sel.innerHTML = `<option value="nenhuma">Sem música</option>
-    ${anim.length ? `<option value="animacao">Músicas enviadas para a animação (${anim.length}, sorteia uma por vídeo)</option>` : ""}
-    <option value="personagem" ${vazia}>Música do personagem (rodízio, combina com ele)</option>
-    <option value="aleatoria" ${vazia}>Aleatória da biblioteca (uma por vídeo)</option>
-    ${LIB.musicas.map((m) => `<option value="${m.id}">${esc(m.nome)}</option>`).join("")}`;
+    ${anim.length && (so || BATCH?.videos.some(ehAnim)) ? `<option value="animacao">Rodízio das músicas (${anim.length}): uma diferente em cada vídeo</option>` : ""}
+    ${so ? "" : `<option value="personagem" ${vazia}>Música do personagem (rodízio, combina com ele)</option>
+    <option value="aleatoria" ${vazia}>Aleatória da biblioteca (uma por vídeo)</option>`}
+    ${(so ? anim : LIB.musicas).map((m) => `<option value="${m.id}">${esc(m.nome)}</option>`).join("")}`;
   if ([...sel.options].some((o) => o.value === atual)) sel.value = atual;
+  if (so && anim.length && sel.value === "nenhuma" && !sel.dataset.tocado) sel.value = "animacao";
   syncVolume();
 }
 $("#in-musica").onchange = async (e) => {
@@ -1053,10 +1057,14 @@ function busy(text) {  // locks the screen during long tasks so nothing is click
   $("#loading").classList.toggle("hide", !text);
 }
 
+const VEL = {};  // speed being chosen (card "bid/vid" or batch "bid"), kept while the list redraws
+const velTxt = (x) => `${x.toFixed(2)}×`;
+const velPasso = (x, d) => Math.min(1.5, Math.max(0.75, Math.round((x + d) * 100) / 100));
+
 function cardSig(v) {  // a card is redrawn only when this changes, so typing and playback are never interrupted
   if (v.status !== "pronto") return JSON.stringify([v.status, v.etapa, v.passos_feitos, v.erro, Math.floor(Date.now() / 5000)]);
   return JSON.stringify([v.status, v.apagado, v.drive?.video_id, v.metadados?.atualizado, v.capa_no_video,
-    v.drive_etapa, v.drive_erro]);
+    v.drive_etapa, v.drive_erro, v.velocidade]);
 }
 
 function cardHTML(b, v) {
@@ -1076,7 +1084,8 @@ function cardHTML(b, v) {
   const poster = v.capa ? `${media(v.capa)}&t=${Math.round(v.fim || 0)}` : "";
   const thumb = v.apagado
     ? `<div class="vthumb gone">${poster ? `<img src="${poster}" alt="" onerror="this.remove()">` : ""}<span>Vídeo apagado</span></div>`
-    : `<div class="vthumb ${v.formato === "horizontal" ? "h" : ""}"><video controls preload="none" playsinline ${poster ? `poster="${poster}"` : ""} src="${media(v.saida)}"></video></div>`;
+    : `<div class="vthumb ${v.formato === "horizontal" ? "h" : ""}"><video controls preload="none" playsinline ${poster ? `poster="${poster}"` : ""} src="${media(v.saida)}&s=${v.velocidade || 1}"></video></div>`;
+  const vel = VEL[key] ?? (v.velocidade || 1);
   return `<div class="vcard" data-key="${key}" data-bid="${b.id}" data-vid="${v.id}">${thumb}
     <div class="vinfo">
       <div class="vtags"><span class="chip ${v.template === "T02" ? "t02" : "t01"}">${esc(v.template_nome)}</span>
@@ -1095,6 +1104,10 @@ function cardHTML(b, v) {
       ${vozInfo(v)}
       ${v.ritmo ? `<div class="small muted" title="Tabela em app/data/ritmos.json">⏱️ Ritmo: ${esc(v.ritmo.nome)} (${Number(v.ritmo.fator).toFixed(2)}×)</div>` : ""}
       ${v.musica_credito ? `<div class="small muted">Crédito da música: ${esc(v.musica_credito)}</div>` : ""}
+      ${v.apagado ? "" : `<div class="vacts" title="Ouça no player com + e −, depois salve. Sempre parte do vídeo original: 1.00× volta ao original.">
+        <span class="small">⏩ Velocidade</span><button class="btn ghost small" data-act="vel-menos">−</button>
+        <b class="vel-val">${velTxt(vel)}</b><button class="btn ghost small" data-act="vel-mais">+</button>
+        <button class="btn ghost small" data-act="vel-salvar">💾 Salvar velocidade</button></div>`}
       <div class="vacts">
         <button class="btn small" data-act="novo" title="Refazer a descrição e as hashtags com a IA (substitui o que está escrito)">🆕 Novo</button>
         <button class="btn ghost small" data-act="salvar">💾 Salvar</button>
@@ -1120,6 +1133,10 @@ function batchHead(b, vids) {
     <span>· ${ready.length} de ${vids.length} prontos ${b.opcoes?.musica && b.opcoes.musica !== "nenhuma" ? "· com música" : ""}</span>
     ${sentChip}</h2>
     <div class="lote-acts">
+      ${ready.length ? `<span class="small" title="Muda a velocidade de todos os vídeos prontos deste lote">⏩</span>
+        <button class="btn ghost small" data-lote-act="vel-menos">−</button><b class="vel-val">${velTxt(VEL[b.id] ?? 1.1)}</b>
+        <button class="btn ghost small" data-lote-act="vel-mais">+</button>
+        <button class="btn ghost small" data-lote-act="vel-salvar">Aplicar no lote</button>` : ""}
       <button class="btn ghost small" data-lote-act="metadados" ${ready.length ? "" : "disabled"}>🤖 Gerar metadados</button>
       <button class="btn small" data-lote-act="enviar" ${files ? "" : "disabled"}>${toSend
         ? `☁️ Enviar para o Drive (${toSend})` : "☁️ Enviar de novo para o Drive"}</button>
@@ -1127,7 +1144,9 @@ function batchHead(b, vids) {
         <option value="">🔀 Mudar de canal…</option>${CANAIS.filter((c) => c.id !== canalDe(b))
           .map((c) => `<option value="${esc(c.id)}">${esc(c.nome)}</option>`).join("")}</select>` : ""}
       <button class="btn danger small" data-lote-act="apagar" ${files ? "" : "disabled"} title="Apaga só os .mp4; capas, metadados e projetos ficam">🗑️ Apagar vídeos</button>
-      <button class="btn danger small" data-lote-act="apagar-lote" ${vids.some((v) => ["na_fila", "gerando"].includes(v.status)) ? "disabled" : ""} title="Apaga a pasta inteira do lote">✖ Apagar lote completo</button>
+      ${vids.some((v) => ["na_fila", "gerando"].includes(v.status))
+        ? '<button class="btn danger small" data-lote-act="cancelar-lote" title="Para o vídeo que está sendo criado e tira os outros da fila; os prontos ficam">⏹ Parar e cancelar lote</button>'
+        : '<button class="btn danger small" data-lote-act="apagar-lote" title="Apaga a pasta inteira do lote">✖ Apagar lote completo</button>'}
     </div>`;
 }
 
@@ -1206,7 +1225,23 @@ $("#fila").addEventListener("click", async (e) => {
       const card = btn.closest(".vcard");
       const url = `/api/lotes/${card.dataset.bid}/videos/${card.dataset.vid}`;
       const act = btn.dataset.act;
-      if (act === "novo") {
+      if (act === "vel-menos" || act === "vel-mais") {  // preview in the player; nothing is saved yet
+        const key = `${card.dataset.bid}/${card.dataset.vid}`;
+        VEL[key] = velPasso(VEL[key] ?? parseFloat($(".vel-val", card).textContent), act === "vel-mais" ? 0.05 : -0.05);
+        $(".vel-val", card).textContent = velTxt(VEL[key]);
+        const player = $("video", card), salvo = parseFloat(new URL(player.src, location.href).searchParams.get("s") || "1");
+        player.preservesPitch = true;
+        player.playbackRate = VEL[key] / salvo;
+        return;
+      }
+      if (act === "vel-salvar") {
+        const key = `${card.dataset.bid}/${card.dataset.vid}`, fator = VEL[key] ?? parseFloat($(".vel-val", card).textContent);
+        $("video", card)?.removeAttribute("src");
+        cardMsg(card, `Salvando o vídeo em ${velTxt(fator)}…`);
+        await api(`${url}/velocidade`, json("POST", { fator }));
+        delete VEL[key];
+        concluido(`Velocidade salva: ${velTxt(fator)}`);
+      } else if (act === "novo") {
         if (($(".m-descricao", card).value.trim() || $(".m-hashtags", card).value.trim()) &&
           !confirm("Gerar novos metadados com a IA? A descrição e as hashtags que estão escritas serão substituídas.")) return;
         const id = `meta-${card.dataset.bid}-${card.dataset.vid}`;
@@ -1238,7 +1273,27 @@ $("#fila").addEventListener("click", async (e) => {
     } else {
       const sec = btn.closest(".lote-fila"), bid = sec.dataset.bid;
       const act = btn.dataset.loteAct;
-      if (act === "metadados") {  // fills what is missing; when nothing is missing, offers to redo all
+      if (act === "vel-menos" || act === "vel-mais") {
+        VEL[bid] = velPasso(VEL[bid] ?? 1.1, act === "vel-mais" ? 0.05 : -0.05);
+        $(".lote-acts .vel-val", sec).textContent = velTxt(VEL[bid]);
+        return;
+      }
+      if (act === "vel-salvar") {
+        const fator = VEL[bid] ?? 1.1;
+        const vids = (await api(`/api/lotes/${bid}`)).videos.filter((v) => v.status === "pronto" && !v.apagado);
+        const enviados = vids.filter((v) => v.drive?.video_id).length;
+        if (!confirm(`Deixar os ${vids.length} vídeo(s) prontos deste lote em ${velTxt(fator)}?\n\nA conta parte do vídeo original ` +
+          "(1.00× volta ao original)." + (enviados ? `\n\n${enviados} já estão no Drive: depois, envie de novo para o Drive.` : ""))) return;
+        $$("video", sec).forEach((el) => el.removeAttribute("src"));
+        const id = `vel-${bid}`;
+        try {
+          for (const [i, v] of vids.entries()) {
+            tarefa(id, { titulo: `Mudando a velocidade ${i + 1} de ${vids.length}`, detalhe: v.titulo || v.arquivo, pct: (100 * i) / vids.length, ir: "fila" });
+            await api(`/api/lotes/${bid}/videos/${v.id}/velocidade`, json("POST", { fator }));
+          }
+        } finally { tarefa(id, null); }
+        concluido(`${vids.length} vídeo(s) em ${velTxt(fator)}`);
+      } else if (act === "metadados") {  // fills what is missing; when nothing is missing, offers to redo all
         const prontos = (await api(`/api/lotes/${bid}`)).videos.filter((v) => v.status === "pronto");
         const vazio = (v) => !(v.metadados?.descricao || "").trim() || !(v.metadados?.hashtags || "").trim();
         let alvo = prontos.filter(vazio), refazer = false;
@@ -1273,6 +1328,10 @@ $("#fila").addEventListener("click", async (e) => {
           }
         } finally { tarefa(id, null); }
         concluido(`${vids.length} vídeo(s) apagados`);
+      } else if (act === "cancelar-lote") {
+        if (!confirm("Parar o vídeo que está sendo criado e tirar todos os outros da fila? Os vídeos já prontos ficam.")) return;
+        const { cancelados } = await api(`/api/lotes/${bid}/cancelar`, { method: "POST" });
+        concluido(`${cancelados} vídeo(s) cancelados`);
       } else if (act === "apagar-lote") {
         const vids = (await api(`/api/lotes/${bid}`)).videos.filter((v) => v.status === "pronto" && !v.apagado);
         const unsent = vids.filter((v) => !v.drive?.video_id).length;
@@ -1446,6 +1505,31 @@ $("#ia-salvar").onclick = async () => {
 };
 $("#modal-close").onclick = () => { $("#modal-video").pause(); $("#modal").classList.add("hide"); };
 
+async function carregarAnimacoes() {
+  const a = await api("/api/animacoes");
+  const linha = (r) => r.ok
+    ? `<div style="color:var(--ok,#4ade80)">✓ <b>${esc(r.nome)}</b> aprendida. Confira o vídeo de exemplo abaixo.</div>`
+    : `<div style="color:var(--bad)">✕ <b>${esc(r.nome)}</b> recusada: ${esc(r.erro)}</div>`;
+  $("#anim-status").innerHTML = a.rodando ? "Testando e gerando o vídeo de exemplo… (cerca de 1 minuto por animação)"
+    : a.erro ? `<div style="color:var(--bad)">${esc(a.erro)}</div>` : a.resultado.map(linha).join("");
+  $("#anim-lista").innerHTML = a.animacoes.filter((s) => s.exemplo).map((s) => `<div class="modelo card">
+    <video src="${media(s.exemplo)}&v=${s.versao}" controls playsinline preload="metadata"></video>
+    <div class="modelo-info"><h3>${esc(s.nome)}</h3><span class="small muted">Entrou em ${esc(s.entrou)}</span>
+    <span class="small">Campos: ${esc(s.campos || "nenhum")}</span></div></div>`).join("");
+  const outras = a.animacoes.filter((s) => !s.exemplo).map((s) => s.nome);
+  $("#anim-outras").textContent = outras.length ? `Também na biblioteca (sem vídeo de exemplo): ${outras.join(", ")}` : "";
+  if (a.rodando) setTimeout(carregarAnimacoes, 2500);
+}
+$("#anim-arquivo").onchange = async (e) => {
+  const fd = new FormData();
+  [...e.target.files].forEach((f) => fd.append("arquivos", f));
+  e.target.value = "";
+  try { await api("/api/animacoes", { method: "POST", body: fd }); }
+  catch (err) { $("#anim-status").innerHTML = `<div style="color:var(--bad)">${esc(err.message)}</div>`; return; }
+  carregarAnimacoes();
+};
+
+carregarAnimacoes().catch((err) => console.error("animações:", err));
 loadLib();
 loadEstilos().catch((err) => console.error("estilos:", err)).then(loadCapa);
 loadCanais().then(() => escolherCanal(CANAL));

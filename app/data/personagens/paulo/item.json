@@ -36,7 +36,7 @@
     "cidade_a_noite_1_night_in_venice",
     "cosmos_1_mesmerizing_galaxy"
   ],
-  "musica_indice": 0,
+  "musica_indice": 13,
   "imagens": [
     "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte.png",
     "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte_2.png",
@@ -49,5 +49,31 @@
   "imagem_indice": 62,
   "ultima_pose": "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte.png",
   "ultimo_fundo": "cosmos_1",
-  "fundos_manual": true
+  "fundos_manual": true,
+  "fila_poses": {
+    "fila": [
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte_7.png",
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte_5.png",
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte.png",
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte_6.png"
+    ],
+    "usados": [
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte_2.png",
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte_3.png",
+      "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte_4.png"
+    ],
+    "ultimo": "D:\\Video-Creator\\app\\data\\personagens\\paulo\\recorte_4.png"
+  },
+  "fila_fundos": {
+    "fila": [
+      "cosmos_2",
+      "egito_antigo_3",
+      "cidade_a_noite_1"
+    ],
+    "usados": [
+      "nuvens",
+      "cosmos_1"
+    ],
+    "ultimo": "cosmos_1"
+  }
 }

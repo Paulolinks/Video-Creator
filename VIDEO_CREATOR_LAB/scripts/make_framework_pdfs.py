@@ -217,6 +217,109 @@ Exemplo de cena com marcação:
 ```"""
 
 
+# --------------------------------------------------------------------------------------------- full-screen animations
+# The animation engine's scenes, usable in F01 and T02. The A01 framework is the only list of them (the app rewrites its library part).
+A01_MD = Path(r"D:\Video-Creator\app\static\modelos\Framework_A01_So_Animacao.md")
+
+
+def cenas_disponiveis():
+    rows, section = [], ""
+    for x in A01_MD.read_text(encoding="utf-8").splitlines():
+        if x.startswith("## "):
+            section = x
+        if section in ("## Cenas disponíveis", "## Biblioteca de animações") and x.startswith("| ") and not x.startswith("| CENA"):
+            c = [y.strip() for y in re.split(r"(?<!\\)\|", x)[1:-1]]
+            if c[0] != "frase":  # only the headline: these templates have their own captions
+                rows.append([c[0], c[1], c[2] if section == "## Cenas disponíveis" else "Animação da biblioteca do app."])
+    return rows
+
+
+ANIM_CENA_OBJ = ("PORTA (contato, entrada), PRESENTE (isca, brinde), ENVELOPE (e-mails), TELA (vídeo, VSL, aula), PALCO (webinário, "
+                 "live), CALENDARIO (data, lançamento), RELOGIO (prazo, urgência), CARRINHO (oferta, compra), CHAVE (acesso), ESCADA "
+                 "(próximo nível, upsell), CORACAO (fidelização, indicação), TROFEU (resultado), TELEFONE (ligação, WhatsApp), CASA "
+                 "(casa do cliente)")
+_ANIM_BLOCO = """ANIMACAO: jornada
+titulo: O caminho do cliente
+etapa: PORTA | deixa o contato
+etapa: PRESENTE | recebe a isca
+etapa: ENVELOPE | lê seus e-mails
+etapa: CARRINHO | compra"""
+_ANIM_FALA = ("Primeiro a pessoa deixa o contato. Em troca, recebe a isca. Depois lê seus e-mails por uma semana. "
+              "E só então compra, já confiando em você.")
+ANIM_CENA_EX = {
+    "F01": f"CENA 03 | MODO: ANIMACAO\nNARRAÇÃO: {_ANIM_FALA}\nIMAGEM: animação da jornada do cliente\n{_ANIM_BLOCO}",
+    "T02": f"CENA 04 | PERSONAGEM: <MENTOR>\n{_ANIM_FALA}\n{_ANIM_BLOCO}",
+}
+ANIM_CENA_INTRO = {
+    "F01": "Uma cena pode mostrar uma animação em tela cheia, sem personagem. Use <b>MODO: ANIMACAO</b> e escreva a linha <b>ANIMACAO: nome</b> "
+           "depois da narração, com os campos da animação nas linhas de baixo. A voz e a legenda continuam normais.",
+    "T02": "Uma fala pode mostrar uma animação em tela cheia no lugar do retrato. Escreva a linha <b>ANIMACAO: nome</b> depois da fala, com os "
+           "campos da animação nas linhas de baixo. A voz, o nome de quem fala e a legenda continuam normais.",
+}
+ANIM_CENA_RULES = [
+    "É opcional. No máximo 2 cenas de animação por vídeo, no meio do vídeo, para explicar um processo ou um dado.",
+    "Cada campo fica em uma linha, no formato <b>chave: valor</b>, logo abaixo de ANIMACAO:, sem linha em branco entre eles. "
+    "Campo marcado como (repetir): escreva a mesma chave em várias linhas.",
+    "Essa cena não precisa de imagem nem de BUSCA.",
+    "Na animação <b>jornada</b>, a fala tem de 20 a 45 palavras e de 2 a 5 etapas no formato <b>OBJETO | rótulo</b>. O rótulo tem de 1 a 4 "
+    "palavras, ditas na fala e na mesma ordem. Escreva uma frase curta para cada etapa (\"Primeiro... Depois... No fim...\").",
+    "Objetos da jornada: " + ANIM_CENA_OBJ + ".",
+    "Atalho só para a jornada: escreva <b>[JORNADA: título | OBJETO: rótulo | OBJETO: rótulo]</b> dentro da fala. O app faz o resto.",
+    "Se a animação usar uma imagem (campos imagem ou arquivo), envie o arquivo junto com o roteiro.",
+    "Numa cena de animação não use as marcações de Smart Motion. Só funciona no formato vertical 9:16.",
+    "Se precisar de uma animação que não está na tabela, <b>nunca coloque o código no roteiro</b>. Antes dos roteiros, entregue um bloco de código "
+    "com o arquivo <b>animacoes-novas.txt</b>, no formato abaixo, e escreva: \"Antes de subir os roteiros, suba o arquivo animacoes-novas.txt em "
+    "Animações, confira o vídeo de exemplo e só depois suba os roteiros.\" Só pode usar React, useCurrentFrame, useVideoConfig, interpolate, spring, "
+    "Easing, random, Img, staticFile, AbsoluteFill, Sequence, clamp, one, many, cells, colorOf, tagColor, font e mono, sem imports, fetch, require, "
+    "Math.random nem animação CSS. O bloco EXEMPLO traz os valores dos campos para o vídeo de teste.",
+]
+ANIM_NOVA_EX = """CODIGO: nome-da-animacao
+// campos: rotulo, cor
+// rodizio: nao
+export default function Cena({p, dur, tema}) {
+  const f = useCurrentFrame();
+  const k = interpolate(f, [0, dur], [0.9, 1.1], clamp);
+  return <div style={{position: 'absolute', top: 700, width: '100%', textAlign: 'center', fontSize: 120, color: colorOf(one(p, 'cor'), tema.blue), transform: `scale(${k})`}}>{one(p, 'rotulo')}</div>;
+}
+FIM_CODIGO
+EXEMPLO
+rotulo: 72°
+cor: azul
+FIM_EXEMPLO"""
+
+
+def anim_cena_section(modelo):
+    rows = [["Animação", "Campos", "Quando usar"]] + [[f"<b>{r[0]}</b>", escape(r[1].replace("\\|", "|").replace("`", ""), quote=False),
+                                                       escape(r[2].replace("\\|", "|").replace("`", ""), quote=False)] for r in cenas_disponiveis()]
+    return [P("Cenas de animação em tela cheia", "h2"), P(ANIM_CENA_INTRO[modelo]), code(ANIM_CENA_EX[modelo]),
+            P("Animações disponíveis", "h3"), table(rows, [30, 66, 78]), P("Regras", "h3")] + bullets(ANIM_CENA_RULES) + [P("Arquivo de animações novas", "h3"), code(ANIM_NOVA_EX)]
+
+
+def anim_cena_md(modelo):
+    limpa = lambda t: re.sub(r"<[^>]+>", "", t)  # noqa: E731
+    linhas = "\n".join(f"| {r[0]} | {r[1]} | {r[2]} |" for r in cenas_disponiveis())
+    regras = "\n".join(f"- {limpa(r)}" for r in ANIM_CENA_RULES)
+    return f"""## Cenas de animação em tela cheia
+
+{limpa(ANIM_CENA_INTRO[modelo])}
+
+```text
+{ANIM_CENA_EX[modelo]}
+```
+
+| ANIMACAO | Campos | Quando usar |
+|---|---|---|
+{linhas}
+
+{regras}
+
+Arquivo de animações novas:
+
+```text
+{ANIM_NOVA_EX}
+```"""
+
+
 # --------------------------------------------------------------------------------------------- F01
 F01_EXAMPLE = [
     {"id": "CENA_01", "mode": "fala", "image": "inputs/teste_maquiavel/cena1_maquiavel.png",
@@ -286,7 +389,8 @@ REGRAS DE ENTREGA (obrigatórias):
   seguido do bloco METADADOS (TÍTULO DO POST:, DESCRIÇÃO:, NOTA EDITORIAL: opcional, HASHTAGS: por último).
 - Use exatamente as palavras-chave do item 3: TÍTULO:, TEMA:, FORMATO:, PERSONAGEM:, SÉRIE:, EPISÓDIO:,
   "CENA 01 | MODO: FALA", NARRAÇÃO:, IMAGEM:. Escreva "CENA 01" com espaço (nunca CENA_01).
-- MODO só pode ser FALA, DOLLY ou ZOOM. Abra e feche com FALA; alterne com DOLLY/ZOOM no meio.
+- MODO só pode ser FALA, DOLLY, ZOOM ou ANIMACAO. Abra e feche com FALA; alterne com DOLLY/ZOOM no meio.
+- Cena de animação em tela cheia (opcional, no máximo 2): MODO: ANIMACAO e a linha ANIMACAO: nome, como na seção "Cenas de animação em tela cheia".
 - Nas cenas de FALA aparece o personagem cadastrado no app (as imagens dele, em rodízio).
 - Nas cenas DOLLY e ZOOM, inclua a linha BUSCA: com 2 ou 3 palavras-chave comuns em inglês (ex.: running sunrise road):
   o app usa essas palavras para buscar a foto da cena no Pixabay.
@@ -301,7 +405,7 @@ REGRAS DE ENTREGA (obrigatórias):
 def f01():
     s = [header("FORMATO 01 — PERSONAGEM FALANDO",
                 "Framework de roteiro para criar vídeos em que um personagem fala direto para a câmera.",
-                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.3 · ATUALIZADO EM 07/11/2026"), Spacer(1, 8)]
+                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.5 · ATUALIZADO EM 10/11/2026"), Spacer(1, 8)]
     s += [P("<b>Para que serve este PDF:</b> anexe este arquivo ao ChatGPT junto com o prompt do item 2. O ChatGPT "
             "devolve o roteiro em texto simples, já no formato que o Video Creator lê. Você cola esse texto no app "
             "(ou salva como .txt). As imagens das cenas são opcionais: com o personagem cadastrado, o app monta as "
@@ -324,7 +428,7 @@ def f01():
           code(F01_MODEL),
           P("Série (opcional)", "h3"),
           P("Se o vídeo faz parte de uma série, preencha <b>SÉRIE:</b> com o nome da série (coleção) e <b>EPISÓDIO:</b> com a posição e o total, no formato <b>1 de 9</b>. Com as duas linhas preenchidas, a capa mostra o nome da série e \"EPISÓDIO 1 DE 9\" acima do título. Vídeo avulso: deixe as duas linhas vazias (sem &lt;...&gt;) ou apague as duas; a capa sai no modelo normal."),
-          P("Os três modos de cena", "h3"),
+          P("Os modos de cena", "h3"),
           table([["Modo", "Quando usar", "Exigência da imagem"],
                  ["<b>FALA</b>", "O personagem fala olhando para quem assiste. Use na abertura e no fechamento.",
                   "Um rosto humano realista em destaque, de frente ou 3/4, boca visível, sem mão ou objeto na "
@@ -332,7 +436,9 @@ def f01():
                  ["<b>DOLLY</b>", "Cenas que ilustram a ideia (situações, lugares, ações) sem ninguém falando.",
                   "Cena com profundidade: primeiro plano, meio e fundo bem separados."],
                  ["<b>ZOOM</b>", "Imagens planas: símbolos, objetos isolados, gráficos sem texto.",
-                  "Qualquer imagem vertical; sem texto escrito dentro."]], [22, 70, 82]),
+                  "Qualquer imagem vertical; sem texto escrito dentro."],
+                 ["<b>ANIMACAO</b>", "Animação em tela cheia para explicar um processo ou um dado. Veja \"Cenas de animação em tela cheia\".",
+                  "Não precisa de imagem."]], [22, 70, 82]),
           P("Imagens: enviar ou deixar o app montar", "h3"),
           table([["Cena", "Se você enviar cenaN.png", "Se não enviar (automático)"],
                  ["<b>FALA</b>", "O app anima o rosto da imagem enviada.",
@@ -369,7 +475,7 @@ def f01():
               "Personagens sem rosto humano (ex.: cabeça cósmica) <b>não podem</b> usar o modo FALA: use DOLLY ou ZOOM.",
               "Nome dos arquivos: cena1.png, cena2.png... dentro da pasta do vídeo.",
               "Pode enviar só algumas: as cenas sem imagem o app monta sozinho (item 3)."])
-    s += [PageBreak()] + anim_section(5, F01_ANIM_QTD, F01_ANIM_EX)
+    s += [PageBreak()] + anim_section(5, F01_ANIM_QTD, F01_ANIM_EX) + anim_cena_section("F01")
     s += [P("6. Como enviar para o app", "h2")] + bullets([
         "Copie o bloco de código que o ChatGPT devolveu e cole em <b>Colar roteiro</b>, na página Criar vídeos "
         "(ou salve como <b>.txt</b> e arraste o arquivo).",
@@ -465,13 +571,14 @@ REGRAS DE ENTREGA (obrigatórias):
 - A DESCRIÇÃO do bloco METADADOS diz que é uma dramatização.
 - Animações: inclua de 3 a 5 marcações do item 5 ([CONTADOR: ...], [BARRAS: ...], [FLUXO: ...], [CARDS: ...] ou
   [DESTAQUE: ...]) dentro das falas, logo antes da frase certa. Números da marcação precisam ser ditos na fala.
+- Animação em tela cheia (opcional, no máximo 2): a linha ANIMACAO: nome depois da fala, como na seção "Cenas de animação em tela cheia".
 """
 
 
 def t02():
     s = [header("T02 — ENTREVISTA COM MENTOR",
                 "Framework de roteiro para conversas alternadas: você pergunta, o mentor responde.",
-                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.3 · ATUALIZADO EM 07/11/2026"), Spacer(1, 8)]
+                "VIDEO CREATOR · FRAMEWORK DE ROTEIRO · VERSÃO 1.5 · ATUALIZADO EM 10/11/2026"), Spacer(1, 8)]
     s += [P("<b>Para que serve este PDF:</b> anexe este arquivo ao ChatGPT junto com o prompt do item 2. Ele "
             "devolve o roteiro em texto simples, já no formato que o Video Creator lê. Você cola esse texto no app "
             "(ou salva como .txt). <b>Não envie este PDF ao app</b>: ele é só o modelo.")]
@@ -517,7 +624,7 @@ def t02():
                  ["Fundo", "vídeo curto em loop (ex.: nuvens)", "outro vídeo em loop (ex.: partículas douradas)"],
                  ["Voz", "Chatterbox, clone da voz do Paulo", "Kokoro, voz genérica (pm_santa ou pm_alex)"]],
                 [26, 74, 74])]
-    s += [PageBreak()] + anim_section(5, T02_ANIM_QTD, T02_ANIM_EX)
+    s += [PageBreak()] + anim_section(5, T02_ANIM_QTD, T02_ANIM_EX) + anim_cena_section("T02")
     s += [P("6. Como enviar para o app", "h2")] + bullets([
         "Copie o bloco de código que o ChatGPT devolveu e cole em <b>Colar roteiro</b>, na página Criar vídeos "
         "(ou salve como <b>.txt</b> e arraste o arquivo).",
@@ -594,6 +701,8 @@ Para começar, peça: MENTOR, TEMA DA CONVERSA, NÚMERO DE CENAS (4 a 8) e pergu
 
 {anim_md(T02_ANIM_QTD, T02_ANIM_EX)}
 
+{anim_cena_md("T02")}
+
 ## Modelo
 
 ```text
@@ -619,11 +728,12 @@ Uma voz narra o vídeo todo. Para começar, peça: TEMA, PERSONAGEM QUE FALA e N
 
 - De 3 a 6 cenas; cada NARRAÇÃO com 12 a 30 palavras; vídeo total de 30 a 60 segundos.
 - A cena 01 é o gancho (pergunta ou afirmação que prende); a última é a conclusão (lição prática).
-- MODO de cada cena (só estes três):
+- MODO de cada cena (só estes quatro):
   - FALA: o personagem fala olhando para a câmera. A imagem precisa de um rosto humano realista em destaque,
     de frente ou 3/4, boca visível, nada na frente do rosto. Use na abertura e no fechamento.
   - DOLLY: cena que ilustra a ideia, sem ninguém falando, com primeiro plano, meio e fundo bem separados.
   - ZOOM: imagem plana (símbolo, objeto isolado), sem texto escrito.
+  - ANIMACAO: animação em tela cheia, sem personagem e sem imagem. Veja "Cenas de animação em tela cheia".
 - IMAGEM: uma frase descrevendo o que aparece na cena.
 - BUSCA: só nas cenas DOLLY e ZOOM, 2 a 4 palavras-chave em inglês (ex.: running sunrise road). O app usa essas
   palavras para buscar a foto da cena no Pixabay.
@@ -638,6 +748,8 @@ Uma voz narra o vídeo todo. Para começar, peça: TEMA, PERSONAGEM QUE FALA e N
   cena1.png, cena2.png...
 
 {anim_md(F01_ANIM_QTD, F01_ANIM_EX)}
+
+{anim_cena_md("F01")}
 
 ## Modelo
 

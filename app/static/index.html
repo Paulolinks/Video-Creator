@@ -4,7 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Social Video Creator</title>
-<link rel="stylesheet" href="/static/style.css?v=20261105c">
+<link rel="icon" href="/static/img/favicon.ico?v=1" sizes="any">
+<link rel="icon" type="image/png" href="/static/img/icone.png?v=1">
+<link rel="apple-touch-icon" href="/static/img/icone.png?v=1">
+<link rel="stylesheet" href="/static/style.css?v=20261110b">
 </head>
 <body>
 <div class="fx-grid" aria-hidden="true"></div>
@@ -17,7 +20,7 @@
   <span style="top:90%;left:15%;animation-delay:.6s"></span><span style="top:35%;left:75%;animation-delay:1.4s"></span>
 </div>
 <header class="top">
-  <div class="brand"><span class="logo-social">SOCIAL</span> <b>VIDEO CREATOR</b></div>
+  <div class="brand"><img src="/static/img/logo.png?v=1" alt="Social Video Creator"></div>
   <nav class="tabs">
     <button data-tab="criar" class="on">Criar vídeos</button>
     <button data-tab="fila">Vídeos criados <span id="fila-badge" class="badge hide"></span></button>
@@ -48,14 +51,7 @@
    </div>
 
    <div id="modo-placa">
-    <h1 class="logo">
-      <svg class="logo-icon" viewBox="0 0 64 64" aria-hidden="true">
-        <rect x="5" y="12" width="46" height="34" rx="9" fill="none" stroke="currentColor" stroke-width="4"/>
-        <path d="M23 21 L37 29 L23 37 Z" fill="currentColor"/>
-        <path d="M52 38 l2.6 6.4 6.4 2.6 -6.4 2.6 -2.6 6.4 -2.6 -6.4 -6.4 -2.6 6.4 -2.6 Z" fill="#ff3131"/>
-      </svg>
-      <span class="logo-social">Social</span> <span class="logo-vc">Video Creator</span>
-    </h1>
+    <h1 class="logo"><img class="logo-img" src="/static/img/logo.png?v=1" alt="Social Video Creator"></h1>
 
     <div class="placa-wrap" id="placa">
       <svg class="placa-svg" id="placa-svg" aria-hidden="true">
@@ -257,6 +253,17 @@
         </div>
       </div>
     </div>
+
+    <h1 id="animacoes" style="margin-top:40px">Animações</h1>
+    <p class="muted">Quando a IA criar uma animação que o app ainda não tem, ela entrega um arquivo separado. Envie esse arquivo aqui
+      <b>antes dos roteiros</b>. O app testa a animação e gera um vídeo de exemplo. Confira o vídeo e depois envie os roteiros.
+      Enviar uma animação com o mesmo nome substitui a anterior.</p>
+    <div class="card">
+      <label class="btn">Enviar arquivo de animações<input id="anim-arquivo" type="file" accept=".txt,.md" multiple hidden></label>
+      <div id="anim-status" class="small" style="margin-top:10px"></div>
+    </div>
+    <div id="anim-lista" class="modelos"></div>
+    <p id="anim-outras" class="small muted"></p>
 
     <h1 id="modelos" style="margin-top:40px">Modelos de vídeo</h1>
     <p class="muted">Veja como cada modelo fica. Baixe o framework do modelo e anexe no ChatGPT (ou cole nas instruções
@@ -471,6 +478,6 @@
 
 <div id="loading" class="modal hide"><div class="loading-box"><div class="spin"></div><div id="loading-text"></div></div></div>
 
-<script src="/static/app.js?v=20261105c"></script>
+<script src="/static/app.js?v=20261110b"></script>
 </body>
 </html>

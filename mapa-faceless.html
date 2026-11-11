@@ -1,0 +1,551 @@
+<title>Mapa do Canal Faceless</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: uma linha de metrô vertical (estações) à esquerda guia o leitor por um percurso; o conteúdo corre à direita. No celular, a linha vira uma faixa de estações rolável no topo. */
+:root{
+  --bg:#F2F4F6; --surface:#FFFFFF; --ink:#14202B; --muted:#4C5966; --line:#D6DCE3;
+  --route:#2647C9; --route-soft:#E3E8FA; --app:#9C4A0B; --app-soft:#FBEADB; --good:#1D7448; --good-soft:#E1F2E8; --warn:#8A5A00; --warn-soft:#FBF0D6;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F161D; --surface:#17212B; --ink:#E8EDF2; --muted:#9DAAB6; --line:#2A3743;
+  --route:#86A0FF; --route-soft:#1C2747; --app:#F2A964; --app-soft:#3A2716; --good:#62C893; --good-soft:#15301F; --warn:#E8C064; --warn-soft:#352A10; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F161D; --surface:#17212B; --ink:#E8EDF2; --muted:#9DAAB6; --line:#2A3743;
+  --route:#86A0FF; --route-soft:#1C2747; --app:#F2A964; --app-soft:#3A2716; --good:#62C893; --good-soft:#15301F; --warn:#E8C064; --warn-soft:#352A10; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+a{color:var(--route)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.12;margin:0}
+p{margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 72px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:40px}
+.label{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+/* Linha de estações */
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px);align-self:start;display:flex;flex-direction:column;gap:14px}
+.rail ol{list-style:none;margin:0;padding:0;position:relative}
+.rail ol::before{content:"";position:absolute;left:11px;top:12px;bottom:12px;width:4px;border-radius:2px;background:var(--route-soft)}
+.rail li a{position:relative;display:flex;align-items:center;gap:12px;padding:7px 0;text-decoration:none;color:var(--muted);font-size:14px;font-weight:500;min-height:40px}
+.rail li a .dot{flex:none;width:26px;height:26px;border-radius:50%;border:4px solid var(--route-soft);background:var(--surface);display:grid;place-items:center;font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted);position:relative;z-index:1}
+.rail li a.on{color:var(--ink);font-weight:700}
+.rail li a.on .dot{border-color:var(--route);color:var(--route)}
+.rail li a.done .dot{background:var(--route);border-color:var(--route);color:var(--surface)}
+.rail li.lab a .dot{border-style:dashed}
+.rail li a:focus-visible{outline:3px solid var(--route);outline-offset:2px;border-radius:6px}
+.prog{font-size:13px;color:var(--muted)}
+.bar{height:6px;border-radius:3px;background:var(--route-soft);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--route);width:0;transition:width .3s}
+main{display:flex;flex-direction:column;gap:56px;min-width:0}
+.hero{display:flex;flex-direction:column;gap:14px;padding-bottom:8px}
+.hero h1{font-size:clamp(34px,5vw,56px);font-weight:800;letter-spacing:-.02em}
+.hero p{font-size:18px;color:var(--muted);max-width:62ch}
+section{display:flex;flex-direction:column;gap:20px;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 80px)}
+.sh{display:flex;flex-direction:column;gap:8px}
+.sh .stn{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--route);text-transform:uppercase}
+.sh h2{font-size:clamp(26px,3.2vw,36px);font-weight:700;letter-spacing:-.01em}
+.sh p{color:var(--muted);max-width:66ch}
+.lab .sh .stn{color:var(--app)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card h3{font-size:19px;font-weight:700}
+.card p,.card li{font-size:15px;color:var(--muted)}
+.card ul{margin:0;padding-left:18px}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:6px;background:var(--route-soft);color:var(--route)}
+.tag.app{background:var(--app-soft);color:var(--app)}
+.tag.good{background:var(--good-soft);color:var(--good)}
+.tag.warn{background:var(--warn-soft);color:var(--warn)}
+.note{border-radius:12px;padding:16px 18px;background:var(--app-soft);color:var(--ink);font-size:15px;display:flex;flex-direction:column;gap:6px;max-width:76ch}
+.note b.k{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--app)}
+.note.blue{background:var(--route-soft)}
+.note.blue b.k{color:var(--route)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--line)}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:700;white-space:nowrap}
+tr.hi td{background:var(--app-soft)}
+/* Checklist */
+.check{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 18px}
+.check label{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer;font-size:15px}
+.check label:last-child{border-bottom:0}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--route);flex:none}
+.check .ct{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 0 2px}
+/* Quiz */
+.quiz{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.q{display:flex;flex-direction:column;gap:8px;border:0;margin:0;padding:0}
+.q legend{font-weight:700;font-size:16px;padding:0;margin-bottom:8px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts label{position:relative}
+.opts input{position:absolute;opacity:0;width:1px;height:1px}
+.opts span{display:inline-flex;align-items:center;min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:14px;cursor:pointer;background:var(--bg)}
+.opts input:checked + span{background:var(--route);border-color:var(--route);color:var(--surface);font-weight:600}
+.opts input:focus-visible + span{outline:3px solid var(--route);outline-offset:2px}
+.result{border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:12px}
+.rank{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.rank .card{gap:4px}
+.rank .pos{font-family:var(--mono);font-size:12px;color:var(--route);font-weight:600}
+/* Nichos */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:500 14px var(--body);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.star{border-color:var(--app);color:var(--app)}
+.chip.star[aria-pressed="true"]{background:var(--app);color:var(--surface);border-color:var(--app)}
+.chip:focus-visible,button:focus-visible{outline:3px solid var(--route);outline-offset:2px}
+.niche{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.niche .head{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:flex-start}
+.niche h3{font-size:26px;font-weight:800}
+.niche h4{margin:0 0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.niche ul{margin:0;padding-left:18px;font-size:15px}
+.niche .why{grid-column:1/-1;font-size:15px;color:var(--muted);max-width:76ch}
+/* Pontuação */
+.score{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px}
+.score .f{display:flex;flex-direction:column;gap:12px}
+.score input[type=text]{min-height:44px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:15px var(--body);background:var(--bg);color:var(--ink);width:100%}
+.sl{display:grid;grid-template-columns:minmax(0,1fr) 120px 28px;gap:10px;align-items:center;font-size:14px}
+.sl input{width:100%;accent-color:var(--route)}
+.sl output{font-family:var(--mono);font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.sl small{display:block;color:var(--muted);font-size:12px}
+.total{display:flex;align-items:baseline;gap:8px}
+.total b{font-family:var(--display);font-size:44px;font-weight:800;font-variant-numeric:tabular-nums}
+.btn{min-height:44px;padding:10px 16px;border-radius:10px;border:0;background:var(--route);color:var(--surface);font:600 15px var(--body);cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.saved{display:flex;flex-direction:column;gap:8px}
+.saved .row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px}
+.saved .row b{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.saved .row button{background:none;border:0;color:var(--muted);cursor:pointer;font:13px var(--body);min-height:32px}
+/* Pipeline */
+.pipe{display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.st{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:start;padding:14px 18px;border-bottom:1px solid var(--line)}
+.st:last-child{border-bottom:0}
+.st .n{width:32px;height:32px;border-radius:50%;background:var(--route-soft);color:var(--route);display:grid;place-items:center;font-family:var(--mono);font-size:13px;font-weight:600}
+.st h3{font-size:17px;font-weight:700;margin-bottom:2px}
+.st p{font-size:14px;color:var(--muted)}
+.st .tg{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);white-space:nowrap}
+.st .tg input{width:20px;height:20px;accent-color:var(--good)}
+/* Plano */
+.months{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.month{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.month .m{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--route);text-transform:uppercase}
+.month h3{font-size:22px;font-weight:700}
+.wk{display:grid;grid-template-columns:56px minmax(0,1fr);gap:10px;font-size:14px;border-top:1px solid var(--line);padding-top:10px}
+.wk b{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:2px}
+.goal{font-size:14px;background:var(--good-soft);color:var(--ink);border-radius:8px;padding:8px 10px}
+.year{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.year div{border-left:4px solid var(--route-soft);padding:6px 12px;font-size:14px;color:var(--muted)}
+.year b{display:block;color:var(--ink);font-family:var(--display);font-size:17px}
+/* Funil ecossistema */
+.funnel{display:flex;flex-direction:column;align-items:center;gap:6px}
+.fs{width:100%;border-radius:10px;padding:12px 16px;color:#FFFFFF;display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px}
+.fs b{font-size:15px}
+.fs span{font-size:13px;opacity:.95}
+.f1{background:#1E3A8A}.f2{background:#2647C9}.f3{background:#3A5BD6}.f4{background:#B1530F}.f5{background:#A1440A}.f6{background:#8C3A07}.f7{background:#17694A}
+pre{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;overflow-x:auto;font:13px/1.55 var(--mono);color:var(--ink)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;align-items:start}
+footer{border-top:1px solid var(--line);padding-top:20px;font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+@media (max-width: 860px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:24px;padding-block:16px 56px}
+  .rail{top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+  .rail .prog-box{display:none}
+  .rail ol{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .rail ol::before{display:none}
+  .rail li a{white-space:nowrap;padding:4px 10px 4px 4px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+  .rail li a .dot{width:24px;height:24px;border-width:3px}
+  .score{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<div class="wrap">
+  <nav class="rail" aria-label="Estações do mapa">
+    <div class="prog-box">
+      <span class="label">Seu progresso</span>
+      <div class="prog" id="progTxt">0 de 0 tarefas</div>
+      <div class="bar"><i id="progBar"></i></div>
+    </div>
+    <ol id="railList"></ol>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <span class="label">Guia do zero ao canal automático</span>
+      <h1>Mapa do Canal Faceless</h1>
+      <p>Um percurso em estações: entender o modelo, escolher o nicho, montar o motor de produção com o seu Video Creator, executar 90 dias e replicar o sistema para outros canais. No fim, o canal vira vitrine para vender o próprio app.</p>
+    </header>
+
+    <!-- 1 -->
+    <section id="visao" data-stn="1">
+      <div class="sh"><span class="stn">Estação 1</span><h2>Visão geral do canal faceless</h2>
+      <p>Um canal faceless publica conteúdo em que o criador não aparece. A atenção vem do tema, do roteiro, da narração e do visual. Como não depende de gravar a si mesmo, quase todo o processo pode virar um sistema repetível, e um sistema pode ser copiado para outro canal.</p></div>
+      <div class="grid">
+        <div class="card"><span class="tag">Formato</span><h3>Narração + cenas</h3><p>Voz (humana ou sintética) sobre imagens, stock ou cenas geradas. O mais comum em vídeos de explicação e listas.</p></div>
+        <div class="card"><span class="tag">Formato</span><h3>Animação e personagem</h3><p>Personagem ou mascote consistente que vira a "cara" do canal sem ser você.</p></div>
+        <div class="card"><span class="tag">Formato</span><h3>Tela e demonstração</h3><p>Gravação de tela, tutorial de software, bastidores de um processo. Ideal para vender ferramentas.</p></div>
+        <div class="card"><span class="tag">Formato</span><h3>Texto e imagem</h3><p>Carrossel, post estático, texto na tela. Rende muito no Instagram e serve de reaproveitamento dos vídeos.</p></div>
+      </div>
+      <div class="note"><b class="k">Leitura de mercado</b><p>O repositório de onde este mapa partiu é, ele mesmo, um funil: um curso gratuito cujo objetivo é levar o leitor a assinar uma ferramenta de criação de vídeos. É exatamente o modelo que você quer para o seu app. Use isso como estudo de caso.</p></div>
+      <div class="note blue"><b class="k">O que ficou de fora</b><p>Custos de câmera e software de edição, telas e recursos específicos da ferramenta que o curso promove, e estimativas de faturamento sem fonte. Ficou o que serve para quem já tem um app que gera os vídeos.</p></div>
+      <div class="check" data-group="visao">
+        <label><input type="checkbox" id="c-visao-1"><span>Entendi os quatro formatos e qual o meu app já produz bem</span></label>
+        <label><input type="checkbox" id="c-visao-2"><span>Defini se o objetivo do primeiro canal é receita própria, vitrine do app, ou os dois</span></label>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section id="produtos" data-stn="2">
+      <div class="sh"><span class="stn">Estação 2</span><h2>Produto, público e tipo de conteúdo</h2>
+      <p>Antes do nicho, decida o que o canal vende. Cada produto pede um tipo de canal e um tipo de conteúdo diferente. Esta tabela responde "qual canal é ideal para vender cada tipo de produto".</p></div>
+      <div class="tbl"><table>
+        <thead><tr><th>Produto</th><th>Canal faceless que combina</th><th>Público</th><th>Conteúdo que vende</th><th>Funil típico</th></tr></thead>
+        <tbody>
+          <tr><td>Anúncios</td><td>Qualquer nicho com volume; melhor em finanças, negócios, tecnologia</td><td>Amplo</td><td>Vídeos longos com boa retenção, séries</td><td>Vídeo → próximo vídeo (sessão longa)</td></tr>
+          <tr><td>Afiliado</td><td>Tecnologia, software, IA, finanças, saúde</td><td>Quem já pesquisa uma solução</td><td>Review, comparação "A vs B", "melhores ferramentas para…"</td><td>Vídeo → link na descrição/bio → página do produtor</td></tr>
+          <tr><td>Produto digital</td><td>Negócios, autodesenvolvimento, educação</td><td>Iniciantes querendo atalho</td><td>Tutorial, erros comuns, estudo de caso</td><td>Conteúdo → isca grátis → e-mail → oferta</td></tr>
+          <tr><td>Mentoria / serviço</td><td>Funciona pior sem rosto; melhor com voz própria e prova de resultado</td><td>Quem quer que façam por ele</td><td>Bastidores, resultados de clientes</td><td>Conteúdo → DM/aplicação → chamada</td></tr>
+          <tr class="hi"><td>Seu app (assinatura)</td><td>Criadores, automação com IA, "bastidores de canais"</td><td>Quem quer ter canais sem aparecer</td><td>Mostrar o app criando vídeos reais e os números dos canais</td><td>Vitrine → tutorial → teste grátis → assinatura</td></tr>
+          <tr><td>Produto físico</td><td>Casa, beleza, pets, gadgets</td><td>Compra por impulso</td><td>Demonstração, antes e depois</td><td>Vídeo → loja → remarketing</td></tr>
+          <tr><td>Patrocínio</td><td>Nichos com público comprador: negócios, tecnologia, finanças</td><td>Definido pela marca</td><td>Integração no meio do vídeo</td><td>Depende de audiência e consistência</td></tr>
+        </tbody>
+      </table></div>
+      <div class="check" data-group="produtos">
+        <label><input type="checkbox" id="c-prod-1"><span>Escolhi o produto principal do primeiro canal</span></label>
+        <label><input type="checkbox" id="c-prod-2"><span>Escolhi um produto secundário (ex.: afiliado) para monetizar antes do principal estar pronto</span></label>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section id="nicho" data-stn="3">
+      <div class="sh"><span class="stn">Estação 3</span><h2>Escolha do nicho</h2>
+      <p>Três ferramentas, nesta ordem: responda o diagnóstico, explore os nichos sugeridos e dê nota aos finalistas.</p></div>
+
+      <form class="quiz" id="quiz" aria-labelledby="quizT">
+        <h3 id="quizT" style="font-size:20px">Diagnóstico: qual nicho combina com você?</h3>
+        <div id="qs"></div>
+        <div class="result" id="qres" hidden></div>
+      </form>
+
+      <h3 style="font-size:22px">Explorador de nichos</h3>
+      <div class="chips" id="nchips" role="group" aria-label="Escolha um nicho"></div>
+      <div id="nview"></div>
+
+      <h3 style="font-size:22px">Pontuação dos finalistas</h3>
+      <div class="score">
+        <div class="f">
+          <label for="sName" class="label">Nicho ou subnicho</label>
+          <input type="text" id="sName" placeholder="Ex.: Automação de canais com IA">
+          <div id="sliders"></div>
+        </div>
+        <div class="f">
+          <span class="label">Total</span>
+          <div class="total"><b id="sTot">18</b><span>/ 30</span></div>
+          <span id="sVerdict" class="tag warn">Abaixo de 20: repense</span>
+          <button class="btn" type="button" id="sSave">Salvar este nicho</button>
+          <span class="label" style="margin-top:8px">Salvos (só neste navegador)</span>
+          <div class="saved" id="sList"></div>
+        </div>
+      </div>
+      <p style="font-size:14px;color:var(--muted)">Método adaptado do guia de seleção de nicho do repositório: seis critérios de 1 a 5, e 20 pontos ou mais indicam um bom nicho.</p>
+      <div class="check" data-group="nicho">
+        <div class="ct">Validação antes de decidir</div>
+        <label><input type="checkbox" id="c-n-1"><span>Demanda: o tema tem buscas constantes e vários assuntos relacionados (dá para fazer 100 vídeos)</span></label>
+        <label><input type="checkbox" id="c-n-2"><span>Concorrência: existem canais grandes, mas encontrei lacunas que posso cobrir melhor</span></label>
+        <label><input type="checkbox" id="c-n-3"><span>Monetização: há pelo menos duas formas de ganhar (anúncio, afiliado, produto, app)</span></label>
+        <label><input type="checkbox" id="c-n-4"><span>Encaixe: consigo produzir nesse tema por 12 meses sem perder interesse</span></label>
+        <label><input type="checkbox" id="c-n-5"><span>Defini um nicho principal (não comecei com três ao mesmo tempo)</span></label>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section id="posicionamento" data-stn="4">
+      <div class="sh"><span class="stn">Estação 4</span><h2>Posicionamento do canal</h2>
+      <p>O que transforma um canal genérico em um canal profissional é ter uma promessa clara e pilares fixos. Isso também é o que permite automatizar: se o canal tem regras, o app consegue seguir as regras.</p></div>
+      <div class="grid">
+        <div class="card"><span class="tag">Promessa</span><h3>Uma frase</h3><p>"Para quem quer X sem Y." Ex.: "Canais que crescem no automático, sem você aparecer."</p></div>
+        <div class="card"><span class="tag">Persona</span><h3>Uma pessoa real</h3><p>Idade, momento de vida, o que já tentou, o que a faz parar de rolar a tela.</p></div>
+        <div class="card"><span class="tag">Pilares</span><h3>3 ou 4 temas fixos</h3><p>Ex.: tutorial, resultado/bastidores, erros comuns, ferramentas. Toda ideia cai em um pilar.</p></div>
+        <div class="card"><span class="tag">Identidade</span><h3>Voz e visual fixos</h3><p>Mesma voz, paleta, fonte, personagem e estrutura de abertura em todo vídeo. O espectador reconhece em 1 segundo.</p></div>
+      </div>
+      <div class="check" data-group="pos">
+        <label><input type="checkbox" id="c-p-1"><span>Escrevi a promessa do canal em uma frase</span></label>
+        <label><input type="checkbox" id="c-p-2"><span>Defini 3 ou 4 pilares e o formato do app (F01, T02 ou outro) para cada um</span></label>
+        <label><input type="checkbox" id="c-p-3"><span>Fixei voz, paleta, fonte e abertura padrão</span></label>
+        <label><input type="checkbox" id="c-p-4"><span>Nome, foto, banner e descrição do canal prontos</span></label>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section id="motor" data-stn="5">
+      <div class="sh"><span class="stn">Estação 5</span><h2>O motor de produção com o seu Video Creator</h2>
+      <p>Cada etapa abaixo é uma peça do sistema. Marque o que o seu app já faz hoje. O que ficar desmarcado vira lista de funcionalidades para adicionar, ou etapa manual por enquanto.</p></div>
+      <div class="pipe" id="pipe"></div>
+      <div class="note"><b class="k">Regra do motor</b><p>A meta é que o seu tempo por vídeo seja só revisão: aprovar a ideia, conferir o roteiro e liberar. Se você está escrevendo roteiro do zero ou editando à mão, essa etapa ainda não está automatizada.</p></div>
+    </section>
+
+    <!-- 6 -->
+    <section id="plano" data-stn="6">
+      <div class="sh"><span class="stn">Estação 6</span><h2>Plano dos primeiros 90 dias</h2>
+      <p>O primeiro trimestre serve para descobrir o que funciona e transformar isso em sistema. Ritmo sugerido para começar sustentável; aumente quando o motor estiver rodando sem você.</p></div>
+      <div class="months">
+        <div class="month"><span class="m">Mês 1</span><h3>Fundação e teste</h3>
+          <div class="wk"><b>Sem 1</b><span>Nicho pontuado, posicionamento, 60 ideias no banco, perfil do canal no app.</span></div>
+          <div class="wk"><b>Sem 2</b><span>1 vídeo curto por dia + 1 longo por semana. Testar 3 formatos diferentes.</span></div>
+          <div class="wk"><b>Sem 3–4</b><span>Manter ritmo. Anotar retenção dos 3 e 30 primeiros segundos de cada vídeo.</span></div>
+          <div class="goal">Saída: 2 formatos vencedores e 2 tipos de gancho que prendem.</div></div>
+        <div class="month"><span class="m">Mês 2</span><h3>Dobrar no que funciona</h3>
+          <div class="wk"><b>Sem 5–6</b><span>Transformar os vencedores em séries. 1 a 2 curtos por dia, 2 longos por semana.</span></div>
+          <div class="wk"><b>Sem 7</b><span>Reaproveitar: cada vídeo vira carrossel e post de imagem.</span></div>
+          <div class="wk"><b>Sem 8</b><span>Primeiro afiliado nas descrições e isca gratuita para montar lista.</span></div>
+          <div class="goal">Saída: calendário semanal que se repete e primeira receita de teste.</div></div>
+        <div class="month"><span class="m">Mês 3</span><h3>Oferta e sistema</h3>
+          <div class="wk"><b>Sem 9–10</b><span>Lançar a oferta principal (teste grátis do app, produto ou afiliado forte) com funil comentário → DM → página.</span></div>
+          <div class="wk"><b>Sem 11</b><span>Documentar o passo a passo (SOP) de cada etapa do motor.</span></div>
+          <div class="wk"><b>Sem 12</b><span>Fechar o kit do canal e preparar a cópia para o canal 2.</span></div>
+          <div class="goal">Saída: canal rodando com você só revisando, e kit pronto para replicar.</div></div>
+      </div>
+      <span class="label">Visão do ano</span>
+      <div class="year">
+        <div><b>Trimestre 1</b>Canal 1 do zero ao sistema.</div>
+        <div><b>Trimestre 2</b>Canal 2 a partir do kit. Canal 1 vira prova para vender o app.</div>
+        <div><b>Trimestre 3</b>3 a 5 canais. Investir mais nos que performam melhor.</div>
+        <div><b>Trimestre 4</b>Escalar a oferta: planos do app, kits de nicho prontos, parcerias.</div>
+      </div>
+      <div class="check" data-group="plano">
+        <label><input type="checkbox" id="c-pl-1"><span>Mês 1 concluído com 2 formatos vencedores</span></label>
+        <label><input type="checkbox" id="c-pl-2"><span>Mês 2 concluído com séries e reaproveitamento rodando</span></label>
+        <label><input type="checkbox" id="c-pl-3"><span>Mês 3 concluído com oferta no ar e SOP escrito</span></label>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section id="ecossistema" data-stn="7">
+      <div class="sh"><span class="stn">Estação 7</span><h2>Seu ecossistema: os canais vendem o app</h2>
+      <p>A ideia que você descreveu: os canais crescem com o seu app, e o próprio crescimento vira o argumento de venda do app. Este é o funil.</p></div>
+      <div class="funnel" aria-label="Funil do ecossistema">
+        <div class="fs f1" style="width:100%"><b>1. Canais de nicho</b><span>Geram receita e servem de prova de que o sistema funciona</span></div>
+        <div class="fs f2" style="width:93%"><b>2. Canal de bastidores</b><span>Mostra o processo e os números dos canais de nicho</span></div>
+        <div class="fs f3" style="width:86%"><b>3. Vídeo-ponte</b><span>O app criando um vídeo real, do tema à publicação</span></div>
+        <div class="fs f4" style="width:79%"><b>4. Chamada</b><span>"Comente APP" → DM com link de lista ou teste</span></div>
+        <div class="fs f5" style="width:72%"><b>5. Teste guiado</b><span>Já começa com um kit de canal pronto</span></div>
+        <div class="fs f6" style="width:65%"><b>6. Assinatura</b><span>Planos por número de canais</span></div>
+        <div class="fs f7" style="width:58%"><b>7. Comunidade</b><span>Clientes mostram resultados e indicam</span></div>
+      </div>
+      <div class="two">
+        <div class="card"><h3>Por que o canal de bastidores vende</h3><p>Quem compra uma ferramenta de canal quer saber se dá resultado. Mostrar os seus canais crescendo, com números reais, responde isso melhor que qualquer anúncio. Esse canal pode ter a sua voz e a sua tela; o rosto continua opcional.</p></div>
+        <div class="card"><h3>O que mostrar no canal de bastidores</h3><ul><li>"Criei um canal do zero com IA: resultado em 30 dias"</li><li>"Escolhendo um nicho ao vivo com dados"</li><li>"De uma ideia a 10 vídeos em 20 minutos"</li><li>"O que deu errado no canal 2"</li></ul></div>
+      </div>
+      <div class="check" data-group="eco">
+        <label><input type="checkbox" id="c-e-1"><span>Decidi se o canal 1 é de nicho (prova) ou já o canal de bastidores</span></label>
+        <label><input type="checkbox" id="c-e-2"><span>Página de lista de espera ou teste do app criada</span></label>
+        <label><input type="checkbox" id="c-e-3"><span>Comecei a registrar números dos canais para usar como prova</span></label>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section id="replicar" data-stn="8">
+      <div class="sh"><span class="stn">Estação 8</span><h2>Automatizar e replicar para outro canal</h2>
+      <p>Um canal só é replicável quando tudo que o define cabe em um arquivo. Esse arquivo é o kit do canal: o app lê o kit e produz no estilo daquele canal.</p></div>
+      <div class="two">
+<pre>canal:
+  nome: "Dinheiro em 60s"
+  nicho: financas-pessoais
+  idioma: pt-BR
+  promessa: "Finanças sem enrolação, em 1 minuto"
+  persona: "25-35 anos, primeiro emprego, quer sair das dívidas"
+pilares:
+  - {id: erros, formato: F01, frequencia: 3/semana}
+  - {id: tutorial, formato: T02, frequencia: 2/semana}
+  - {id: historia, formato: F01, frequencia: 2/semana}
+identidade:
+  voz: "masculina-calma-01"
+  paleta: ["#0E3B2E", "#F2C14E"]
+  abertura: "pergunta-em-3s"
+monetizacao:
+  - {tipo: afiliado, cta: "link na descrição"}
+  - {tipo: app, cta: "comente APP"}
+banco_ideias: ideias/financas.csv
+calendario: auto-90-dias</pre>
+        <div class="card"><h3>Quando replicar</h3><ul>
+          <li>O canal 1 manteve o ritmo por 4 semanas com você só revisando</li>
+          <li>Existe pelo menos 1 formato vencedor documentado</li>
+          <li>O SOP de cada etapa está escrito</li>
+        </ul>
+        <h3 style="margin-top:8px">Três jeitos de expandir</h3><ul>
+          <li><b>Mesmo nicho, ângulo diferente:</b> finanças básicas, investimentos, imóveis</li>
+          <li><b>Nichos diferentes:</b> um canal por nicho, risco espalhado</li>
+          <li><b>Híbrido:</b> 2 ou 3 nichos vizinhos que compartilham ideias</li>
+        </ul>
+        <p>O repositório sugere começar com 2 ou 3 canais e crescer até uns 5, sempre investindo mais nos que performam melhor.</p></div>
+      </div>
+      <div class="check" data-group="rep">
+        <label><input type="checkbox" id="c-r-1"><span>Kit do canal 1 escrito em um arquivo</span></label>
+        <label><input type="checkbox" id="c-r-2"><span>Canal 2 criado a partir do kit, mudando só nicho, persona e identidade</span></label>
+        <label><input type="checkbox" id="c-r-3"><span>Painel com métricas de todos os canais lado a lado</span></label>
+      </div>
+    </section>
+
+    <!-- 9 Lab -->
+    <section id="formatos" class="lab" data-stn="9">
+      <div class="sh"><span class="stn">Laboratório · ideias</span><h2>Novos tipos de vídeo para o seu app</h2>
+      <p>Formatos faceless que dá para produzir de forma automática e que vão além do narrado comum. Cada um diz para que serve e o que o app precisa ter.</p></div>
+      <div class="grid" id="fmts"></div>
+    </section>
+
+    <section id="funcoes" class="lab" data-stn="10">
+      <div class="sh"><span class="stn">Laboratório · produto</span><h2>Funcionalidades para adicionar ao Video Creator</h2>
+      <p>Ordenadas por impacto. Todas podem rodar sem API paga obrigatória: com o modelo de IA que o app já usa ou com um modelo local, e com dados que você importa por CSV.</p></div>
+      <div class="grid" id="feats"></div>
+    </section>
+
+    <footer>
+      <span>Ponto de partida: <a href="https://github.com/cporter202/automate-faceless-content" target="_blank" rel="noopener">cporter202/automate-faceless-content</a>. O conteúdo foi reescrito, reorganizado e adaptado; não é uma cópia do curso original.</span>
+      <span>As estimativas de ganho por mil visualizações citadas no repositório valem para público dos EUA e não têm fonte. Para público brasileiro costumam ser bem menores.</span>
+      <button class="btn ghost" type="button" id="reset" style="align-self:flex-start">Limpar meu progresso</button>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var store={get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+  var STATIONS=[["visao","Visão geral"],["produtos","Produto e público"],["nicho","Escolha do nicho"],["posicionamento","Posicionamento"],["motor","Motor de produção"],["plano","Plano de 90 dias"],["ecossistema","Ecossistema"],["replicar","Replicar canais"],["formatos","Novos vídeos",1],["funcoes","Novas funções",1]];
+  var rail=document.getElementById("railList");
+  rail.innerHTML=STATIONS.map(function(s,i){return '<li class="'+(s[2]?'lab':'')+'"><a href="#'+s[0]+'" data-id="'+s[0]+'"><span class="dot">'+(s[2]?'+':(i+1))+'</span>'+s[1]+'</a></li>'}).join("");
+
+  /* ---------- Nichos ---------- */
+  var N={
+    criadores:{t:"Criadores e automação com IA",star:1,ads:"Médio",subs:["Canais faceless e automação","IA para criar conteúdo","Crescimento no YouTube e Instagram","Bastidores de canais (construindo em público)","Ferramentas para criadores"],cont:["O app criando um vídeo do zero","Resultado de um canal novo em 30 dias","Comparação de ferramentas de IA","Erros que travam canais novos"],mon:["Seu próprio app (assinatura)","Afiliado de ferramentas","Kits de nicho prontos","Serviço de canal feito para você"],why:"É o nicho onde o seu produto é a resposta. Concorrência alta, então o diferencial precisa ser prova real: seus próprios canais e números.",cuidado:"Não prometa renda. Mostre números reais e o processo."},
+    negocios:{t:"Negócios e empreendedorismo",ads:"Alto",subs:["Estratégia de negócios","Empreender e renda extra","Marketing digital","Negócios online (e-commerce, infoprodutos)"],cont:["Como começar um negócio do zero","Estudo de caso: como a empresa X cresceu","10 erros de quem está começando","Review de ferramentas de negócio"],mon:["Afiliado de software e cursos","Produto digital (modelos, guias)","Patrocínio de empresas de software"],why:"Público que compra soluções e paga bem por anúncio. Combina com estudos de caso narrados, que são ótimos para faceless."},
+    tecnologia:{t:"Tecnologia e software",ads:"Alto",subs:["Reviews de software","Ferramentas de IA","Tutoriais","Comparações e listas"],cont:["Melhores ferramentas de IA para X","[Produto A] vs [Produto B]","Como usar [software] em 5 minutos","Novas ferramentas da semana"],mon:["Afiliado recorrente de software (o repositório cita 20 a 50% de comissão)","Patrocínio","Cursos de ferramentas"],why:"O formato é mostrar ferramentas dos outros, o que treina exatamente o conteúdo que depois vai vender a sua. Bom canal 2."},
+    financas:{t:"Finanças e investimentos",ads:"Muito alto",subs:["Finanças pessoais","Investimentos","Finanças para empresas","Trading"],cont:["Como montar a reserva de emergência","Erros de dinheiro aos 20 e poucos","Investimento explicado em 60 segundos","Review de apps financeiros"],mon:["Afiliado de corretoras e apps","Produto digital (planilhas)","Patrocínio"],why:"O nicho que mais paga por anúncio segundo o repositório. Muito concorrido e exige cuidado com o que se afirma.",cuidado:"Conteúdo educativo, sem recomendação de investimento. Avise sobre afiliados."},
+    saude:{t:"Saúde e bem-estar",ads:"Médio",subs:["Exercício","Nutrição","Saúde mental","Emagrecimento"],cont:["Treino de 10 minutos em casa","Mitos sobre alimentação","Rotina para dormir melhor","Hábitos que funcionam"],mon:["Afiliado de suplementos e apps","Planos de treino e cardápio","Patrocínio"],why:"Público grande e emocional. Animação e personagem funcionam bem para explicar o corpo.",cuidado:"Informação geral, não orientação médica. Aviso em todo vídeo."},
+    autodev:{t:"Autodesenvolvimento",ads:"Médio",subs:["Produtividade","Desenvolvimento pessoal","Hábitos"],cont:["Rotina da manhã que funciona","Método Pomodoro explicado","Como criar um hábito em 30 dias"],mon:["Produto digital (planners, desafios)","Afiliado de apps e livros"],why:"Histórias e listas narradas são o formato natural. Fácil de produzir em volume."},
+    educacao:{t:"Educação e aprendizado",ads:"Médio",subs:["Técnicas de estudo","Métodos de aprendizagem","Aprender habilidades"],cont:["Como estudar com flashcards","Aprender qualquer coisa em 20 horas","Preparação para prova"],mon:["Cursos e materiais","Afiliado de plataformas de curso"],why:"Conteúdo explicativo e atemporal, que continua trazendo views por anos."},
+    outros:{t:"Outros nichos do repositório",ads:"Varia",subs:["Imóveis","Viagem barata","Culinária","Games","Beleza e moda","Fé e espiritualidade"],cont:["Primeiro imóvel para alugar","Truques de passagem barata","Receitas rápidas e baratas","Montar um PC gamer"],mon:["Afiliado do nicho","Produto digital","Patrocínio"],why:"O repositório traz só 10 ideias para cada um destes. Servem como canal 2 ou 3 em estratégia de vários canais."}
+  };
+  var cur="criadores";
+  var chips=document.getElementById("nchips"), nview=document.getElementById("nview");
+  function li(a){return "<ul>"+a.map(function(x){return "<li>"+x+"</li>"}).join("")+"</ul>"}
+  function drawNiche(){
+    chips.innerHTML=Object.keys(N).map(function(k){return '<button type="button" class="chip'+(N[k].star?' star':'')+'" aria-pressed="'+(k===cur)+'" data-k="'+k+'">'+N[k].t+(N[k].star?' ★':'')+'</button>'}).join("");
+    var n=N[cur];
+    nview.innerHTML='<div class="niche"><div class="head"><div><span class="label">Nicho</span><h3>'+n.t+'</h3></div><div style="display:flex;gap:6px;flex-wrap:wrap">'+(n.star?'<span class="tag app">Provável nicho para vender seu app</span>':'')+'<span class="tag">Valor do anúncio: '+n.ads+'</span></div></div>'+
+      '<div><h4>Subnichos</h4>'+li(n.subs)+'</div><div><h4>Ideias de conteúdo</h4>'+li(n.cont)+'</div><div><h4>Como monetizar</h4>'+li(n.mon)+'</div>'+
+      '<p class="why"><b>Leitura:</b> '+n.why+(n.cuidado?' <span class="tag warn">Cuidado</span> '+n.cuidado:'')+'</p></div>';
+  }
+  chips.addEventListener("click",function(e){var b=e.target.closest(".chip");if(!b)return;cur=b.dataset.k;drawNiche()});
+  drawNiche();
+
+  /* ---------- Quiz ---------- */
+  var Q=[
+    {id:"vende",t:"O que você mais quer vender?",o:[["app","Meu app ou ferramenta"],["curso","Curso ou mentoria"],["afil","Produtos de afiliado"],["ads","Só anúncios por enquanto"]]},
+    {id:"sabe",t:"O que você já domina?",o:[["tec","Automação, IA, tecnologia"],["neg","Negócios e marketing"],["fin","Finanças"],["sau","Saúde e bem-estar"],["out","Outro tema"]]},
+    {id:"bast",t:"Topa mostrar sua tela e seus bastidores (sem rosto)?",o:[["sim","Sim"],["nao","Prefiro 100% impessoal"]]},
+    {id:"merc",t:"Para qual público?",o:[["br","Português (Brasil)"],["en","Inglês (global)"],["am","Os dois"]]}
+  ];
+  var qs=document.getElementById("qs"), qres=document.getElementById("qres");
+  qs.innerHTML=Q.map(function(q){return '<fieldset class="q"><legend>'+q.t+'</legend><div class="opts">'+q.o.map(function(o){return '<label><input type="radio" name="q-'+q.id+'" id="q-'+q.id+'-'+o[0]+'" value="'+o[0]+'"><span>'+o[1]+'</span></label>'}).join("")+'</div></fieldset>'}).join("");
+  var ans=store.get("fl-quiz",{});
+  Object.keys(ans).forEach(function(k){var el=document.getElementById("q-"+k+"-"+ans[k]);if(el)el.checked=true});
+  function scoreQuiz(){
+    var s={criadores:0,negocios:0,tecnologia:0,financas:0,saude:0,autodev:0,educacao:0};
+    var v=ans.vende,k=ans.sabe,b=ans.bast;
+    if(v==="app"){s.criadores+=5;s.tecnologia+=3;s.negocios+=1}
+    if(v==="curso"){s.negocios+=3;s.autodev+=2;s.educacao+=2;s.criadores+=1}
+    if(v==="afil"){s.tecnologia+=4;s.financas+=3;s.saude+=2}
+    if(v==="ads"){s.financas+=4;s.negocios+=3;s.tecnologia+=2;s.autodev+=1}
+    if(k==="tec"){s.criadores+=3;s.tecnologia+=3}
+    if(k==="neg"){s.negocios+=4;s.criadores+=1}
+    if(k==="fin"){s.financas+=4}
+    if(k==="sau"){s.saude+=4}
+    if(k==="out"){s.autodev+=2;s.educacao+=2}
+    if(b==="sim"){s.criadores+=2;s.tecnologia+=1}
+    if(b==="nao"){s.criadores-=1;s.autodev+=1;s.financas+=1}
+    return Object.keys(s).sort(function(a,c){return s[c]-s[a]}).slice(0,3);
+  }
+  function drawQuiz(){
+    if(Object.keys(ans).length<Q.length){qres.hidden=true;return}
+    var top=scoreQuiz();
+    var canal=ans.vende==="app"?"Comece com um canal de bastidores (sua tela e voz) e use um canal de nicho como prova.":ans.vende==="afil"?"Canal de reviews e comparações, com links nas descrições.":ans.vende==="curso"?"Canal educativo com isca gratuita e lista de e-mail.":"Canal de vídeos longos com séries para segurar a sessão.";
+    var merc=ans.merc==="en"?"Em inglês o anúncio paga mais e a concorrência é maior.":ans.merc==="am"?"Comece em um idioma; o kit do canal facilita duplicar para o outro depois.":"Em português a concorrência é menor e o anúncio paga menos; compense com afiliado e o seu app.";
+    qres.innerHTML='<span class="label">Resultado</span><div class="rank">'+top.map(function(k,i){return '<div class="card"><span class="pos">#'+(i+1)+'</span><h3>'+N[k].t+'</h3><button type="button" class="btn ghost" data-see="'+k+'">Ver no explorador</button></div>'}).join("")+'</div><p><b>Tipo de canal:</b> '+canal+'</p><p><b>Mercado:</b> '+merc+'</p>';
+    qres.hidden=false;
+  }
+  qs.addEventListener("change",function(e){if(e.target.name){ans[e.target.name.slice(2)]=e.target.value;store.set("fl-quiz",ans);drawQuiz()}});
+  qres.addEventListener("click",function(e){var b=e.target.closest("[data-see]");if(!b)return;cur=b.dataset.see;drawNiche();nview.scrollIntoView({block:"start"})});
+  drawQuiz();
+
+  /* ---------- Pontuação ---------- */
+  var CR=[["ganho","Potencial de ganho","anúncio, afiliado, produto"],["demanda","Demanda","buscas e interesse constantes"],["interesse","Seu interesse","aguenta 12 meses?"],["saber","Seu conhecimento","sabe o suficiente para revisar"],["conc","Concorrência","5 = pouca concorrência"],["monet","Formas de monetizar","quantas fontes de receita"]];
+  var sl=document.getElementById("sliders");
+  sl.innerHTML=CR.map(function(c){return '<div class="sl"><label for="s-'+c[0]+'">'+c[1]+'<small>'+c[2]+'</small></label><input type="range" min="1" max="5" value="3" id="s-'+c[0]+'"><output id="o-'+c[0]+'">3</output></div>'}).join("");
+  function tot(){var t=0;CR.forEach(function(c){var v=+document.getElementById("s-"+c[0]).value;document.getElementById("o-"+c[0]).textContent=v;t+=v});document.getElementById("sTot").textContent=t;var vd=document.getElementById("sVerdict");if(t>=20){vd.className="tag good";vd.textContent="20 ou mais: bom nicho"}else{vd.className="tag warn";vd.textContent="Abaixo de 20: repense"}return t}
+  sl.addEventListener("input",tot);tot();
+  var saved=store.get("fl-niches",null)||[{n:"Exemplo: automação de canais com IA",t:24},{n:"Exemplo: finanças pessoais",t:21},{n:"Exemplo: receitas rápidas",t:17}];
+  var sList=document.getElementById("sList");
+  function drawSaved(){sList.innerHTML=saved.slice().sort(function(a,b){return b.t-a.t}).map(function(s){return '<div class="row"><span>'+s.n.replace(/</g,"&lt;")+'</span><span style="display:flex;gap:10px;align-items:center"><b>'+s.t+'/30</b><button type="button" data-del="'+s.n.replace(/"/g,"&quot;")+'">Remover</button></span></div>'}).join("")||'<p style="font-size:14px;color:var(--muted)">Nenhum nicho salvo.</p>'}
+  document.getElementById("sSave").addEventListener("click",function(){var n=document.getElementById("sName").value.trim();if(!n){document.getElementById("sName").focus();return}saved=saved.filter(function(s){return s.n!==n});saved.push({n:n,t:tot()});store.set("fl-niches",saved);drawSaved()});
+  sList.addEventListener("click",function(e){var b=e.target.closest("[data-del]");if(!b)return;saved=saved.filter(function(s){return s.n!==b.dataset.del});store.set("fl-niches",saved);drawSaved()});
+  drawSaved();
+
+  /* ---------- Motor ---------- */
+  var P=[["Banco de ideias","Lista de temas por pilar, alimentada por pesquisa de tendências e pelo que já funcionou."],["Roteiro","Gancho, desenvolvimento e chamada seguindo os frameworks F01 e T02."],["Voz","Narração com a voz fixa do canal."],["Cenas e visual","Imagens, stock, animação ou personagem consistente."],["Edição e legendas","Cortes no ritmo, legendas animadas, música."],["Thumbnail e capa","Capa no padrão visual do canal, com variações para testar."],["Título, descrição e tags","Com palavra-chave, link de afiliado e chamada."],["Agendamento e publicação","Fila por canal e por plataforma."],["Reaproveitamento","Vídeo longo vira curtos; curto vira carrossel e post de imagem."],["Métricas","Retenção, cliques e conversão de cada vídeo voltam para o banco de ideias."]];
+  var pm=store.get("fl-pipe",{});
+  var pipe=document.getElementById("pipe");
+  pipe.innerHTML=P.map(function(p,i){return '<div class="st"><span class="n">'+(i+1)+'</span><div><h3>'+p[0]+'</h3><p>'+p[1]+'</p></div><label class="tg"><input type="checkbox" id="pp-'+i+'" '+(pm[i]?'checked':'')+'>Já no app</label></div>'}).join("");
+  pipe.addEventListener("change",function(e){var m=e.target.id.match(/^pp-(\d+)$/);if(m){pm[m[1]]=e.target.checked;store.set("fl-pipe",pm)}});
+
+  /* ---------- Formatos ---------- */
+  var F=[
+    ["Lista animada","Top 5 com contagem regressiva e um item surpresa no fim.","Retenção alta; qualquer nicho.","Template de lista com N itens e transição fixa."],
+    ["História em 60 segundos","Ascensão ou queda de uma empresa ou pessoa, narrada como roteiro de filme.","Negócios, finanças. Ótimo para séries.","Framework narrativo: contexto, virada, lição."],
+    ["Mito ou verdade","Afirmação na tela, pausa, resposta com explicação.","Saúde, finanças, tecnologia. Gera comentários.","Bloco de pergunta com contador e revelação."],
+    ["Comparação lado a lado","Tela dividida: A contra B em 5 critérios.","Afiliado de software e produtos.","Layout dividido e tabela animada."],
+    ["Dados animados","Gráfico que cresce, mapa que acende, linha do tempo.","Finanças, curiosidades, história.","Gerar gráfico a partir de CSV e animar."],
+    ["Quiz interativo","\"Você acerta as 5?\" com tempo para responder.","Educação, curiosidades. Muito compartilhado.","Template de pergunta, contagem e resposta."],
+    ["Personagem fixo","Mascote do canal apresenta todos os vídeos.","Cria marca sem rosto.","Consistência de personagem entre vídeos."],
+    ["Bastidores do app","Gravação de tela do Video Creator criando um vídeo, acelerada e narrada.","Canal de bastidores; vende o app.","Gravar a própria sessão e virar vídeo automaticamente."],
+    ["Resultado do canal","Print das métricas do canal com narração do que funcionou.","Prova social para o ecossistema.","Importar métricas e gerar cenas com os números."],
+    ["Carrossel a partir do vídeo","Cada cena chave vira uma imagem do carrossel com texto.","Instagram; dobra o alcance de cada roteiro.","Exportar quadros e texto do roteiro em 1080×1350."]
+  ];
+  document.getElementById("fmts").innerHTML=F.map(function(f){return '<div class="card"><h3>'+f[0]+'</h3><p>'+f[1]+'</p><p><span class="tag">Serve para</span> '+f[2]+'</p><p><span class="tag app">No app</span> '+f[3]+'</p></div>'}).join("");
+
+  /* ---------- Funcionalidades ---------- */
+  var FT=[
+    ["Alta","Pesquisa de nicho","Digita o nicho e o app devolve subnichos, públicos, 100 ideias por pilar, formas de monetizar e a pontuação de 6 critérios desta página.","Prompt estruturado no modelo que o app já usa; dados de concorrência colados ou importados por CSV."],
+    ["Alta","Kit de canal e clonar","Cada canal é um arquivo (nicho, persona, pilares, voz, visual, chamadas). Botão \"duplicar canal\" muda só o que for diferente.","Arquivo YAML ou JSON por canal; o gerador lê o kit antes de cada vídeo."],
+    ["Alta","Calendário automático de 90 dias","Gera o calendário do trimestre seguindo os pilares e o ritmo de cada mês.","Regra simples: pilares × frequência, preenchido com o banco de ideias."],
+    ["Alta","Reaproveitamento em imagem","Um roteiro vira vídeo curto, vídeo longo, carrossel e post estático.","Exportar cenas como imagens com o texto do roteiro."],
+    ["Média","Variações de gancho e capa","Gera 3 ganchos, 3 títulos e 3 capas por vídeo para testar.","Mesmo roteiro, abertura trocada; registrar qual venceu."],
+    ["Média","Painel de métricas por CSV","Importa o CSV do YouTube Studio e do Instagram e mostra todos os canais lado a lado.","Leitura de CSV local; sem API."],
+    ["Média","Ligação com a Biblioteca de Estratégias","Escolhe a estratégia e o funil, e o app sugere os formatos e chamadas de cada etapa.","Ler o library.json da biblioteca."],
+    ["Média","Modo bastidores","Grava a própria tela do app durante a criação e monta o vídeo de bastidores.","Gravação de tela + legenda automática; serve ao canal que vende o app."]
+  ];
+  document.getElementById("feats").innerHTML=FT.map(function(f){return '<div class="card"><span class="tag '+(f[0]==="Alta"?"app":"")+'">Prioridade '+f[0]+'</span><h3>'+f[1]+'</h3><p>'+f[2]+'</p><p><b>Como implementar:</b> '+f[3]+'</p></div>'}).join("");
+
+  /* ---------- Checklists + progresso ---------- */
+  var ck=store.get("fl-check",{});
+  var boxes=[].slice.call(document.querySelectorAll(".check input[type=checkbox]"));
+  boxes.forEach(function(b){b.checked=!!ck[b.id]});
+  function progress(){
+    var done=boxes.filter(function(b){return b.checked}).length;
+    document.getElementById("progTxt").textContent=done+" de "+boxes.length+" tarefas";
+    document.getElementById("progBar").style.width=(boxes.length?done/boxes.length*100:0)+"%";
+    STATIONS.forEach(function(s){var sec=document.getElementById(s[0]);var bs=[].slice.call(sec.querySelectorAll(".check input"));var a=rail.querySelector('[data-id="'+s[0]+'"]');a.classList.toggle("done",bs.length>0&&bs.every(function(b){return b.checked}))});
+  }
+  document.addEventListener("change",function(e){if(e.target.closest(".check")){ck[e.target.id]=e.target.checked;store.set("fl-check",ck);progress()}});
+  progress();
+  document.getElementById("reset").addEventListener("click",function(){ck={};pm={};ans={};boxes.forEach(function(b){b.checked=false});[].slice.call(document.querySelectorAll("#pipe input,#qs input")).forEach(function(b){b.checked=false});store.set("fl-check",ck);store.set("fl-pipe",pm);store.set("fl-quiz",ans);progress();drawQuiz()});
+
+  /* ---------- Estação ativa ---------- */
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){[].slice.call(rail.querySelectorAll("a")).forEach(function(a){a.classList.toggle("on",a.dataset.id===en.target.id)});var on=rail.querySelector("a.on");if(on&&window.innerWidth<=860){rail.scrollLeft=Math.max(0,on.parentNode.offsetLeft-40)}}})},{rootMargin:"-30% 0px -60% 0px"});
+    STATIONS.forEach(function(s){io.observe(document.getElementById(s[0]))});
+  }
+})();
+</script>

@@ -38,11 +38,12 @@ O que vier preenchido aparece pronto no app; o que faltar, o app completa com a 
 
 - De 3 a 6 cenas; cada NARRAÇÃO com 12 a 30 palavras; vídeo total de 30 a 60 segundos.
 - A cena 01 é o gancho (pergunta ou afirmação que prende); a última é a conclusão (lição prática).
-- MODO de cada cena (só estes três):
+- MODO de cada cena (só estes quatro):
   - FALA: o personagem fala olhando para a câmera. A imagem precisa de um rosto humano realista em destaque,
     de frente ou 3/4, boca visível, nada na frente do rosto. Use na abertura e no fechamento.
   - DOLLY: cena que ilustra a ideia, sem ninguém falando, com primeiro plano, meio e fundo bem separados.
   - ZOOM: imagem plana (símbolo, objeto isolado), sem texto escrito.
+  - ANIMACAO: animação em tela cheia, sem personagem e sem imagem. Veja "Cenas de animação em tela cheia".
 - IMAGEM: uma frase descrevendo o que aparece na cena.
 - BUSCA: só nas cenas DOLLY e ZOOM, 2 a 4 palavras-chave em inglês (ex.: running sunrise road). O app usa essas
   palavras para buscar a foto da cena no Pixabay.
@@ -86,6 +87,89 @@ Exemplo de cena com marcação:
 CENA 01 | MODO: FALA
 NARRAÇÃO: Você acredita que as pessoas mostram quem realmente são? Maquiavel já alertava: [CARDS: Olhos: o que parece | Mãos: o que a pessoa faz] os homens julgam mais pelos olhos do que pelas mãos.
 IMAGEM: Maquiavel em seu escritório renascentista, olhando para a câmera.
+```
+
+## Cenas de animação em tela cheia
+
+Uma cena pode mostrar uma animação em tela cheia, sem personagem. Use MODO: ANIMACAO e escreva a linha ANIMACAO: nome depois da narração, com os campos da animação nas linhas de baixo. A voz e a legenda continuam normais.
+
+```text
+CENA 03 | MODO: ANIMACAO
+NARRAÇÃO: Primeiro a pessoa deixa o contato. Em troca, recebe a isca. Depois lê seus e-mails por uma semana. E só então compra, já confiando em você.
+IMAGEM: animação da jornada do cliente
+ANIMACAO: jornada
+titulo: O caminho do cliente
+etapa: PORTA | deixa o contato
+etapa: PRESENTE | recebe a isca
+etapa: ENVELOPE | lê seus e-mails
+etapa: CARRINHO | compra
+```
+
+| ANIMACAO | Campos | Quando usar |
+|---|---|---|
+| contador | numero, rotulo, titulo, canto, antes, depois, pontos (sim/nao) | Um número importante, que sobe do zero. `pontos` desenha uma grade de pontos, só até 500. |
+| tabela | titulo, canto, colunas "A \| B \| C", linha (repetir) "a \| b \| c" | Lista ou comparação. A última coluna vira etiqueta colorida. Até 6 linhas. |
+| console | titulo, canto, item (repetir) "calls = 0", meses (sim/nao), cor | Tela escura com contadores, para mostrar ausência ou status. |
+| contato | titulo, canto, nome, detalhe, aviso, borrar (sim/nao) | Um contato sendo esquecido: o nome vai ficando borrado. |
+| termostato | titulo, canto, de, para, alvo, aviso | Temperatura mudando. Use `de` e `para` só com números. |
+| busca | titulo, termo, resultado (repetir) "Nome \| detalhe", escolhido (1, 2, 3...), selo, aviso | Busca na internet, com um resultado escolhido no final. |
+| barras | titulo, canto, barra (repetir) "Rótulo \| valor \| cor" | Comparar valores. `valor` é um número. |
+| produto | imagem, info (repetir) "chave \| valor \| cor", rotulo | Mostrar um produto. Envie a imagem junto com o roteiro. |
+| comentario | usuario, palavra, resposta, autor | A chamada: a palavra sendo digitada nos comentários. |
+| mapa | numero, titulo, canto, rotulo | Área acendendo casas. `numero` vai até 400. |
+| imagem | arquivo, legenda | Uma imagem enviada junto com o roteiro. |
+| celular | titulo, hora, canto, notificacao (repetir) "App \| texto", msg (repetir) "eu \| texto" ou "eles \| texto" | Celular com notificações ou conversa. |
+| mapapins | titulo, canto, pino (repetir) "Nome \| status" (ok, check, off), foco, rotulo | Mapa com pinos e nomes; dá zoom no `foco`. |
+| painel | titulo, canto, total, alerta (repetir) "Nome \| sinal", observar, normal | Central com muitos sistemas acendendo. `total` vai até 100. |
+| linha | titulo, canto, ponto (repetir) "rótulo \| valor", limite, marcar | Gráfico de linha que se desenha. |
+| linhadotempo | titulo, canto, evento (repetir) "data \| texto \| status" | O que aconteceu, em ordem. Status: ok, check, off. |
+| comparar | esquerda, direita, item (repetir) "texto esquerda \| texto direita", vence (esquerda ou direita) | Antes e depois em tela dividida. |
+| medidor | titulo, valor, min, max, faixa (repetir) "de \| até \| cor", unidade, rotulo | Ponteiro de manômetro parando num valor. |
+| checklist | titulo, canto, item (repetir) "texto \| ok ou nao" | Itens sendo marcados. |
+| relatorio | titulo, para, secao (repetir) "Título \| linha 1 ; linha 2", rodape | Documento que se abre. |
+| formulario | titulo, campo (repetir) "Rótulo \| valor", botao | Formulário sendo preenchido e enviado. |
+| fluxo | titulo, etapa (repetir) "ícone \| texto", ativo (número da etapa) | Etapas ligadas por setas. Ícones: sinal, alerta, escritorio, telefone, tecnico, casa, relatorio, check. |
+| guardian3d | imagem, sinal (repetir) "nome \| valor", rotulo | Produto girando com sinais saindo. Sem `imagem`, usa guardian.png. |
+| jornada | titulo, etapa (repetir, de 2 a 5) "OBJETO \| rótulo" | Um bonequinho atravessa uma casa em corte e cada cômodo acende quando o rótulo é falado. Para funil, passo a passo e jornada do cliente. |
+| ano-futuro | de, para, rotulo, cor | Animação da biblioteca do app. |
+| balde | titulo, entra, sai, nivel, furos (sim/nao), cor | Animação da biblioteca do app. |
+| bola-de-neve | titulo, canto, anos, por_ano, rotulo | Animação da biblioteca do app. |
+| calendario | titulo, ano, marcar (repetir) "Mes | Animação da biblioteca do app. |
+| corrente | esquerda, direita, quebrar (sim/nao), rotulo | Animação da biblioteca do app. |
+| corrida | titulo, canto, a, b, ano (repetir) "rótulo | Animação da biblioteca do app. |
+| funil-abandono | titulo, motivo, recuperacao | Animação da biblioteca do app. |
+| funil-bifurcacao | titulo, pergunta, erro, acerto | Animação da biblioteca do app. |
+| funil-escada | titulo, etapa (repetir), cor | Animação da biblioteca do app. |
+| indicacao | titulo, niveis (2 a 4), rotulo, cor | Animação da biblioteca do app. |
+| ondas | valor, rotulo, cor | Animação da biblioteca do app. |
+| trilha | titulo, casa, total, trilha, objeto, etapa, erro, acerto, virada, visao, final | Animação da biblioteca do app. |
+
+- É opcional. No máximo 2 cenas de animação por vídeo, no meio do vídeo, para explicar um processo ou um dado.
+- Cada campo fica em uma linha, no formato chave: valor, logo abaixo de ANIMACAO:, sem linha em branco entre eles. Campo marcado como (repetir): escreva a mesma chave em várias linhas.
+- Essa cena não precisa de imagem nem de BUSCA.
+- Na animação jornada, a fala tem de 20 a 45 palavras e de 2 a 5 etapas no formato OBJETO | rótulo. O rótulo tem de 1 a 4 palavras, ditas na fala e na mesma ordem. Escreva uma frase curta para cada etapa ("Primeiro... Depois... No fim...").
+- Objetos da jornada: PORTA (contato, entrada), PRESENTE (isca, brinde), ENVELOPE (e-mails), TELA (vídeo, VSL, aula), PALCO (webinário, live), CALENDARIO (data, lançamento), RELOGIO (prazo, urgência), CARRINHO (oferta, compra), CHAVE (acesso), ESCADA (próximo nível, upsell), CORACAO (fidelização, indicação), TROFEU (resultado), TELEFONE (ligação, WhatsApp), CASA (casa do cliente).
+- Atalho só para a jornada: escreva [JORNADA: título | OBJETO: rótulo | OBJETO: rótulo] dentro da fala. O app faz o resto.
+- Se a animação usar uma imagem (campos imagem ou arquivo), envie o arquivo junto com o roteiro.
+- Numa cena de animação não use as marcações de Smart Motion. Só funciona no formato vertical 9:16.
+- Se precisar de uma animação que não está na tabela, nunca coloque o código no roteiro. Antes dos roteiros, entregue um bloco de código com o arquivo animacoes-novas.txt, no formato abaixo, e escreva: "Antes de subir os roteiros, suba o arquivo animacoes-novas.txt em Animações, confira o vídeo de exemplo e só depois suba os roteiros." Só pode usar React, useCurrentFrame, useVideoConfig, interpolate, spring, Easing, random, Img, staticFile, AbsoluteFill, Sequence, clamp, one, many, cells, colorOf, tagColor, font e mono, sem imports, fetch, require, Math.random nem animação CSS. O bloco EXEMPLO traz os valores dos campos para o vídeo de teste.
+
+Arquivo de animações novas:
+
+```text
+CODIGO: nome-da-animacao
+// campos: rotulo, cor
+// rodizio: nao
+export default function Cena({p, dur, tema}) {
+  const f = useCurrentFrame();
+  const k = interpolate(f, [0, dur], [0.9, 1.1], clamp);
+  return <div style={{position: 'absolute', top: 700, width: '100%', textAlign: 'center', fontSize: 120, color: colorOf(one(p, 'cor'), tema.blue), transform: `scale(${k})`}}>{one(p, 'rotulo')}</div>;
+}
+FIM_CODIGO
+EXEMPLO
+rotulo: 72°
+cor: azul
+FIM_EXEMPLO
 ```
 
 ## Modelo

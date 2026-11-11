@@ -449,3 +449,7 @@ main { padding-bottom: 110px; }
 .mod-card { padding: 10px 12px; }
 
 .modelo-info a:not(.btn) { color: #7fd4ff; }
+
+/* logo image (Social Video Creator) */
+.brand img { height: 36px; width: auto; display: block; }
+.logo-img { width: min(500px, 85%); height: auto; display: block; margin: 0 auto; }

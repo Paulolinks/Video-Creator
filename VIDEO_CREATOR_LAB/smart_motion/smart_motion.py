@@ -595,11 +595,9 @@ def aplicar_com_fallback(video, ass, config, out, **kw):
 
 
 # ---------------------------------------------------------------- integracao com o app (marcacoes no roteiro)
-from marcacoes import NOMES  # noqa: E402
+from marcacoes import NOMES, bate as _bate, chaves as _chaves  # noqa: E402
 
 _FIM_FRASE = re.compile(r"[.!?…]['\")\]]*$")
-_STOP = {"PARA", "COMO", "MAIS", "QUE", "COM", "UMA", "ESSE", "ESSA", "ISSO", "ESTE", "ESTA", "SEUS", "SUAS",
-         "SOBRE", "THE", "AND", "WITH", "THAT", "THIS", "YOUR", "FROM", "INTO", "MUITO", "PELO", "PELA", "NAO"}
 DURACAO = {"counter": (2.5, 6), "keyword": (2.0, 5), "bars": (3.0, 10), "flow": (3.0, 12), "cards": (3.0, 10)}
 
 
@@ -619,14 +617,6 @@ def zona(tpl, modelo):
         return None
     h = min(y1 - y0, 420)
     return {"x": 80, "y": y0 + (y1 - y0 - h) // 2, "width": W - 160, "height": h}
-
-
-def _chaves(texto):
-    return {norm(w) for w in texto.split() if len(norm(w)) >= 4 and norm(w) not in _STOP}
-
-
-def _bate(n, chave):
-    return n == chave or (len(chave) >= 5 and len(n) >= 5 and n[:5] == chave[:5])
 
 
 def _achar_item(ws, ini, chaves):

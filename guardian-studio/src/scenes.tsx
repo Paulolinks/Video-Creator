@@ -1,6 +1,11 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Img, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig, Easing, random} from 'remotion';
-import {C, font, mono, clamp, Params, one, many, cells, colorOf, tagColor} from './theme';
+import {C, T, font, mono, clamp, Params, one, many, cells, colorOf, tagColor} from './theme';
+import {Desenho} from './Desenho';
+import {CUSTOM} from './custom';
+
+// Qual dos jeitos de entrar esta fala usa (0 = o original); vem do rodízio.
+export const VarCtx = React.createContext(0);
 
 type P = {p: Params; dur: number};
 const TOP = 640;
@@ -8,16 +13,20 @@ const TOP = 640;
 export const Card: React.FC<{top?: number; dark?: boolean; title?: string; right?: string; children: React.ReactNode; delay?: number}> = ({top = TOP, dark, title, right, children, delay = 6}) => {
   const f = useCurrentFrame(); const {fps} = useVideoConfig();
   const s = spring({frame: f - delay, fps, config: {damping: 16}});
-  return <div style={{position: 'absolute', top, left: 90, right: 90, background: dark ? C.dark : C.card, borderRadius: 26, boxShadow: '0 30px 60px -20px #0B0F1930, 0 2px 0 #0B0F1908', border: `2px solid ${dark ? C.dark2 : C.line}`, overflow: 'hidden', opacity: s, transform: `translateY(${(1 - s) * 60}px) scale(${0.94 + 0.06 * s})`}}>
+  const v = useContext(VarCtx);
+  const entra = v === 1 ? `translateX(${(1 - s) * 340}px)` : v === 2 ? `translateY(${(1 - s) * -260}px)` : `translateY(${(1 - s) * 60}px) scale(${0.94 + 0.06 * s})`;
+  const linha = dark ? C.dark2 : C.line;
+  const borda = T.pulso ? `${C.orange}${Math.round(120 + 90 * (0.5 + 0.5 * Math.sin(f / 9))).toString(16).padStart(2, '0')}` : linha;
+  return <div style={{position: 'absolute', top, left: 90, right: 90, background: dark ? C.dark : C.card, borderRadius: T.raio, boxShadow: T.sombra, border: `2px solid ${borda}`, overflow: 'hidden', opacity: s, transform: entra}}>
     {title !== undefined && <div style={{height: 70, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, padding: '0 30px', borderBottom: `2px solid ${dark ? C.dark2 : C.line}`, fontFamily: mono, fontSize: 24, color: dark ? '#9AA6C0' : C.mute, whiteSpace: 'nowrap'}}>
-      <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}><span style={{color: C.red}}>●</span> <span style={{color: C.amber}}>●</span> <span style={{color: C.green}}>●</span>&nbsp;&nbsp;{title}</span><span>{right}</span>
+      <span style={{overflow: 'hidden', textOverflow: 'ellipsis'}}>{T.barra && <><span style={{color: C.red}}>●</span> <span style={{color: C.amber}}>●</span> <span style={{color: C.green}}>●</span>&nbsp;&nbsp;</>}{title}</span><span>{right}</span>
     </div>}
     <div style={{padding: 34}}>{children}</div>
   </div>;
 };
 export const Tag: React.FC<{c: string; children: React.ReactNode}> = ({c, children}) => <span style={{fontFamily: mono, fontSize: 22, color: c, background: c + '1A', padding: '6px 14px', borderRadius: 8, fontWeight: 700, whiteSpace: 'nowrap'}}>{children}</span>;
-const fadeIn = (f: number, a: number, b: number) => interpolate(f, [a, b], [0, 1], clamp);
-const num = (s: string, d: number) => { const n = parseFloat((s || '').replace(/[^0-9.\-]/g, '')); return isNaN(n) ? d : n; };
+export const fadeIn = (f: number, a: number, b: number) => interpolate(f, [a, b], [0, 1], clamp);
+export const num = (s: string, d: number) => { const n = parseFloat((s || '').replace(/[^0-9.\-]/g, '')); return isNaN(n) ? d : n; };
 
 // contador: numero, rotulo, titulo, canto, pontos (sim/nao)
 const Contador: React.FC<P> = ({p}) => {
@@ -26,9 +35,12 @@ const Contador: React.FC<P> = ({p}) => {
   const v = Math.round(interpolate(f, [8, 55], [0, n], {...clamp, easing: Easing.out(Easing.cubic)}));
   const dots = one(p, 'pontos', 'sim').toLowerCase() !== 'nao' && n <= 500;
   const pre = one(p, 'antes', ''), pos = one(p, 'depois', '');
+  const jeito = useContext(VarCtx);
+  const pop = jeito === 2 ? 1 + interpolate(f, [48, 58, 70], [0, 0.14, 0], clamp) : 1;
+  const rolo = jeito === 1 ? v.toLocaleString('en-US').split('').map((d, i) => /\d/.test(d) ? <span key={i} style={{display: 'inline-block', transform: `translateY(${f < 50 ? Math.sin(f * 2 + i) * 14 : 0}px)`, filter: f < 50 ? 'blur(2px)' : undefined}}>{d}</span> : d) : v.toLocaleString('en-US');
   return <Card title={one(p, 'titulo', 'total')} right={one(p, 'canto', '')}>
     <div style={{display: 'flex', alignItems: 'baseline', gap: 20, flexWrap: 'wrap'}}>
-      <div style={{fontFamily: font, fontWeight: 900, fontSize: 170, color: C.ink, letterSpacing: -8, lineHeight: 1}}>{pre}{v.toLocaleString('en-US')}{pos}</div>
+      <div style={{fontFamily: font, fontWeight: 900, fontSize: 170, color: C.ink, letterSpacing: -8, lineHeight: 1, transform: `scale(${pop})`, transformOrigin: 'left center'}}>{pre}{rolo}{pos}</div>
       <div style={{fontFamily: font, fontSize: 40, color: C.mute}}>{one(p, 'rotulo', '')}</div>
     </div>
     {dots && <div style={{display: 'grid', gridTemplateColumns: 'repeat(25, 1fr)', gap: 8, marginTop: 30}}>
@@ -43,11 +55,13 @@ const Tabela: React.FC<P> = ({p}) => {
   const cols = cells(one(p, 'colunas', 'Name | Status'));
   const rows = many(p, 'linha').map(cells);
   const fl = (i: number) => (i === 0 ? 1.4 : 1);
+  const jeito = useContext(VarCtx);
   return <Card title={one(p, 'titulo', 'list')} right={one(p, 'canto', '')}>
     <div style={{display: 'flex', fontFamily: mono, fontSize: 22, color: C.mute, paddingBottom: 14, borderBottom: `2px solid ${C.line}`}}>{cols.map((c, i) => <span key={i} style={{flex: fl(i), textAlign: i === cols.length - 1 && i > 0 ? 'right' : 'left'}}>{c.toUpperCase()}</span>)}</div>
     {rows.map((r, i) => {
       const o = fadeIn(f, 10 + i * 5, 18 + i * 5); const q = fadeIn(f, 40 + i * 4, 47 + i * 4);
-      return <div key={i} style={{display: 'flex', alignItems: 'center', height: 86, borderBottom: `2px solid ${C.line}`, opacity: o, fontFamily: font, fontSize: 32}}>
+      const mov = jeito === 1 ? `translateX(${(1 - o) * -120}px)` : jeito === 2 ? `translateY(${(1 - o) * -70}px)` : undefined;
+      return <div key={i} style={{display: 'flex', alignItems: 'center', height: 86, borderBottom: `2px solid ${C.line}`, opacity: o, transform: mov, fontFamily: font, fontSize: 32}}>
         {r.map((c, j) => j === r.length - 1 && j > 0
           ? <span key={j} style={{flex: fl(j), textAlign: 'right', opacity: q}}><Tag c={tagColor(c)}>{c}</Tag></span>
           : <span key={j} style={{flex: fl(j), fontWeight: j === 0 ? 600 : 400, color: j === 0 ? C.ink : C.mute}}>{c}</span>)}
@@ -60,10 +74,12 @@ const Tabela: React.FC<P> = ({p}) => {
 const Console: React.FC<P> = ({p}) => {
   const f = useCurrentFrame();
   const items = many(p, 'item').map(s => s.split('=').map(x => x.trim()));
+  const jeito = useContext(VarCtx);
+  const escreve = (txt: string, i: number) => jeito === 2 ? txt.slice(0, Math.max(0, Math.floor((f - 8 - i * 8) / 1.2))) : txt;
   const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
   return <Card dark title={one(p, 'titulo', 'console')} right={one(p, 'canto', '')}>
     {items.map(([k, v], i) => <div key={i} style={{display: 'flex', justifyContent: 'space-between', fontFamily: mono, fontSize: 36, color: '#C9D2E6', padding: '16px 0', borderBottom: '2px solid #1E2944', opacity: fadeIn(f, 8 + i * 8, 16 + i * 8)}}>
-      <span>&gt; {k}</span><span style={{color: colorOf(one(p, 'cor', ''), C.orange), fontWeight: 700}}>{v ?? ''}</span></div>)}
+      <span>&gt; {escreve(k, i)}</span><span style={{color: colorOf(one(p, 'cor', ''), C.orange), fontWeight: 700}}>{escreve(v ?? '', i + 1)}</span></div>)}
     {one(p, 'meses', 'nao').toLowerCase() === 'sim' && <div style={{display: 'flex', gap: 10, marginTop: 40}}>{months.map((m, i) => <div key={m} style={{flex: 1, textAlign: 'center', opacity: fadeIn(f, 40 + i * 3, 46 + i * 3)}}>
       <div style={{height: 70, borderRadius: 8, background: i === 0 ? C.blue : '#1E2944'}} />
       <div style={{fontFamily: mono, fontSize: 18, color: '#7B88A8', marginTop: 8}}>{m}</div></div>)}</div>}
@@ -79,7 +95,7 @@ const Contato: React.FC<P> = ({p}) => {
   const ini = nome.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   return <Card title={one(p, 'titulo', 'contacts')} right={one(p, 'canto', '')}>
     <div style={{display: 'flex', alignItems: 'center', gap: 30}}>
-      <div style={{width: 130, height: 130, borderRadius: 130, background: C.blue2, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: font, fontWeight: 800, fontSize: 56, color: C.card, filter: `blur(${blur}px)`, flexShrink: 0}}>{ini}</div>
+      <div style={{width: 130, height: 130, borderRadius: 130, background: C.blue2, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: font, fontWeight: 800, fontSize: 56, color: C.onAccent, filter: `blur(${blur}px)`, flexShrink: 0}}>{ini}</div>
       <div style={{filter: `blur(${blur}px)`, opacity: doBlur ? interpolate(f, [20, 80], [1, 0.4], clamp) : 1}}>
         <div style={{fontFamily: font, fontWeight: 800, fontSize: 56, color: C.ink}}>{nome}</div>
         <div style={{fontFamily: font, fontSize: 34, color: C.mute}}>{one(p, 'detalhe', '')}</div>
@@ -137,9 +153,11 @@ const Barras: React.FC<P> = ({p, dur}) => {
   const bars = many(p, 'barra').map(cells);
   const max = Math.max(1, ...bars.map(b => num(b[1], 1)));
   const step = Math.min(50, (dur - 30) / Math.max(1, bars.length));
+  const jeito = useContext(VarCtx); const {fps} = useVideoConfig();
+  if (jeito === 1) return <Card title={one(p, 'titulo', 'chart')} right={one(p, 'canto', '')}>{bars.map(([l, v, c], i) => { const k = interpolate(f, [10 + i * step, 40 + i * step], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)}); return <div key={i} style={{marginBottom: 30}}><div style={{fontFamily: font, fontSize: 34, fontWeight: 700, color: C.ink, marginBottom: 10}}>{l}</div><div style={{height: 56, width: `${Math.max(2, k * (num(v, 1) / max) * 100)}%`, background: colorOf(c, i % 2 ? C.orange : C.blue), borderRadius: 12}} /></div>; })}</Card>;
   return <Card title={one(p, 'titulo', 'chart')} right={one(p, 'canto', '')}>
     <div style={{display: 'flex', gap: 30}}>{bars.map(([l, v, c], i) => {
-      const k = interpolate(f, [10 + i * step, 40 + i * step], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
+      const k = jeito === 2 ? spring({frame: f - (10 + i * step), fps, config: {damping: 9, stiffness: 120}}) : interpolate(f, [10 + i * step, 40 + i * step], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
       const col = colorOf(c, i % 2 ? C.orange : C.blue);
       return <div key={i} style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18}}>
         <div style={{height: 440, width: '70%', display: 'flex', alignItems: 'flex-end'}}><div style={{width: '100%', height: `${k * (num(v, 1) / max) * 100}%`, background: col, borderRadius: 14}} /></div>
@@ -182,7 +200,7 @@ const Comentario: React.FC<P> = ({p}) => {
     </div>
     {one(p, 'resposta') && <div style={{display: 'flex', gap: 22, alignItems: 'flex-start', marginTop: 34, marginLeft: 100, opacity: reply, transform: `translateY(${(1 - reply) * 20}px)`}}>
       <div style={{width: 64, height: 64, borderRadius: 64, background: C.blue, flexShrink: 0}} />
-      <div style={{background: '#F1F4FA', borderRadius: 20, padding: '18px 26px'}}><div style={{fontFamily: font, fontSize: 26, color: C.mute}}>{one(p, 'autor', 'you')}</div>
+      <div style={{background: C.soft, borderRadius: 20, padding: '18px 26px'}}><div style={{fontFamily: font, fontSize: 26, color: C.mute}}>{one(p, 'autor', 'you')}</div>
         <div style={{fontFamily: font, fontSize: 36, color: C.ink}}>{one(p, 'resposta')}</div></div>
     </div>}
   </Card>;
@@ -198,13 +216,13 @@ const Mapa: React.FC<P> = ({p, dur}) => {
   const order = Array.from({length: cols * rows}, (_, i) => i).sort((a, b) => random('m' + a) - random('m' + b)).slice(0, n);
   const rank = new Map(order.map((v, i) => [v, i]));
   return <Card title={one(p, 'titulo', 'service area')} right={one(p, 'canto', '')}>
-    <div style={{height: 820, overflow: 'hidden', position: 'relative', borderRadius: 16, background: '#F4F6FA'}}>
+    <div style={{height: 820, overflow: 'hidden', position: 'relative', borderRadius: 16, background: C.soft}}>
       <div style={{position: 'absolute', left: '50%', top: '50%', width: cols * cell, height: rows * cell, marginLeft: -cols * cell / 2, marginTop: -rows * cell / 2, transform: `scale(${zoom})`}}>
         {Array.from({length: cols * rows}).map((_, i) => {
           const x = i % cols, y = Math.floor(i / cols);
           const street = x % 5 === 4 || y % 4 === 3;
           const r = rank.get(i); const on = r !== undefined && r < lit;
-          return <div key={i} style={{position: 'absolute', left: x * cell, top: y * cell, width: cell - 6, height: cell - 6, borderRadius: 5, background: street ? 'transparent' : on ? C.blue : '#DDE3EE', boxShadow: on ? `0 0 12px ${C.blue}` : 'none'}} />;
+          return <div key={i} style={{position: 'absolute', left: x * cell, top: y * cell, width: cell - 6, height: cell - 6, borderRadius: 5, background: street ? 'transparent' : on ? C.blue : C.soft2, boxShadow: on ? `0 0 12px ${C.blue}` : 'none'}} />;
         })}
       </div>
       <div style={{position: 'absolute', left: 24, bottom: 24, background: C.card, borderRadius: 16, padding: '14px 24px', fontFamily: font, fontSize: 34, fontWeight: 800, color: C.ink, boxShadow: '0 8px 20px #0002'}}>
@@ -224,9 +242,12 @@ const Imagem: React.FC<P> = ({p}) => {
 };
 
 // frase: só o texto grande (opcional: numero grande no centro)
-const Frase: React.FC<P> = ({p}) => {
+const Frase: React.FC<P> = ({p, dur}) => {
   const f = useCurrentFrame();
   const big = one(p, 'grande');
+  const desenho = one(p, '_desenho');
+  if (!big && desenho.startsWith('custom:')) { const S = CUSTOM[desenho.slice(7)]; return S ? <S p={p} dur={dur} tema={C} /> : null; }
+  if (!big && desenho) return <div style={{position: 'absolute', top: 820, width: '100%', display: 'flex', justifyContent: 'center'}}><Desenho tipo={desenho} /></div>;
   if (!big) return null;
   const s = fadeIn(f, 8, 20);
   return <div style={{position: 'absolute', top: 760, width: '100%', textAlign: 'center', fontFamily: font, fontWeight: 900, fontSize: 260, letterSpacing: -10, color: colorOf(one(p, 'cor'), C.blue), opacity: s, transform: `scale(${0.8 + 0.2 * s})`}}>{big}</div>;

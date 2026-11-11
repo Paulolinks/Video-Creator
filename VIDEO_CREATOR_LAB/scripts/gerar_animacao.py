@@ -23,9 +23,11 @@ if __name__ == "__main__":
         shutil.rmtree(old, ignore_errors=True)
     job = "vc_" + hashlib.sha1(str(proj).encode()).hexdigest()[:10]
     mus = tpl.get("musica") or {}
+    for old in out.glob("*.mp4"):  # a redo or a cancelled render: the app takes the .mp4 it finds here
+        old.unlink()
     env = {**os.environ, "PYTHONIOENCODING": "utf-8", "GUARDIAN_ROTEIRO": str(proj / "roteiro.txt"),
-           "GUARDIAN_SAIDA": str(out / f"{proj.name}.mp4"), "GUARDIAN_VOZ": tpl["voz_personagem"],
-           "GUARDIAN_IDIOMA": tpl.get("idioma", "pt")}
+           "GUARDIAN_SAIDA": str(out / f"{tpl.get('nome_arquivo') or proj.name}.mp4"), "GUARDIAN_CAPA": str(out / "capa.png"),
+           "GUARDIAN_VOZ": tpl["voz_personagem"], "GUARDIAN_IDIOMA": tpl.get("idioma", "pt")}
     if mus.get("arquivo"):
         env.update(GUARDIAN_MUSICA=mus["arquivo"], GUARDIAN_VOLUME=str(mus.get("volume", 0.1)))
     if tpl.get("logo"):
